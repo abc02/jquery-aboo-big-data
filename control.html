@@ -24,10 +24,12 @@
     <main class="row" style="flex: 1; align-items: stretch;">
       <div class="slider bg-dark relative row" style="align-items: stretch;">
         <div class="slider-nav border-right column pl20 pr20" style="justify-content: flex-start;">
-          <button class="slider-home-button color-bule mt30 mb30 pointer">
-            <img src="/assets/home.png" alt="home" style="width: 38px; height: 30px;">
-            <h4 class="mt10 mb10">首页</h4>
-          </button>
+          <a href="/index.html" traget="_self">
+            <button class="slider-home-button color-bule mt30 mb30 pointer">
+              <img src="/assets/home.png" alt="home" style="width: 38px; height: 30px;">
+              <h4 class="mt10 mb10">首页</h4>
+            </button>
+          </a>
           <button class="color-white mb30 pointer">
             <img src="/assets/conctrol.png" alt="conctrol" style="width: 38px; height: 34px;">
             <h4 class="mt10 mb10">控制中心</h4>
@@ -114,25 +116,31 @@
   <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="/js/common.js"></script>
   <script>
-    // 随机向地图添加25个标注
-    var bounds = map.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
-    var lngSpan = Math.abs(sw.lng - ne.lng);
-    var latSpan = Math.abs(ne.lat - sw.lat);
-    for (var i = 0; i < 25; i++) {
-      var point = new BMap.Point(sw.lng + lngSpan * (Math.random() * 0.7), ne.lat - latSpan * (Math.random() * 0.7));
-      addMarker(point);
+    function financial(x) {
+      return Number.parseFloat(x).toFixed(4);
     }
-    // 编写自定义函数,创建标注
-    function addMarker(point) {
-      var myIcon = new BMap.Icon("/assets/positioning.png", new BMap.Size(29, 42));
-      var marker = new BMap.Marker(point, { icon: myIcon });  // 创建标注
-      map.addOverlay(marker);              // 将标注添加到地图中
-      marker.addEventListener('click', function () {
-        location.assign('control.html?' + Qs.stringify(this.getPosition()))
-      })
-    }
+
+    var currentPoint = Qs.parse(location.search.substr(1))
+    var sContent =
+      "<div class='bg-33385e pt10 pb10 pl10 pr10 color-white' style='width: 548px;'><h4 class='row-between mb20'>鞋垫ID：15555648646 <span class='ml10 mr10 row-center'><img class='mr10' width='27' height='15' src='/assets/contro_electricity.png' />80%</span></h4>" +
+      "<div class='row color-drak mb10 p'><p style='flex: 1;'><span class='mr10'>描述</span><span class='color-white'>已激活</span></p> <p style='flex: 1;'><span class='mr10'>定位类型</span><span class='color-white'>GPS</span></p></div>" +
+      "<div class='row color-drak mb10 p'><p style='flex: 1;'><span class='mr10'>经纬度</span><span class='color-white'>" + financial(currentPoint.lng) + " , " + financial(currentPoint.lat) + "</span></p> <p style='flex: 1;'><span class='mr10'>停止时间</span<<span class='color-white'>2018-08-09 12:30:31</span></p></div>" +
+      "<div class='row color-drak mb20 p'><p style='flex: 1;'><span class='mr10'>位置</span><span class='color-white'>温州市鹿城区昆仑路双屿派出所东72米</span></p></div>" +
+      "<div class='row-center'>" +
+      "<button class='ml10 mr10 bg-bule button border-radius-small row-center' style='padding: 4px;'><img width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>" +
+      "<button class='ml10 mr10 bg-bule button border-radius-small row-center' style='padding: 4px;'><img width='14' height='17' src='/assets/contro_data.png' />资料</button>" +
+      "<button class='ml10 mr10 bg-bule button border-radius-small row-center' style='padding: 4px;'><img width='12' height='18' src='/assets/contro_instruction.png' />指令</button>" +
+      "<button class='ml10 mr10 bg-bule button border-radius-small row-center' style='padding: 4px;'><img width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>" +
+      "</div>" +
+      "</div>";
+    // 百度地图API功能
+    var point = new BMap.Point(parseFloat(currentPoint.lng), parseFloat(currentPoint.lat));
+    var myIcon = new BMap.Icon("/assets/positioning.png", new BMap.Size(29, 42));
+    var marker = new BMap.Marker(point, { icon: myIcon });  // 创建标注
+    var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象 
+    map.addOverlay(marker);              // 将标注添加到地图中
+    map.centerAndZoom(point, 12);
+    map.openInfoWindow(infoWindow, point); //开启信息窗口
   </script>
 </body>
 
