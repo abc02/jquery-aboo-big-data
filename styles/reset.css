@@ -1,14 +1,15 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 *:after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 *:before {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
+
 html,
 body,
 div,
@@ -22,48 +23,61 @@ h6,
 p,
 ul,
 li {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-    -ms-touch-action: none;
+  -ms-touch-action: none;
 }
 
 body {
-    *cursor: default;
+  *cursor: default;
 }
+
 li {
-    list-style: none;
+  list-style: none;
 }
 
 a {
-    text-decoration: none;
-    color: inherit;
-    border: none;
-    outline: none;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  outline: none;
 }
+
 button {
-    border-image-width: 0;
-    padding: 0;
-    color: inherit;
-    border-width: 0;
-    background-color: rgba(0, 0, 0, 0);
+  border-image-width: 0;
+  padding: 0;
+  color: inherit;
+  border-width: 0;
+  background-color: rgba(0, 0, 0, 0);
 }
+
 input {
-    border: none;
-    outline: none;
-    background-color: rgba(0, 0, 0, 0);
+  border: none;
+  outline: none;
+  background-color: rgba(0, 0, 0, 0);
 }
-input[type="radio"]{
-    display: none;
+
+input[type="radio"] {
+  display: none;
 }
+
 img {
-    /* display: block; */
-    /* border:none;
+  /* display: block; */
+  /* border:none;
     width: 100%;
     height: 100%; */
 }
-.BMap_top,.BMap_center,.BMap_bottom {
-    background-color: #33385e !important;
+
+.BMap_pop > div, .BMap_pop > img {
+  display: none;
 }
+.BMap_pop div:nth-of-type(9){
+    display: block !important;
+}
+
+/* .BMap_pop .BMap_bubble_content{
+    display: block !important;
+} */

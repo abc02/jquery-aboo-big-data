@@ -170,7 +170,7 @@
   background: #F7F8F9;
 }
 .bg-dark {
-  background-color: #1C2340
+  background-color: #1C2340 !important;
 }
 .bg-f5f5f5 {
   background: #f5f5f5;
@@ -237,6 +237,12 @@
   top:0;
   right:0;
 }
+.absolute-top-center{
+  position: absolute;
+  top:0;
+  left: 50%;
+  transform: translateX(-50%);
+}
 .absolute-middle-right{
   position: absolute;
   top:50%;
@@ -264,7 +270,12 @@
   bottom:0;
   left:0;
 }
-
+.absolute-bottom-center{
+  position: absolute;
+  bottom:0;
+  left:50%;
+  transform: translateX(-50%);
+}
 .fixed-bottom {
   position: fixed ;
   bottom: 0;
