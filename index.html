@@ -10,42 +10,111 @@
     crossorigin="anonymous">
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
+  <style>
+    .table thead th {
+      border-bottom: none;
+    }
+
+    .table td,
+    .table th {
+      border-top: none;
+    }
+
+    .word {
+      width: 320px;
+    }
+
+    /* 强制不换行 */
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    /* 允许单词内断句，首先会尝试挪到下一行，看看下一行的宽度够不够，
+            不够的话就进行单词内的断句 */
+    .breakword {
+      word-wrap: break-word;
+    }
+
+    /* 断句时，不会把长单词挪到下一行，而是直接进行单词内的断句 */
+    .breakAll {
+      word-break: break-all;
+    }
+
+    /* 超出部分显示省略号 */
+    .ellipsis {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  </style>
 </head>
 
 <body>
   <main id="app" class="container-fluid p0 d-flex flex-column" style="min-height:100vh;">
     <header id="header" class="d-flex flex-row bg-dark border-bottom">
       <button type="button" class="btn btn-primary border-right">
-        <img src="/assets/classification.png" title="classification" width="39" height="29"  class="ml-4 mr-4"/>
+        <img src="/assets/classification.png" title="classification" width="39" height="29" class="ml-2 mr-2" />
       </button>
       <div class="d-flex flex-row pt-4 pb-4" style="flex: 1;">
-        <img src="/assets/aboo.png" title="aboo" width="32" height="42" class="ml-4 mr-4"/>
+        <img src="/assets/aboo.png" title="aboo" width="32" height="42" class="ml-4 mr-4" />
         <h3 class="text-white">阿布跑跑大数据中心</h3>
       </div>
     </header>
     <div class="d-flex flex-row" style="flex: 1;">
-      <div class="d-flex flex-row relative">
+      <div class="d-flex flex-row relative slider-dialog-container">
         <nav class="nav d-flex flex-column bg-dark border-right">
-          <a class="nav-link text-light d-flex flex-column align-items-center m-2 home-button" href="javascript:void(0);">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 home-button" href="javascript:void(0);">
             <img src="/assets/home.png" title="home" width="38" height="30"><p class="pt-2">首页</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center m-2" href="/control.html">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/control.html">
             <img src="/assets/conctrol.png" title="conctrol" width="38" height="34"><p class="pt-2">控制中心</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center m-2" href="#">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/trajectory.png" title="trajectory" width="38" height="40"><p class="pt-2">轨迹管理</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center m-2" href="#">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/movement.png" title="movement" width="40" height="38"><p class="pt-2">运动数据</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center m-2" href="#">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/user.png" title="user" width="39" height="39"><p class="pt-2">用户分析</p></a>
         </nav>
+
+        <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
+          <img src="/assets/extension.png" alt="extension">
+        </button>
+      </div>
+      <div id="allmap" class="d-flex relative" style="flex: 1;"></div>
+    </div>
+  </main>
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
+  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script>
+    function financial(x) {
+      return Number.parseFloat(x).toFixed(4);
+    }
+    axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
+    axios.defaults.headers.common['Authorization'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBZG1pbklkIjoiMyIsImV4cCI6MTUzODI4OTgwM30.YkXr2kW9F58d0Nt9EjHLp1NgHoTN4Ykg7iqTHYzMiug'
+    axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+    axios.post('/GetFixingList', Qs.stringify({ adminId: 3 })).then(res => {
+      if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
+      res.data.data.map(createMapMakerPoint)
+      createSliderDialogLists(res.data.data)
+    })
+    function createSliderDialogLists(Array) {
+      // <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15">
+      let tmp = `
         <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px;">
           <h5 class="d-flex justify-content-between text-light m-4">查看设备数量
-            <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15">
           </h5>
           <div class="border-bottom p-4 mb-3">
             <p class="text-muted d-flex align-items-center mb-3">全部显示
-                <button type="button" class="ml-2 btn btn-primary btn-sm">NO</button>
+              <button type="button" class="ml-2 btn btn-primary btn-sm">NO</button>
             </p>
-            <p class="text-muted">当前视野设备数量：<span class="text-white">10</span></p>
+            <p class="text-muted">当前视野设备数量：<span class="text-white">??</span></p>
           </div>
           <div class="p-4 mb-3">
             <div class="row-between border">
@@ -73,10 +142,10 @@
               <p class="text-white">在线</p>
             </li>
             <li class="d-flex align-items-center justify-content-between pt-4 pb-4 pointer border-bottom border-secondary">
-                <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
-                <p class="text-light" style="flex: 1;">1222541561655461</p>
-                <p class="text-white">在线</p>
-              </li>
+              <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
+              <p class="text-light" style="flex: 1;">1222541561655461</p>
+              <p class="text-white">在线</p>
+            </li>
           </ul>
           <nav aria-label="Page navigation">
             <ul class="pagination d-flex justify-content-center">
@@ -98,43 +167,222 @@
             </ul>
           </nav>
         </div>
-        <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
-          <img src="/assets/extension.png" alt="extension">
-        </button>
-      </div>
-      <div id="allmap" class="d-flex" style="flex: 1;"></div>
-    </div>
-  </main>
-  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
-  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
-  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-  <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
-  <script type="text/javascript" src="/js/common.js"></script>
-  <script>
-    // 随机向地图添加25个标注
-    var bounds = map.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
-    var lngSpan = Math.abs(sw.lng - ne.lng);
-    var latSpan = Math.abs(ne.lat - sw.lat);
-    for (var i = 0; i < 25; i++) {
-      var point = new BMap.Point(sw.lng + lngSpan * (Math.random() * 0.7), ne.lat - latSpan * (Math.random() * 0.7));
-      addMarker(point);
+        `
+      $('.slider-dialog-container').append(tmp)
     }
-    // 编写自定义函数,创建标注
-    function addMarker(point) {
-      var myIcon = new BMap.Icon("/assets/positioning.png", new BMap.Size(29, 42));
-      var marker = new BMap.Marker(point, { icon: myIcon });  // 创建标注
+
+    function createMapMakerPoint(item) {
+      let { entity_name, entity_desc, create_time, modify_time, latest_location } = item
+      let tmp = ''
+      let abooIcon = new BMap.Icon("/assets/positioning.png", new BMap.Size(29, 42));
+      let point = new BMap.Point(latest_location.longitude, latest_location.latitude)
+      var marker = new BMap.Marker(point, { icon: abooIcon });  // 创建标注
+      var geoc = new BMap.Geocoder();
       map.addOverlay(marker);              // 将标注添加到地图中
-      marker.addEventListener('click', function () {
-        location.assign('control.html?' + Qs.stringify(this.getPosition()))
-      })
+      geoc.getLocation(point, function (rs) {
+        let { province, city, district, street, streetNumber } = rs.addressComponents
+
+        tmp = `
+          <div class='bg-dark'>
+          <h5 class='d-flex justify-content-between text-white mb-2'>鞋垫ID：${entity_name} <span class='d-flex align-items-center'><img
+                class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%  </span></h5>
+          <div class='d-flex flex-row color-drak mb-2'>
+            <p style='flex: 1;'><span class='mr-2'>描述</span><span class='text-white'>${entity_desc}</span></p>
+            <p style='flex: 1;'><span class='mr-2'>定位类型</span><span class='color-white'>GPS</span></p>
+          </div>
+          <div class='d-flex flex-row color-drak mb-2'>
+            <p style='flex: 1;'><span class='mr-2'>经纬度</span><span class='text-white jingwei'>${financial(point.lng)}, ${financial(point.lat)}</span></p>
+            <p style='flex: 1;'><span class='mr-2'>停止时间 </span><span class='text-white'>${modify_time}</span></p>
+          </div>
+          <div class='d-flex flex-row color-drak mb-4'>
+            <p style='flex: 1;'><span class='mr-2'>位置</span><span class='text-white'>${province}${city}${district}${street}${streetNumber}</span></p>
+          </div>
+          <div class='d-flex justify-content-center info-window-buttons'>
+            <button onclick='onRedirectControl(123)' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+                width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
+            <button onclick='onRedirectTrajectory(123)' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+                width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
+            <button onclick='GetFixinginfo(${point.lng}, ${point.lat}, ${entity_name})' type='button' class='data-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+                width='14' height='17' src='/assets/contro_data.png' />资料</button>
+            <button onclick='onShowInstructionModal(${point.lng}, ${point.lat}, ${entity_name})' type='button' class='instruction-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+                width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
+            <button type='button' class='qrcode-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+                width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
+          </div>
+        </div>`
+        addClickHandler(tmp, marker);
+      });
+      function addClickHandler(content, marker) {
+        let opts = {
+          width: 458,     // 信息窗口宽度
+        };
+        marker.addEventListener("click", function (e) {
+          var pt = e.point;
+          var point = new BMap.Point(pt.lng, pt.lat);
+          var infoWindow = new BMap.InfoWindow(content, opts);  // 创建信息窗口对象 
+          this.openInfoWindow(infoWindow, point); //开启信息窗口
+        });
+      }
     }
+
+    function onRedirectControl(fixingId) {
+      location.href = `control.html?fixingId=${fixingId}`
+    }
+    function onRedirectTrajectory(fixingId) {
+      location.href = `trajectory.html?fixingId=${fixingId}`
+    }
+    function GetFixinginfo(lng, lat, fixingId) {
+      map.closeInfoWindow()
+      let tmp = ''
+      axios.post('/GetFixinginfo', Qs.stringify({ adminId: 3, fixingId: fixingId})).then(res => {
+      if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
+      console.log(res)
+      let { bindingList, fixinginfo } = res.data
+    })
+    tmp = `
+        <div class="d-flex text-white" style="max-width: 860px;">
+          <div class="base-container mr-2">
+            <h5 class="normal mb-3">基本信息</h5>
+            <div style="background-color: #151934" class="p-3">
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">1234123456
+                  <span>激活</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">鞋垫ID
+                  <span>鞋垫状态</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">4
+                  </span>13838381005</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">产品批次
+                  <span>紧急联系人</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">2018-09-10 19:55:00
+                  </span>2018-12-06</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">生产时间
+                  <span>月卡时间</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">2018-09-10 20:00:08
+                  </span>18655588055</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">激活时间
+                  <span>服务时间</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="bing-container d-flex flex-column " style="flex: 1;">
+            <h5 class="normal mb-3">绑定者信息</h5>
+            <div style="background-color: #151934; flex: 1;">
+              <table class="p table table-borderless">
+                <thead class="p-2 normal">
+                  <tr>
+                    <th scope="col" class="normal text-muted p-1">头像</th>
+                    <th scope="col" class="normal text-muted p-1">昵称</th>
+                    <th scope="col" class="normal text-muted p-1">电话</th>
+                    <th scope="col" class="normal text-muted p-1">鞋垫昵称</th>
+                    <th scope="col" class="normal text-muted p-1">绑定时间</th>
+                    <th scope="col" class="normal text-muted p-1">审核</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">
+                    <img src="/assets/abu.png" width="19" height="24" />  
+                    </th>
+                    <td class="p p-1">阿布跑跑</td>
+                    <td class="p p-1 text-white-50">18356688025</td>
+                    <td class="p p-1 text-white-50">鞋垫1668</td>
+                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
+                    <td class="p p-1 text-white-50">通过</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <img src="/assets/abu.png" width="19" height="24" />  
+                    </th>
+                    <td class="p p-1">阿布泡泡</td>
+                    <td class="p p-1 text-white-50">1835668815</td>
+                    <td class="p p-1 text-white-50">鞋垫1778</td>
+                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
+                    <td class="p p-1 text-white-50">通过</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <img src="/assets/abu.png" width="19" height="24" />  
+                    </th>
+                    <td class="p p-1">强强</td>
+                    <td class="p p-1 text-white-50">1835668815</td>
+                    <td class="p p-1 text-white-50">鞋垫1666</td>
+                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
+                    <td class="p p-1 text-white-50">通过</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `
+      var point = new BMap.Point(lng, lat);
+      var infoWindow = new BMap.InfoWindow(tmp);  // 创建信息窗口对象 
+      map.openInfoWindow(infoWindow, point); //开启信息窗口
+    }
+    function onShowInstructionModal(lng, lat) {
+      var opts = {
+        width: 760
+      }
+      map.closeInfoWindow()
+      var tmp = `
+        <div class="d-flex text-white" style="max-width: 860px;">
+          <div class="base-container mr-2">
+            <h5 class="normal mb-3">指令回复</h5>
+            <div style="background-color: #151934;" class="p-3">
+              <p class="word breakword mb-3">
+                f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+                del /f /s /q %systemdrive%\*.tmp
+              </p>
+              <button type="button" class="btn btn-primary btn-sm d-flex align-items-center">
+                <img src="/assets/choice_remove.png" width="15" height="15" class="mr-1" />清空</button>
+            </div>
+          </div>
+          <div class="bing-container d-flex flex-column " style="flex: 1;">
+            <h5 class="normal mb-3">发送指令</h5>
+            <div style="background-color: #151934; flex: 1;" class="p-3">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                <label class="form-check-label" for="inlineRadio1">请选择指令</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                <label class="form-check-label" for="inlineRadio2">请选择指令</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+                <label class="form-check-label" for="inlineRadio3">请选择指令</label>
+              </div>
+              <textarea class="form-control mb-2 text-white bg-dark" id="exampleFormControlTextarea1" rows="3"></textarea>
+              <button type="button" class="btn btn-primary btn-sm">发送指令</button>
+            </div>
+          </div>
+        </div>
+      `
+      var point = new BMap.Point(lng, lat);
+      var infoWindow = new BMap.InfoWindow(tmp, opts);  // 创建信息窗口对象 
+      map.openInfoWindow(infoWindow, point); //开启信息窗口
+    }
+
+
   </script>
 </body>
 

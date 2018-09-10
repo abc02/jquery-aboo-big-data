@@ -72,10 +72,17 @@ img {
 }
 
 .BMap_pop > div, .BMap_pop > img {
-  display: none;
+  /* display: none; */
 }
+.BMap_pop > div:nth-of-type(8) {
+    display: none;
+  }
 .BMap_pop div:nth-of-type(9){
     display: block !important;
+}
+.BMap_pop > div > div, .BMap_pop > div{
+    background-color: #1C2340 !important;
+    color: white !important;
 }
 
 /* .BMap_pop .BMap_bubble_content{
