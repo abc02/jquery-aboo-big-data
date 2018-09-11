@@ -73,42 +73,9 @@
           <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/user.png" title="user" width="39" height="39"><p class="pt-2">用户分析</p></a>
         </nav>
-
-        <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
-          <img src="/assets/extension.png" alt="extension">
-        </button>
-      </div>
-      <div id="allmap" class="d-flex relative" style="flex: 1;"></div>
-    </div>
-  </main>
-  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
-  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
-  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-  <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script type="text/javascript" src="/js/common.js"></script>
-  <script>
-    function financial(x) {
-      return Number.parseFloat(x).toFixed(4);
-    }
-    axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
-    axios.defaults.headers.common['Authorization'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBZG1pbklkIjoiMyIsImV4cCI6MTUzODI4OTgwM30.YkXr2kW9F58d0Nt9EjHLp1NgHoTN4Ykg7iqTHYzMiug'
-    axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-    axios.post('/GetFixingList', Qs.stringify({ adminId: 3 })).then(res => {
-      if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
-      res.data.data.map(createMapMakerPoint)
-      createSliderDialogLists(res.data.data)
-    })
-    function createSliderDialogLists(Array) {
-      // <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15">
-      let tmp = `
-        <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px;">
+        <div class="slider-dialog bg-dark shadow-right-big text-white" style="z-index: 999; width: 368px;">
           <h5 class="d-flex justify-content-between text-light m-4">查看设备数量
+              <!-- <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15"> -->
           </h5>
           <div class="border-bottom p-4 mb-3">
             <p class="text-muted d-flex align-items-center mb-3">全部显示
@@ -124,53 +91,117 @@
               </button>
             </div>
           </div>
-          <ul class="nav justify-content-center">
-            <li class="nav-item border-bottom">
-              <a class="nav-link text-white active" href="#">全部（111）</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted" href="#">在线（0）</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted" href="#">离线（111）</a>
-            </li>
+          <ul class="nav justify-content-center nav-tab-container">
           </ul>
-          <ul class="mb30 pl30 pr30">
-            <li class="d-flex align-items-center justify-content-between pt-4 pb-4 pointer border-bottom border-secondary">
-              <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
-              <p class="text-light" style="flex: 1;">1222541561655461</p>
-              <p class="text-white">在线</p>
-            </li>
-            <li class="d-flex align-items-center justify-content-between pt-4 pb-4 pointer border-bottom border-secondary">
-              <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
-              <p class="text-light" style="flex: 1;">1222541561655461</p>
-              <p class="text-white">在线</p>
-            </li>
+          <ul class="p-3 fixing-container">
           </ul>
-          <nav aria-label="Page navigation">
-            <ul class="pagination d-flex justify-content-center">
-              <li class="page-item ">
-                <a class="page-link bg-light" href="#" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                  <span class="sr-only">Previous</span>
-                </a>
-              </li>
-              <li class="page-item"><a class="page-link bg-light" href="#">1</a></li>
-              <li class="page-item"><a class="page-link bg-light" href="#">2</a></li>
-              <li class="page-item"><a class="page-link bg-light" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link bg-light" href="#" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                  <span class="sr-only">Next</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+          <div class="pagination-container d-flex justify-content-center">
+            <ul class="pagination" id="pagination-all"></ul>
+          </div>
         </div>
-        `
-      $('.slider-dialog-container').append(tmp)
+        <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
+          <img src="/assets/extension.png" alt="extension">
+        </button>
+      </div>
+      <div id="allmap" class="d-flex relative" style="flex: 1;"></div>
+    </div>
+  </main>
+  <div id="qrcodeTable"></div>
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
+  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
+  <script>
+    let fixingAllArray, fixingOnlineArray, fixingOfflineArray
+    axios.post('/GetFixingList', Qs.stringify({ adminId: 3 })).then(res => {
+      if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
+      res.data.data.map(createMapMakerPoint)
+      createSliderDialogLists(res.data.data)
+    })
+    function createSliderDialogLists(Array) {
+      fixingAllArray = Object.assign([], Array)
+      fixingOnlineArray = Array.filter(item => item.entity_desc === '在线')
+      fixingOfflineArray = Array.filter(item => item.entity_desc === '离线')
+      createNavTab(1)
+      createPagination(fixingAllArray)
     }
-
+    function createNavTab(activePage) {
+      $('.nav-tab-container').empty()
+      $('.nav-tab-container').append(`
+        <li class="nav-item">
+              <a class="nav-link ${activePage === 1 ? 'border-bottom text-white' : 'text-muted '}" href="#" onclick="handleShowFxingAll()">全部（${fixingAllArray.length}）</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link ${activePage === 2 ? 'border-bottom text-white' : 'text-muted'}" href="#" onclick="handleShowFxingOnline()">在线（${fixingOnlineArray.length}）</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link ${activePage === 3 ? 'border-bottom text-white' : 'text-muted '}" href="#" onclick="handleShowFxingOffline()">离线（${fixingOfflineArray.length}）</a>
+            </li>
+        `)
+    }
+    function createPagination(sourceArray) {
+      console.log(sourceArray)
+      $('#pagination-all').jqPaginator({
+        totalCounts: sourceArray.length,
+        pageSize: 10,
+        visiblePages: 5,
+        currentPage: 1,
+        prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">&lt;</a></li>',
+        next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">	&gt;</a></li>',
+        page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">{{page}}</a></li>',
+        onPageChange: function (num, type) {
+          handlePageArray(num, sourceArray)
+        }
+      });
+    }
+    function handlePageArray(currentPage, sourceArray) {
+      $('.fixing-container').empty()
+      let currentArray = []
+      currentPage = currentPage - 1
+      for (let index = currentPage * 10; index < (currentPage * 10) + 10; index++) {
+        if (sourceArray[index]) {
+          currentArray.push(sourceArray[index])
+        }
+      }
+      currentArray = currentArray.map(item => {
+        let { latest_location } = item
+        return `
+        <li onclick="handlePanToMakerPoint(${latest_location.longitude}, ${latest_location.latitude})" class="d-flex align-items-center justify-content-between pt-2 pb-2 pointer border-bottom border-secondary">
+              <img src="/assets/abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
+              <p class="text-light" style="flex: 1;">${item.entity_name}</p>
+              <p class="text-white">${item.entity_desc}</p>
+        </li>`
+      })
+      $('.fixing-container').append(currentArray.join(' '))
+    }
+    function handleShowFxingAll() {
+      handlePageArray(1, fixingAllArray)
+      createNavTab(1)
+      createPagination(fixingAllArray)
+    }
+    function handleShowFxingOnline() {
+      handlePageArray(1, fixingOnlineArray)
+      createNavTab(2)
+      createPagination(fixingOnlineArray)
+    }
+    function handleShowFxingOffline() {
+      handlePageArray(1, fixingOfflineArray)
+      createNavTab(3)
+      createPagination(fixingOfflineArray)
+    }
+    function handlePanToMakerPoint(lng, lat) {
+      map.closeInfoWindow()
+      map.panTo(new BMap.Point(lng, lat));
+      map.setZoom(18)
+    }
     function createMapMakerPoint(item) {
       let { entity_name, entity_desc, create_time, modify_time, latest_location } = item
       let tmp = ''
@@ -181,11 +212,11 @@
       map.addOverlay(marker);              // 将标注添加到地图中
       geoc.getLocation(point, function (rs) {
         let { province, city, district, street, streetNumber } = rs.addressComponents
-
+        // <span class='d-flex align-items-center'> <img class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%  </span>
         tmp = `
           <div class='bg-dark'>
-          <h5 class='d-flex justify-content-between text-white mb-2'>鞋垫ID：${entity_name} <span class='d-flex align-items-center'><img
-                class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%  </span></h5>
+          <h5 class='d-flex justify-content-between text-white mb-2'>鞋垫ID：${entity_name}
+          </h5>
           <div class='d-flex flex-row color-drak mb-2'>
             <p style='flex: 1;'><span class='mr-2'>描述</span><span class='text-white'>${entity_desc}</span></p>
             <p style='flex: 1;'><span class='mr-2'>定位类型</span><span class='color-white'>GPS</span></p>
@@ -198,15 +229,15 @@
             <p style='flex: 1;'><span class='mr-2'>位置</span><span class='text-white'>${province}${city}${district}${street}${streetNumber}</span></p>
           </div>
           <div class='d-flex justify-content-center info-window-buttons'>
-            <button onclick='onRedirectControl(123)' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            <button onclick='onRedirectControl(${entity_name})' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                 width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
-            <button onclick='onRedirectTrajectory(123)' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            <button onclick='onRedirectTrajectory(${entity_name})' type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                 width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
             <button onclick='GetFixinginfo(${point.lng}, ${point.lat}, ${entity_name})' type='button' class='data-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                 width='14' height='17' src='/assets/contro_data.png' />资料</button>
             <button onclick='onShowInstructionModal(${point.lng}, ${point.lat}, ${entity_name})' type='button' class='instruction-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                 width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
-            <button type='button' class='qrcode-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            <button onclick='GetFixingQRCode(${point.lng}, ${point.lat}, ${entity_name})' type='button' class='qrcode-button ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                 width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
           </div>
         </div>`
@@ -232,21 +263,34 @@
       location.href = `trajectory.html?fixingId=${fixingId}`
     }
     function GetFixinginfo(lng, lat, fixingId) {
+      let opts = {
+        width: 760
+      }
       map.closeInfoWindow()
-      let tmp = ''
-      axios.post('/GetFixinginfo', Qs.stringify({ adminId: 3, fixingId: fixingId})).then(res => {
-      if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
-      console.log(res)
-      let { bindingList, fixinginfo } = res.data
-    })
-    tmp = `
-        <div class="d-flex text-white" style="max-width: 860px;">
+      let $tmp
+      axios.post('/GetFixinginfo', Qs.stringify({ adminId: 3, fixingId: fixingId })).then(res => {
+        if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
+        let { bindingList, fixinginfo } = res.data
+        let bindingListTmp = bindingList.map(item => {
+          return `<tr>
+            <th scope="row" class="p-1 text-center">
+            <img src="${item.UserIcon}" width="16" height="16" />  
+            </th>
+            <td class="p p-1">${item.relation}</td>
+            <td class="p p-1 text-white-50">${item.Phone}</td>
+            <td class="p p-1 text-white-50">${item.fixingName}</td>
+            <td class="p p-1 text-white-50">${item.createTime}</td>
+            <td class="p p-1 text-white-50">${item.state}</td>
+          </tr>`
+        })
+        $tmp = $(`<div>
+        <div class="d-flex text-white">
           <div class="base-container mr-2">
             <h5 class="normal mb-3">基本信息</h5>
-            <div style="background-color: #151934" class="p-3">
+            <div style="background-color: #151934; width: 230px;" class="p-3">
               <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">1234123456
-                  <span>激活</span>
+                <h6 class="normal d-flex justify-content-between">${fixingId}
+                  <span>${fixinginfo.mode === '1' ? '在线' : '离线'}</span>
                 </h6>
                 <p class="p text-muted d-flex justify-content-between">鞋垫ID
                   <span>鞋垫状态</span>
@@ -254,26 +298,26 @@
               </div>
               <div class="pt-3 pb-3">
                 <h6 class="normal d-flex justify-content-between">4
-                  </span>13838381005</span>
+                  <span>${fixinginfo.emergencyContact}</span>
                 </h6>
                 <p class="p text-muted d-flex justify-content-between">产品批次
                   <span>紧急联系人</span>
                 </p>
               </div>
               <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">2018-09-10 19:55:00
-                  </span>2018-12-06</span>
+                <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.createTime, true)}
+                  <span>${timestamp(fixinginfo.expireTime, true)}</span>
                 </h6>
-                <p class="p text-muted d-flex justify-content-between">生产时间
+                <p class="p text-muted d-flex justify-content-between">生成时间
                   <span>月卡时间</span>
                 </p>
               </div>
               <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">2018-09-10 20:00:08
-                  </span>18655588055</span>
+                <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.activatedTime, true)}
+                  <span>${fixinginfo.emergencyContact}</span>
                 </h6>
                 <p class="p text-muted d-flex justify-content-between">激活时间
-                  <span>服务时间</span>
+                  <span>服务手机号</span>
                 </p>
               </div>
             </div>
@@ -292,47 +336,18 @@
                     <th scope="col" class="normal text-muted p-1">审核</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">
-                    <img src="/assets/abu.png" width="19" height="24" />  
-                    </th>
-                    <td class="p p-1">阿布跑跑</td>
-                    <td class="p p-1 text-white-50">18356688025</td>
-                    <td class="p p-1 text-white-50">鞋垫1668</td>
-                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
-                    <td class="p p-1 text-white-50">通过</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      <img src="/assets/abu.png" width="19" height="24" />  
-                    </th>
-                    <td class="p p-1">阿布泡泡</td>
-                    <td class="p p-1 text-white-50">1835668815</td>
-                    <td class="p p-1 text-white-50">鞋垫1778</td>
-                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
-                    <td class="p p-1 text-white-50">通过</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      <img src="/assets/abu.png" width="19" height="24" />  
-                    </th>
-                    <td class="p p-1">强强</td>
-                    <td class="p p-1 text-white-50">1835668815</td>
-                    <td class="p p-1 text-white-50">鞋垫1666</td>
-                    <td class="p p-1 text-white-50">2018-08-06 12:00:00</td>
-                    <td class="p p-1 text-white-50">通过</td>
-                  </tr>
-                </tbody>
               </table>
             </div>
           </div>
         </div>
-      `
-      var point = new BMap.Point(lng, lat);
-      var infoWindow = new BMap.InfoWindow(tmp);  // 创建信息窗口对象 
-      map.openInfoWindow(infoWindow, point); //开启信息窗口
+        </div>`)
+        $tmp.find('.table').append(`<tbody>${bindingListTmp.join(' ')}</tbody>`)
+        var point = new BMap.Point(lng, lat);
+        var infoWindow = new BMap.InfoWindow($tmp.html(), opts);  // 创建信息窗口对象 
+        map.openInfoWindow(infoWindow, point); //开启信息窗口
+      })
     }
+
     function onShowInstructionModal(lng, lat) {
       var opts = {
         width: 760
@@ -383,7 +398,26 @@
     }
 
 
+    function GetFixingQRCode(lng, lat, fixingId) {
+      let opts = {
+        width: 480
+      }
+      axios.post('/GetFixingQRCode', Qs.stringify({ adminId: 3, fixingId: fixingId })).then(res => {
+        if (res.data.ret !== 1001) return window.alert('数据获取失败，请刷新页面')
+        tmp = `
+          <div class='bg-dark'>
+              <h5 class="normal mb-3">二维码</h5>
+              <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data.data}" width="218" height="218" />
+              </div>
+        </div>`
+        var point = new BMap.Point(lng, lat);
+        var infoWindow = new BMap.InfoWindow(tmp, opts);  // 创建信息窗口对象 
+        map.openInfoWindow(infoWindow, point); //开启信息窗口
+      })
+    }
   </script>
+
 </body>
 
 </html>
