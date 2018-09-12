@@ -420,7 +420,7 @@
   height: 2px;
   background-color: #409EFF;
 }
-.pagination-container .pagination .active {
+.pagination-container .active {
   background-color: #3663EF;
   color: white;
 }

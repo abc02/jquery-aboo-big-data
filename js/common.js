@@ -36,13 +36,13 @@ map.addControl(new BMap.CityListControl({
     anchor: BMAP_ANCHOR_TOP_LEFT,
     offset: size,
     // 切换城市之间事件
-    // onChangeBefore: function(){
-    //    alert('before');
-    // },
+    onChangeBefore: function(){
+       console.log('before');
+    },
     // 切换城市之后事件
-    // onChangeAfter:function(){
-    //   alert('after');
-    // }
+    onChangeAfter:function(){
+      console.log('after');
+    }
 }));
 function financial(x) {
   return Number.parseFloat(x).toFixed(4);
