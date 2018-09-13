@@ -38,145 +38,39 @@
           <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/user.png" title="user" width="39" height="39"><p class="pt-2">用户分析</p></a>
         </nav>
-        <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px;">
-          <h5 class="d-flex justify-content-between text-light m-4">查看设备数量
-            <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15">
+        <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px; display: none;">
+          <!-- <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15"> -->
           </h5>
           <div class="border-bottom p-4 mb-3">
             <p class="text-muted d-flex align-items-center mb-3">全部显示
               <button type="button" class="ml-2 btn btn-primary btn-sm">NO</button>
             </p>
-            <p class="text-muted">当前视野设备数量：<span class="text-white">10</span></p>
+            <p class="text-muted">当前视野设备数量：<span class="text-white">??</span></p>
           </div>
           <div class="p-4 mb-3">
             <div class="row-between border">
-              <input type="text" class="p-2 text-white" placeholder="输入关键字" />
+              <input type="text" class="p-2 text-white nav-search" placeholder="输入关键字" />
               <button type="button" class="border-left pl-3 pt-1 pb-1 pr-3">
                 <img src="/assets/search.png" title="search" width="18p" height="18" />
               </button>
             </div>
           </div>
-          <ul class="nav justify-content-center">
-            <li class="nav-item border-bottom">
-              <a class="nav-link text-white active" href="#">全部（111）</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted" href="#">在线（0）</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-muted" href="#">离线（111）</a>
-            </li>
+          <ul class="nav justify-content-center nav-tab-container">
           </ul>
-          <ul class="mb30 pl30 pr30">
-            <li class="d-flex align-items-center justify-content-between pt-4 pb-4 pointer border-bottom border-secondary">
-              <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
-              <p class="text-light" style="flex: 1;">1222541561655461</p>
-              <p class="text-white">在线</p>
-            </li>
-            <li class="d-flex align-items-center justify-content-between pt-4 pb-4 pointer border-bottom border-secondary">
-              <img src="/assets//abu.png" title="abu" class="ml-2 mr-2" width="19" height="24">
-              <p class="text-light" style="flex: 1;">1222541561655461</p>
-              <p class="text-white">在线</p>
-            </li>
+          <ul class="p-3 fixing-container">
           </ul>
-          <nav aria-label="Page navigation">
-            <ul class="pagination d-flex justify-content-center">
-              <li class="page-item ">
-                <a class="page-link bg-light" href="#" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                  <span class="sr-only">Previous</span>
-                </a>
-              </li>
-              <li class="page-item"><a class="page-link bg-light" href="#">1</a></li>
-              <li class="page-item"><a class="page-link bg-light" href="#">2</a></li>
-              <li class="page-item"><a class="page-link bg-light" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link bg-light" href="#" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                  <span class="sr-only">Next</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+          <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
         </div>
         <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
           <img src="/assets/extension.png" alt="extension">
         </button>
       </div>
-      <div class="d-flex flex-column" style="flex: 1;">
-        <div id="allmap" class="d-flex" style="flex: 1;"></div>
-        <div class="bottom-dialog shadow-top bg-dark relative pt-4" style="display: none;">
-          <button class="bottom-doork-inner pointer absolute-top-center" style="top: -45px;transform: rotate(90deg);">
-            <img src="/assets/extension.png" alt="extension">
-          </button>
-          <h5 class="d-flex justify-content-between text-light p-4">实时信息
-            <img src="/assets/close.png" title="close" class="bottom-close pointer" width="15" height="15">
-          </h5>
-          <table class="bottom-table table table-striped table-dark">
-            <thead>
-              <tr>
-                <th scope="col">状态</th>
-                <th scope="col">定位</th>
-                <th scope="col">设备名称</th>
-                <th scope="col">定位时间</th>
-                <th scope="col">地址</th>
-                <th scope="col">操作</th>
-              </tr>
-            </thead>
-            <tbody style="overflow: hidden; min-height: 200px;">
-              <tr>
-                <td>在线</td>
-                <td>GPS</td>
-                <td>123456789</td>
-                <td>2018-08-08 03:08:01</td>
-                <td>浙江省温州市鹿城区困鹿99号双屿派出所附近7米</td>
-                <td>删除</td>
-              </tr>
-              <tr>
-                <td>在线</td>
-                <td>GPS</td>
-                <td>123456789</td>
-                <td>2018-08-08 03:08:01</td>
-                <td>浙江省温州市鹿城区困鹿99号双屿派出所附近7米</td>
-                <td>删除</td>
-              </tr>
-              <tr>
-                <td>在线</td>
-                <td>GPS</td>
-                <td>123456789</td>
-                <td>2018-08-08 03:08:01</td>
-                <td>浙江省温州市鹿城区困鹿99号双屿派出所附近7米</td>
-                <td>删除</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div id="allmap" class="d-flex" style="flex: 1;"></div>
     </div>
     <button class="bottom-doork absolute-bottom-center pointer" style="bottom: -45px;z-index: 999; transform: rotate(270deg);">
       <img src="/assets/extension.png" alt="extension">
     </button>
   </main>
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content bg-dark text-white">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
     crossorigin="anonymous"></script>
@@ -187,50 +81,23 @@
   <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
   <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
+  <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/js/home.js"></script>
   <script>
-    var pointString = location.search.substr(1)
-    function xx() {
-      var tmpHtml =
-        "<tr>" +
-        "<td>在线</td>" +
-        "<td>GPS</td>" +
-        "<td>123456789</td>" +
-        "<td>2018-08-08 03:08:01</td>" +
-        "<td>浙江省温州市鹿城区困鹿99号双屿派出所附近" + (Math.random() * 100).toFixed(0) + "米</td>" +
-        "<td>删除</td>" +
-        "</tr>"
-
-      $('.bottom-table > tbody').append(tmpHtml).find('tr').first().remove()
-    }
-    if (pointString) {
-      var pointObject = Qs.parse(pointString)
-      var sContent =
-        "<div class='bg-dark p-4' style='width: 524px;'><h5 class='d-flex justify-content-between text-white mb-2'>鞋垫ID：15555648646 <span class=' d-flex align-items-center'><img class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%</span></h5>" +
-        "<div class='d-flex flex-row color-drak mb-2'><p style='flex: 1;'><span class='mr-2'>描述</span><span class='text-white'>已激活</span></p> <p style='flex: 1;'><span class='mr-2'>定位类型</span><span class='color-white'>GPS</span></p></div>" +
-        "<div class='d-flex flex-row color-drak mb-2'><p style='flex: 1;'><span class='mr-2'>经纬度</span><span class='text-white'>" + financial(pointObject.lng) + " , " + financial(pointObject.lat) + "</span></p> <p style='flex: 1;'><span class='mr-2'>停止时间 </span><span class='text-white'>2018-08-09 12:30:31</span></p></div>" +
-        "<div class='d-flex flex-row color-drak mb-4'><p style='flex: 1;'><span class='mr-2'>位置</span><span class='text-white'>温州市鹿城区昆仑路双屿派出所东72米</span></p></div>" +
-        "<div class='d-flex justify-content-center'>" +
-        "<button type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>" +
-        "<button type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>" +
-        "<button type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img width='14' height='17' src='/assets/contro_data.png' />资料</button>" +
-        "<button type='button' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img width='12' height='18' src='/assets/contro_instruction.png' />指令</button>" +
-        "<button type='button' data-toggle='modal' data-target='#exampleModalCenter' class='ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>" +
-        "</div>" +
-        "</div>";
-      // 百度地图API功能
-      var point = new BMap.Point(parseFloat(pointObject.lng), parseFloat(pointObject.lat));
-      var myIcon = new BMap.Icon("/assets/positioning.png", new BMap.Size(29, 42));
-      var marker = new BMap.Marker(point, { icon: myIcon });  // 创建标注
-      var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象 
-      map.addOverlay(marker);              // 将标注添加到地图中
-      map.centerAndZoom(point, 12);
-      map.openInfoWindow(infoWindow, point); //开启信息窗口
-      marker.addEventListener('click', function () {
-        this.openInfoWindow(infoWindow);
+    var { fixingId } = Qs.parse(location.search.substr(1))
+    checkOutArrays = ['', 'undefined']
+    let result = checkOutArrays.every(val => val !== fixingId)
+    if (result) {
+      home.GetFixingList().then(res => {
+        console.log(fixingId)
+        console.log(res)
       })
+    } else {
+      alert('参数有误，请返回首页')
+      location.href = 'index.html'
     }
-    setInterval(xx, 30000)
   </script>
 </body>
 
