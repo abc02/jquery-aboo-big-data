@@ -32,6 +32,9 @@
         <img src="/assets/aboo.png" title="aboo" width="32" height="42" class="ml-4 mr-4" />
         <h3 class="text-white">阿布跑跑大数据中心</h3>
       </div>
+      <div class="user-continer d-flex aligin-content-center">
+        <button type="button" data-toggle="modal" data-target="#loginModal" class="text-white ml-4 mr-4 pointer">登录</button>
+      </div>
     </header>
     <div class="d-flex flex-row" style="flex: 1;">
       <div class="d-flex flex-row relative slider-dialog-container">
@@ -78,7 +81,35 @@
       <div id="allmap" class="d-flex relative" style="flex: 1;"></div>
     </div>
   </main>
-  <div id="qrcodeTable"></div>
+  <!-- Modal-->
+  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">用户登录</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form class="login-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="exampleInputEmail1">手机号码</label>
+              <input type="phone" class="form-control" id="username" aria-describedby="userHelp" placeholder="请输入手机号码">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">密码</label>
+              <input type="password" class="form-control" id="password" placeholder="请输入密码">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary login-button">登录</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+          </div>
+          </from>
+      </div>
+    </div>
+  </div>
   <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
     crossorigin="anonymous"></script>
   <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
@@ -94,9 +125,27 @@
   <script type="text/javascript" src="/js/event.js"></script>
   <script type="text/javascript" src="/js/home.js"></script>
   <script>
+    var login = (function () {
+      var userInfo = null,
+        $loginForm = $('.login-form')
 
 
-    home.GetFixingList()
+
+      $loginForm.submit(function (e) {
+        e.preventDefault()
+        let $currentTartget = $(e.currentTarget),
+          username = $currentTartget.find('#username').val(),
+          password = $currentTartget.find('#password').val()
+        AdminLoginAccount({username, password})
+      })
+
+      function AdminLoginAccount({ username, password }) {
+        return axios.post('/AdminLoginAccount', Qs.stringify({ username, password })).then(res => {
+          console.log(res)
+        })
+      }
+    }())
+    // home.GetFixingList()
   </script>
 
 </body>
