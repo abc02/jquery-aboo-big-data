@@ -32,8 +32,8 @@
         <img src="/assets/aboo.png" title="aboo" width="32" height="42" class="ml-4 mr-4" />
         <h3 class="text-white">阿布跑跑大数据中心</h3>
       </div>
-      <div class="user-continer d-flex aligin-content-center">
-        <button type="button" data-toggle="modal" data-target="#loginModal" class="text-white ml-4 mr-4 pointer">登录</button>
+      <div class="user-continer d-flex align-items-center text-white ml-4 mr-4 pointer">
+        <button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
       </div>
     </header>
     <div class="d-flex flex-row" style="flex: 1;">
@@ -82,7 +82,7 @@
     </div>
   </main>
   <!-- Modal-->
-  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+  <div class="modal fade" id="loginModal">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -110,14 +110,15 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
+  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
     crossorigin="anonymous"></script>
   <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
     crossorigin="anonymous"></script>
   <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
-  <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
-  <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -125,27 +126,79 @@
   <script type="text/javascript" src="/js/event.js"></script>
   <script type="text/javascript" src="/js/home.js"></script>
   <script>
+
     var login = (function () {
       var userInfo = null,
         $loginForm = $('.login-form')
-
-
 
       $loginForm.submit(function (e) {
         e.preventDefault()
         let $currentTartget = $(e.currentTarget),
           username = $currentTartget.find('#username').val(),
           password = $currentTartget.find('#password').val()
-        AdminLoginAccount({username, password})
+        AdminLoginAccount({ username, password })
       })
 
       function AdminLoginAccount({ username, password }) {
         return axios.post('/AdminLoginAccount', Qs.stringify({ username, password })).then(res => {
-          console.log(res)
+          if (res.data.ret == 1002) return window.alert(res.data.code)
+          if (res.data.ret == 1003) return window.alert(res.data.code)
+          userInof = res.data
+          _SetLoaclStorageUserInfo(res.data)
+          Event.trigger('setUserInfo')
+          $('#loginModal').modal('hide')
         })
       }
+      function _SetLoaclStorageUserInfo(userInfo) {
+        window.localStorage.setItem('userinfo', JSON.stringify(userInfo))
+      }
+      function GetLoaclStorageUserInfo() {
+        userInfo = JSON.parse(window.localStorage.getItem('userinfo'))
+        if (userInfo) {
+          Event.trigger('setUserInfo')
+          return true
+        }
+        return false
+      }
+      function GetUserInfo() {
+        return userInfo
+      }
+      return {
+        AdminLoginAccount,
+        GetLoaclStorageUserInfo,
+        GetUserInfo
+      }
     }())
+    Event.listen('setUserInfo', () => {
+      let userInfo = login.GetUserInfo(),
+        $userContainer = $('.user-continer')
+      console.log(userInfo)
+      let $userInfo = $(`
+        <img src="/assets/default.png" wdith="48" height="48" />
+        <div class="dropdown mr-2 ml-2">
+          <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            ${userInfo.UserName}
+          </button>
+        </div>
+      `)
+      $userContainer.html($userInfo)
+    })
+    Event.listen('setNavTab', () => {
+
+    })
+    Event.listen('setFixingLists', () => {
+
+    })
+    Event.listen('setPagination', () =>{
+
+    })
+    Event.listen('setMapMakerPoint', () => {
+
+    })
+    login.GetLoaclStorageUserInfo()
     // home.GetFixingList()
+
+
   </script>
 
 </body>

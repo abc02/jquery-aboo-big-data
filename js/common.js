@@ -22,6 +22,14 @@ $('.bottom-close').click(function () {
   $('.bottom-dialog').hide()
   $('.bottom-doork').show()
 })
+// el
+let $NAV_TAB_CONTAINER = $('.nav-tab-container'),
+$FIXING_CONTAINER = $('.fixing-container'),
+$PAGEINATION = $('#pagination'),
+$NAV_SEARCH = $('.nav-search'),
+$OPEN_INFO_WINDOW
+
+
 
 function financial(x) {
   return Number.parseFloat(x).toFixed(4);
