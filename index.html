@@ -11,14 +11,6 @@
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
   <style>
-    .table thead th {
-      border-bottom: none;
-    }
-
-    .table td,
-    .table th {
-      border-top: none;
-    }
   </style>
 </head>
 
@@ -43,14 +35,12 @@
             <img src="/assets/home.png" title="home" width="38" height="30"><p class="pt-2">首页</p></a>
           <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/control.html">
             <img src="/assets/conctrol.png" title="conctrol" width="38" height="34"><p class="pt-2">控制中心</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
+          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/trajectory.html">
             <img src="/assets/trajectory.png" title="trajectory" width="38" height="40"><p class="pt-2">轨迹管理</p></a>
           <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
             <img src="/assets/movement.png" title="movement" width="40" height="38"><p class="pt-2">运动数据</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="#">
-            <img src="/assets/user.png" title="user" width="39" height="39"><p class="pt-2">用户分析</p></a>
         </nav>
-        <div class="slider-dialog bg-dark shadow-right-big text-white" style="z-index: 999; width: 368px; display: none;">
+        <div class="slider-dialog bg-dark shadow-right-big text-white" style="z-index: 999; width: 368px; display: block;">
           <h5 class="d-flex justify-content-between text-light ml-4 mr-4 mt-3 mb-2">查看设备数量
             <!-- <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15"> -->
           </h5>
@@ -127,7 +117,12 @@
   <script type="text/javascript" src="/js/a.js"></script>
   <script>
     a.GetLoaclStorageUserInfo().then(res => {
-      if(res) a.GetFixingList({ adminId: res.AdminId, keyword: '中国' })
+      if (res) a.GetFixingList({ adminId: res.AdminId, keyword: '中国' }).then(res => {
+        Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+        Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+        Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+        res.map(item => Event.trigger('setMapMakerPoint', item))
+      })
     }).catch(error => console.warn(error))
   </script>
 

@@ -1,13 +1,20 @@
 Event.listen('setUserInfo', ($el) => {
   const USERINFO = a._GetLoaclUserInfo()
-  let $userInfo = $(`
-        <img src="/assets/default.png" wdith="48" height="48" />
-        <div class="dropdown mr-2 ml-2">
-          <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            ${USERINFO.UserName}
-          </button>
-        </div>
-      `)
+  let $userInfo
+  if(USERINFO) {
+    $userInfo = $(`
+    <img src="/assets/default.png" wdith="48" height="48" />
+    <div class="dropdown mr-2 ml-2">
+      <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        ${USERINFO.UserName}
+      </button>
+    </div>
+  `)
+  } else {
+    $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
+    </div>`)
+  }
+ 
   $el.html($userInfo)
 })
 Event.listen('setFixingSearch', ($el) => {
@@ -110,7 +117,7 @@ Event.listen('setFixingLists', ($el, currentPage = 0) => {
   })
   $el.off('click').empty().append(visibilityArrays).on('click', 'li', function (e) {
     let fixinginfo = $(e.currentTarget).data()
-    Event.trigger('panToMakerPoint', fixinginfo)
+    Event.trigger('panToMarkerPoint', fixinginfo)
   })
 })
 Event.listen('setFixingPagination', ($el) => {
@@ -120,15 +127,16 @@ Event.listen('setFixingPagination', ($el) => {
     pageSize: 10,
     visiblePages: 5,
     currentPage: 1,
-    prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">&lt;</a></li>',
-    next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">	&gt;</a></li>',
-    page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1"><a href="javascript:;">{{page}}</a></li>',
+    prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
+    next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
+    page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
     onPageChange: function (num, type) {
       Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1)
     }
   })
 })
-Event.listen('setMapMakerPoint', (item) => {
+Event.listen('setMapMakerPoint', (item, isOne = false) => {
+  let userInfo = a._GetLoaclUserInfo()
   let opts = {
     width: 458,     // 信息窗口宽度
   };
@@ -184,95 +192,148 @@ Event.listen('setMapMakerPoint', (item) => {
         const result = classNames.filter(className => $currentTarget.hasClass(className))
         switch (result[0]) {
           case 'control-center':
-            Event.trigger('redirectControl', entity_name)
+            Event.trigger('redirectControl', entity_name, point)
             break;
           case 'thetrajectory':
-          Event.trigger('redirectTrajectory', entity_name)
+            Event.trigger('redirectTrajectory', entity_name, point)
             break;
           case 'fixing-info':
-            GetFixinginfo(latest_location.longitude, latest_location.latitude, entity_name)
+            a.GetFixingInfo({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
             break;
           case 'instruction':
-            onShowInstructionModal(latest_location.longitude, latest_location.latitude, entity_name)
+            a.AdminGetInstructionsList({ adminId: userInfo.AdminId }, point)
             break;
           case 'fixing-qrcode':
-            GetFixingQRCode(point, entity_name)
+            a.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
             break;
         }
       });
-    });
+    })
+
+    if (isOne) {
+      BMapLib.EventWrapper.trigger(marker, "click");
+    }
   })
 })
-Event.listen('panToMakerPoint', (fixinginfo) => {
+Event.listen('setFixingInfoWindow', ({ fixingId, bindingList, fixinginfo }, { lng, lat }) => {
+   let $content, bindingListTmp,opts = {
+    width: 760
+  }
+  if (bindingList) {
+    bindingListTmp = bindingList.map(item => {
+      return `<tr>
+      <th scope="row" class="p-1 text-center" width="10%">
+      <img src="${item.UserIcon}" width="16" height="16" />  
+      </th>
+      <td class="p p-1" width="10%">${item.relation}</td>
+      <td class="p p-1 text-white-50" width="15%">${item.Phone}</td>
+      <td class="p p-1 text-white-50" width="20%">${item.fixingName}</td>
+      <td class="p p-1 text-white-50" width="30%">${item.createTime}</td>
+      <td class="p p-1 text-white-50" width="15%">${item.state}</td>
+    </tr>`
+    })
+  } else {
+    bindingListTmp = []
+  }
+  $content = $(`<div>
+<div class="d-flex text-white">
+  <div class="base-container mr-2">
+    <h5 class="normal mb-3">基本信息</h5>
+    <div style="background-color: #151934; width: 230px;" class="p-3">
+      <div class="pt-3 pb-3">
+        <h6 class="normal d-flex justify-content-between">${fixingId}
+          <span>${fixinginfo.mode === '1' ? '在线' : '离线'}</span>
+        </h6>
+        <p class="p text-muted d-flex justify-content-between">鞋垫ID
+          <span>鞋垫状态</span>
+        </p>
+      </div>
+      <div class="pt-3 pb-3">
+        <h6 class="normal d-flex justify-content-between">4
+          <span>${fixinginfo.emergencyContact}</span>
+        </h6>
+        <p class="p text-muted d-flex justify-content-between">产品批次
+          <span>紧急联系人</span>
+        </p>
+      </div>
+      <div class="pt-3 pb-3">
+        <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.createTime, true)}
+          <span>${timestamp(fixinginfo.expireTime, true)}</span>
+        </h6>
+        <p class="p text-muted d-flex justify-content-between">生成时间
+          <span>月卡时间</span>
+        </p>
+      </div>
+      <div class="pt-3 pb-3">
+        <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.activatedTime, true)}
+          <span>${fixinginfo.emergencyContact}</span>
+        </h6>
+        <p class="p text-muted d-flex justify-content-between">激活时间
+          <span>服务手机号</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="bing-container d-flex flex-column " style="flex: 1;">
+    <h5 class="normal mb-3">绑定者信息</h5>
+    <div style="background-color: #151934; flex: 1;">
+      <table class="p table table-borderless">
+        <thead class="p-2 normal">
+          <tr>
+            <th scope="col" class="normal text-muted p-1" width="10%">头像</th>
+            <th scope="col" class="normal text-muted p-1" width="10%">昵称</th>
+            <th scope="col" class="normal text-muted p-1" width="15%">电话</th>
+            <th scope="col" class="normal text-muted p-1" width="20%">鞋垫昵称</th>
+            <th scope="col" class="normal text-muted p-1" width="30%">绑定时间</th>
+            <th scope="col" class="normal text-muted p-1" width="15%">审核</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+</div>
+</div>`)
+
+  $content.find('.table').append(`<tbody>${bindingListTmp.join(' ')}</tbody>`)
+  let point = new BMap.Point(lng, lat);
+  let infoWindow = new BMap.InfoWindow($content.html(), opts);  // 创建信息窗口对象 
+  map.openInfoWindow(infoWindow, point); //开启信息窗口
+})
+Event.listen('setFixingQRCodeWindow', (url, { lng, lat }) => {
+  let opts = {
+    width: 480
+  }
+  content = `
+  <div class='bg-dark'>
+      <h5 class="normal mb-3">二维码</h5>
+      <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${url}" width="218" height="218" />
+      </div>
+</div>`
+  let point = new BMap.Point(lng, lat);
+  let infoWindow = new BMap.InfoWindow(content, opts);  // 创建信息窗口对象 
+  map.openInfoWindow(infoWindow, point); //开启信息窗口
+})
+Event.listen('panToMarkerPoint', (fixinginfo) => {
   map.closeInfoWindow()
-  console.log(fixinginfo.latest_location.longitude, fixinginfo.latest_location.latitude)
   map.clearOverlays()
-  Event.trigger('setMapMakerPoint', fixinginfo)
+  Event.trigger('setMapMakerPoint', fixinginfo, true)
   map.panTo(new BMap.Point(fixinginfo.latest_location.longitude, fixinginfo.latest_location.latitude));
   map.setZoom(18)
 })
 
-Event.listen('redirectControl', (fixingId) => {
-  location.href = `control.html?fixingId=${fixingId}`
+Event.listen('redirectControl', (fixingId, { lng, lat }) => {
+  location.href = `control.html?fixingId=${fixingId}&lng=${lng}&lat=${lat}`
 })
-Event.listen('redirectTrajectory', (fixingId) => {
-  location.href = `trajectory.html?fixingId=${fixingId}`
+Event.listen('redirectTrajectory', (fixingId, { lng, lat }) => {
+  location.href = `trajectory.html?fixingId=${fixingId}&lng=${lng}&lat=${lat}`
 })
-var home = (function (map) {
-  function onShowInstructionModal(lng, lat) {
-    var opts = {
-      width: 760
-    }
-    map.closeInfoWindow()
-    var tmp = `
-    <div class="d-flex text-white" style="max-width: 860px;">
-      <div class="base-container mr-2">
-        <h5 class="normal mb-3">指令回复</h5>
-        <div style="background-color: #151934;" class="p-3">
-          <p class="word breakword mb-3">
-            f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-            del /f /s /q %systemdrive%\*.tmp
-          </p>
-          <button type="button" class="btn btn-primary btn-sm d-flex align-items-center">
-            <img src="/assets/choice_remove.png" width="15" height="15" class="mr-1" />清空</button>
-        </div>
-      </div>
-      <div class="bing-container d-flex flex-column " style="flex: 1;">
-        <h5 class="normal mb-3">发送指令</h5>
-        <div style="background-color: #151934; flex: 1;" class="p-3">
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
-            <label class="form-check-label" for="inlineRadio1">请选择指令</label>
-          </div>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
-            <label class="form-check-label" for="inlineRadio2">请选择指令</label>
-          </div>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
-            <label class="form-check-label" for="inlineRadio3">请选择指令</label>
-          </div>
-          <textarea class="form-control mb-2 text-white bg-dark" id="exampleFormControlTextarea1" rows="3"></textarea>
-          <button type="button" class="btn btn-primary btn-sm">发送指令</button>
-        </div>
-      </div>
-    </div>
-  `
-    var point = new BMap.Point(lng, lat);
-    var infoWindow = new BMap.InfoWindow(tmp, opts);  // 创建信息窗口对象 
-    map.openInfoWindow(infoWindow, point); //开启信息窗口
-  }
+Event.listen('connectWebsocket', () => {
 
-}(
-  map
-))
+})
+Event.listen('setLiveInfo', () => {
 
-
+})
 var a = (function (map) {
   let userInfo = null,
     allArrays = null,
@@ -283,9 +344,9 @@ var a = (function (map) {
 
   $LOGIN_FORM.submit(function (e) {
     e.preventDefault()
-    let $currentTartget = $(e.currentTarget),
-      username = $currentTartget.find('#username').val(),
-      password = $currentTartget.find('#password').val()
+    let $currentTarget = $(e.currentTarget),
+      username = $currentTarget.find('#username').val(),
+      password = $currentTarget.find('#password').val()
     AdminLoginAccount({ username, password })
   })
   // 账户登录
@@ -302,175 +363,191 @@ var a = (function (map) {
   }
   // 修改管理密码
   function AdminEditPassword({ adminId, oldPassword, newPassword }) {
-
+    return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword  })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 操作用户拉黑状态
   function AdminUpdateUserStatusInfo({ adminId, userId, userStatus }) {
-
+    return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 统计用户数据
   function StatisticsUserData({ adminId, time }) {
-
-
+    return axios.post('/StatisticsUserData', Qs.stringify({ adminId, time })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 统计设备数据
   function AdminStatisticsFixingData({ adminId, time }) {
-
+    return axios.post('/AdminStatisticsFixingData', Qs.stringify({ adminId, time })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
 
   // 获取设备列表
   function GetFixingList({ adminId, keyword }) {
-    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+    return axios.post('/GetFixingList', Qs.stringify({keyword })).then(res => {
+      if(!res) return
       let fixings = res.data.data
       currentArrays = allArrays = Object.assign([], fixings)
       onlineArrays = fixings.filter(item => item.entity_desc === '在线')
       offlineArrays = fixings.filter(item => item.entity_desc === '离线')
-      Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-      Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-      Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
-      fixings.map(item => Event.trigger('setMapMakerPoint', item))
       return fixings
     })
   }
   // 后台获取鞋垫详情
-  function GetFixingInfo({ adminId, fixingId }) {
-    let opts = {
-      width: 760
-    }
+  function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
     map.closeInfoWindow()
-    let $tmp
     return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
       if (res.data.ret == 1002) return window.alert(res.data.code)
       if (res.data.ret == 1003) return window.alert(res.data.code)
-      let { bindingList, fixinginfo } = res.data
-      let bindingListTmp = bindingList.map(item => {
-        return `<tr>
-        <th scope="row" class="p-1 text-center" width="10%">
-        <img src="${item.UserIcon}" width="16" height="16" />  
-        </th>
-        <td class="p p-1" width="10%">${item.relation}</td>
-        <td class="p p-1 text-white-50" width="15%">${item.Phone}</td>
-        <td class="p p-1 text-white-50" width="20%">${item.fixingName}</td>
-        <td class="p p-1 text-white-50" width="30%">${item.createTime}</td>
-        <td class="p p-1 text-white-50" width="15%">${item.state}</td>
-      </tr>`
-      })
-      $tmp = $(`<div>
-    <div class="d-flex text-white">
-      <div class="base-container mr-2">
-        <h5 class="normal mb-3">基本信息</h5>
-        <div style="background-color: #151934; width: 230px;" class="p-3">
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${fixingId}
-              <span>${fixinginfo.mode === '1' ? '在线' : '离线'}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">鞋垫ID
-              <span>鞋垫状态</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">4
-              <span>${fixinginfo.emergencyContact}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">产品批次
-              <span>紧急联系人</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.createTime, true)}
-              <span>${timestamp(fixinginfo.expireTime, true)}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">生成时间
-              <span>月卡时间</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.activatedTime, true)}
-              <span>${fixinginfo.emergencyContact}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">激活时间
-              <span>服务手机号</span>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="bing-container d-flex flex-column " style="flex: 1;">
-        <h5 class="normal mb-3">绑定者信息</h5>
-        <div style="background-color: #151934; flex: 1;">
-          <table class="p table table-borderless">
-            <thead class="p-2 normal">
-              <tr>
-                <th scope="col" class="normal text-muted p-1" width="10%">头像</th>
-                <th scope="col" class="normal text-muted p-1" width="10%">昵称</th>
-                <th scope="col" class="normal text-muted p-1" width="15%">电话</th>
-                <th scope="col" class="normal text-muted p-1" width="20%">鞋垫昵称</th>
-                <th scope="col" class="normal text-muted p-1" width="30%">绑定时间</th>
-                <th scope="col" class="normal text-muted p-1" width="15%">审核</th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-      </div>
-    </div>
-    </div>`)
-      $tmp.find('.table').append(`<tbody>${bindingListTmp.join(' ')}</tbody>`)
-      var point = new BMap.Point(lng, lat);
-      var infoWindow = new BMap.InfoWindow($tmp.html(), opts);  // 创建信息窗口对象 
-      map.openInfoWindow(infoWindow, point); //开启信息窗口
+      Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
+      return res.data
     })
   }
   // 获取二维码
-  function GetFixingQRCode({ adminId, fixingId }) {
-    let opts = {
-      width: 480
-    }
-    axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
+  function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {
+    return axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
       if (res.data.ret == 1002) return window.alert(res.data.code)
       if (res.data.ret == 1003) return window.alert(res.data.code)
-      tmp = `
-      <div class='bg-dark'>
-          <h5 class="normal mb-3">二维码</h5>
-          <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data.data}" width="218" height="218" />
-          </div>
-    </div>`
-      var infoWindow = new BMap.InfoWindow(tmp, opts);  // 创建信息窗口对象 
-      map.openInfoWindow(infoWindow, point); //开启信息窗口
+      Event.trigger('setFixingQRCodeWindow', res.data.data, { lng, lat })
+      return res.data
     })
   }
   // 后台获取用户总数
   function GetUserCount({ adminId, seach }) {
-
+    return axios.post('/GetUserCount', Qs.stringify({ adminId, seach })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 后台获取用户列表
   function GetUserList({ adminId, start, limit, sidx, sord, seach }) {
-
+    return axios.post('/GetUserList', Qs.stringify({ adminId, start, limit, sidx, sord, seach })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 获取指定用户详情
   function GetUserInfo({ adminId, userId }) {
-
+    return axios.post('/GetUserInfo', Qs.stringify({ adminId, userId })).then(res => {
+     
+      return res.data
+    })
   }
   // 获取鞋垫运动数据（时间戳前7天）
   function GetFixingSportData({ adminId, fixingId, times }) {
-
+    return axios.post('/GetFixingSportData', Qs.stringify({ adminId, fixingId, times })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 获取鞋垫最近一次定位
   function GetLastPosition({ adminId, fixingId }) {
-
+    return axios.post('/GetLastPosition', Qs.stringify({ adminId, fixingId })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 获取指定时间戳内的轨迹（文字列表）
   function GetTrackList({ adminId, fixingId, time }) {
-
+    return axios.post('/GetTrackList', Qs.stringify({ adminId, fixingId, time })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   // 后台获取命令代码
-  function AdminGetInstructionsList({ adminId }) {
+  function AdminGetInstructionsList({ adminId }, { lng, lat }) {
+    let opts = {
+      width: 760
+    }, $content, $instructionslists
+    map.closeInfoWindow()
+    return axios.post('/AdminGetInstructionsList', Qs.stringify({ adminId })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      $instructionslists = res.data.data.map(item => {
+        // <img src="/assets/choice_checkmark.png" alt="choice_checkmark" class="rounded-circle mr-2 ml-2" width="20" height="20">
+        return $(`<div class="form-check">
+        <label class="form-check-label pointer d-flex flex-row mb-2" for="inlineRadio${item.Id}">
+        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio${item.Id}" value="${item.Instructions}">
+          ${item.Content}
+          </label>
+        </div>`)
+      })
+      $content = $(`<div>
+     
+      <div class="d-flex text-white" style="max-width: 860px;">
+        <div class="base-container mr-2">
+          <h5 class="normal mb-3">指令回复</h5>
+          <div style="background-color: #151934;" class="p-3">
+            <p class="word breakword mb-3">
+              f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+              del /f /s /q %systemdrive%\*.tmp
+            </p>
+            <button type="button" class="btn btn-primary btn-sm d-flex align-items-center">
+              <img src="/assets/choice_remove.png" width="15" height="15" class="mr-1" />清空</button>
+          </div>
+        </div>
+        <div class="bing-container d-flex flex-column " style="flex: 1;">
+          <h5 class="normal mb-3">发送指令</h5>
+          <form class="instructions-form">
+            <div style="background-color: #151934; flex: 1;" class="p-3">
+              <div class="instructions-container">
+              </div>
+              <textarea class="form-control mb-2 text-white bg-dark" id="instructionsControlTextarea" rows="3"></textarea>
+              <button type="submit" class="btn btn-primary btn-sm">发送指令</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>`)
+      $content.find('.instructions-container').append($instructionslists)
+      let point = new BMap.Point(lng, lat);
+      let infoWindow = new BMap.InfoWindow($content.html(), opts);  // 创建信息窗口对象 
+      // 注册事件
+      BMapLib.EventWrapper.addListener(infoWindow, 'open', function (e) {
+        Event.trigger('connectWebsocket')
+        //绑定信息框的单击事件
+        $(".instructions-container").off('click').on("click", 'label', function (e) {
+          $('#instructionsControlTextarea').text($(e.currentTarget).find('input').val())
+        })
+        $(".instructions-form").off('click').submit("click", function (e) {
+          e.preventDefault()
+          let value = $(e.currentTarget).find('#instructionsControlTextarea').text()
+          if (!value) return alert('请选择发送指令')
+        })
+      })
 
+      map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+    })
   }
   // 获取指定时间戳内的设备操作指令
   function AdminGetInstructions({ adminId, fixingId, time }) {
-
+    return axios.post('/AdminGetInstructions', Qs.stringify({ adminId, fixingId, time })).then(res => {
+      if (res.data.ret == 1002) return window.alert(res.data.code)
+      if (res.data.ret == 1003) return window.alert(res.data.code)
+      return res.data
+    })
   }
   function _SetLoaclStorageUserInfo(userInfo) {
     window.localStorage.setItem('userinfo', JSON.stringify(userInfo))
@@ -489,6 +566,9 @@ var a = (function (map) {
     })
 
   }
+  function ClearLoaclStorageUserInfo  () {
+    window.localStorage.removeItem('userinfo')
+  }
   function _GetNavTabActiveIndex() {
     return navTabActiveIndex
   }
@@ -497,6 +577,9 @@ var a = (function (map) {
   }
   function _GetLoaclUserInfo() {
     return userInfo
+  }
+  function _SetLoaclUserInfo(newUserInfo) {
+    userInfo = newUserInfo
   }
   function _SetCurrentArrays(newCurrentArrays) {
     currentArrays = newCurrentArrays
@@ -515,11 +598,27 @@ var a = (function (map) {
   }
   return {
     AdminLoginAccount,
+    AdminEditPassword,
+    AdminUpdateUserStatusInfo,
+    StatisticsUserData,
+    AdminStatisticsFixingData,
     GetFixingList,
+    GetFixingInfo,
+    GetFixingQRCode,
+    GetUserCount,
+    GetUserList,
+    GetUserInfo,
+    GetFixingSportData,
+    GetLastPosition,
+    GetTrackList,
+    AdminGetInstructionsList,
+    AdminGetInstructions,
     GetLoaclStorageUserInfo,
+    ClearLoaclStorageUserInfo,
     _GetNavTabActiveIndex,
     _SetNavTabActiveIndex,
     _GetLoaclUserInfo,
+    _SetLoaclUserInfo,
     _SetCurrentArrays,
     _GetCurrentArrays,
     _GetAllArrays,

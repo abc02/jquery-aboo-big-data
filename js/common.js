@@ -100,6 +100,18 @@ axios.interceptors.request.use(function (config) {
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
   // Do something with response data
+  if (response.data.ret == 1002) {
+    window.alert(response.data.code)
+    return null
+  } 
+  if (response.data.ret == 1003) {
+    a.ClearLoaclStorageUserInfo()
+    a._SetLoaclUserInfo(null)
+    Event.trigger('setUserInfo')
+    window.alert(response.data.code)
+    $LOGIN_MODAL.modal('show')
+    return null
+  } 
   return response;
 }, function (error) {
   // Do something with response error

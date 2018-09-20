@@ -60,9 +60,9 @@ input {
   background-color: rgba(0, 0, 0, 0);
 }
 
-input[type="radio"] {
+/* input[type="radio"] {
   display: none;
-}
+} */
 
 img {
   /* display: block; */
@@ -88,3 +88,14 @@ img {
 /* .BMap_pop .BMap_bubble_content{
     display: block !important;
 } */
+
+   
+   
+.table thead th {
+  border-bottom: none;
+}
+
+.table td,
+.table th {
+  border-top: none;
+}
