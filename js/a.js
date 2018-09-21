@@ -1,7 +1,142 @@
+$('.home-button').click(function () {
+  $('.slider-dialog').toggle()
+})
+$('.conctrol-button').click(function () {
+  $('.slider-dialog').toggle()
+})
+$('.slider-doork').click(function () {
+  $('.slider-dialog').toggle()
+})
+$('.slider-close').click(function () {
+  $('.slider-dialog').hide()
+})
+$('.bottom-doork-map').click(e => {
+  $('.liveinfo-container').show()
+  $(e.currentTarget).hide()
+})
+$('.bottom-doork-live').click(e => {
+  $('.liveinfo-container').hide()
+  $('.bottom-doork-map').show()
+})
+$('.bottom-doork-inner').click(function () {
+  $('.bottom-dialog').hide()
+  $('.bottom-doork').show()
+})
+$('.bottom-close').click(function () {
+  $('.bottom-dialog').hide()
+  $('.bottom-doork').show()
+})
+
+// el
+const $FIXING_NAV_TAB_CONTAINER = $('.nav-tab-container'),
+  $FIXING_LIST_CONTAINER = $('.fixing-container'),
+  $FIXING_PAGEINATION = $('#pagination'),
+  $FIXING_NAV_SEARCH = $('.nav-search'),
+  $LOGIN_FORM = $('.login-form'),
+  $LOGIN_MODAL = $('#loginModal'),
+  $USER_CONTAINER = $('.user-container'),
+  $LIVE_INFO_TBODY = $('.live-info-tbody')
+
+function financial(x, num = 4) {
+  return Number.parseFloat(x).toFixed(num);
+}
+function timestamp(date, isType = false) {
+  if (!date) return ''
+  if (String(date).length < 12) {
+    date = Number.parseInt(date + '000')
+  }
+  let handleToYYYYMMDD = date => {
+    let Year, Month, Day
+    Year = date.getFullYear()
+    Month = date.getMonth() + 1
+    Day = date.getDate()
+    return {
+      YYYY: Year,
+      MM: Month,
+      DD: Day
+    }
+  }
+  let handleToHHMMSSMS = date => {
+    let Hours, Minutes, Seconds, Milliseconds
+    Hours = date.getHours()
+    Minutes = date.getMinutes()
+    Seconds = date.getSeconds()
+    Milliseconds = date.getMilliseconds()
+    return {
+      HH: Hours,
+      MM: Minutes,
+      SS: Seconds,
+      MS: Milliseconds
+    }
+  }
+  let handleToPad = (num, n = 2) => {
+    if ((num + '').length >= n) return num
+    return handleToPad('0' + num, n)
+  }
+  let YYYYMMDD = handleToYYYYMMDD(new Date(date))
+  let HHMMSSMS = handleToHHMMSSMS(new Date(date))
+  if (isType) {
+    return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)}`
+  }
+  return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)} ${handleToPad(HHMMSSMS.HH)}:${handleToPad(HHMMSSMS.MM)}:${handleToPad(HHMMSSMS.SS)}`
+}
+axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+// axios.defaults.headers.common[''] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBZG1pbklkIjoiMyIsImV4cCI6MTUzODI4OTgwM30.YkXr2kW9F58d0Nt9EjHLp1NgHoTN4Ykg7iqTHYzMiug'
+
+
+// Add a request interceptor
+axios.interceptors.request.use(function (config) {
+  // Do something before request is sent
+  let auths = ['AdminLoginAccount']
+  // let { entity_name, latest_location } = fixinginfo
+  const RESULT = auths.every(auth => config.url.search(auth) > -1)
+  if (!RESULT) {
+    const USERINFO = JSON.parse(window.localStorage.getItem('userinfo'))
+    if (USERINFO) {
+      config.headers['Authorization'] = USERINFO.JwtToken
+    }
+  }
+  return config;
+}, function (error) {
+  // Do something with request error
+  return Promise.reject(error);
+});
+
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+  // Do something with response data
+  if (response.data.ret == 1002) {
+    window.alert(response.data.code)
+    return null
+  }
+  if (response.data.ret == 1003) {
+    window.alert(response.data.code)
+    if (response.data.code === '认证失败') {
+      a.ClearLoaclStorageUserInfo()
+      a._SetLoaclUserInfo(null)
+      Event.trigger('setUserInfo', $USER_CONTAINER)
+      $LOGIN_MODAL.modal('show')
+      return null
+    }
+    if (response.data.code === '定位失败') {
+      clearInterval(a._GetIntervalerGetLastPosition())
+      return null
+    }
+    return null
+  }
+  return response;
+}, function (error) {
+  // Do something with response error
+  return Promise.reject(error);
+});
+
+
+
 Event.listen('setUserInfo', ($el) => {
   const USERINFO = a._GetLoaclUserInfo()
   let $userInfo
-  if(USERINFO) {
+  if (USERINFO) {
     $userInfo = $(`
     <img src="/assets/default.png" wdith="48" height="48" />
     <div class="dropdown mr-2 ml-2">
@@ -14,7 +149,7 @@ Event.listen('setUserInfo', ($el) => {
     $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
     </div>`)
   }
- 
+
   $el.html($userInfo)
 })
 Event.listen('setFixingSearch', ($el) => {
@@ -65,8 +200,8 @@ Event.listen('setFixingNavTab', ($el) => {
     .on('click', 'li', function (e) {
       map.clearOverlays()
       let classNames = ['fixing-all', 'fixing-online', 'fixing-offline'],
-        currentArrays,
-        $currentTarget = $(e.currentTarget)
+        currentArrays, pageSize
+      $currentTarget = $(e.currentTarget)
       a._SetNavTabActiveIndex($currentTarget.index())
       $currentTarget.removeClass('text-muted').addClass('border-bottom text-white').siblings().removeClass('border-bottom text-white').addClass('text-muted')
       const result = classNames.filter(className => $currentTarget.hasClass(className))
@@ -75,15 +210,25 @@ Event.listen('setFixingNavTab', ($el) => {
         case 'fixing-all':
           currentArrays = ALLARRAYS.filter(item => item.entity_name.search(value) > -1)
           a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+          if (location.href.search('control.html') > -1) {
+            pageSize = 6
+          } else {
+            pageSize = 10
+          }
+          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
           currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
           break;
         case 'fixing-online':
           currentArrays = ONLINEARRAYS.filter(item => item.entity_name.search(value) > -1)
           a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+          if (location.href.search('control.html') > -1) {
+            pageSize = 6
+          } else {
+            pageSize = 10
+          }
+          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
           currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
           break;
         case 'fixing-offline':
@@ -91,18 +236,23 @@ Event.listen('setFixingNavTab', ($el) => {
             return item.entity_name.search(value) > -1
           })
           a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+          if (location.href.search('control.html') > -1) {
+            pageSize = 6
+          } else {
+            pageSize = 10
+          }
+          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
           currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
           break;
       }
     }).find('li').eq(a._GetNavTabActiveIndex()).removeClass('text-muted').addClass('border-bottom text-white')
 })
 
-Event.listen('setFixingLists', ($el, currentPage = 0) => {
+Event.listen('setFixingLists', ($el, currentPage = 0, pageSize = 10) => {
   let visibilityArrays = []
   const CURRENTARRAYS = a._GetCurrentArrays()
-  for (let index = currentPage * 10; index < (currentPage * 10) + 10; index++) {
+  for (let index = currentPage * pageSize; index < (currentPage * pageSize) + pageSize; index++) {
     if (CURRENTARRAYS[index]) visibilityArrays.push(CURRENTARRAYS[index])
   }
   visibilityArrays = visibilityArrays.map(item => {
@@ -120,28 +270,31 @@ Event.listen('setFixingLists', ($el, currentPage = 0) => {
     Event.trigger('panToMarkerPoint', fixinginfo)
   })
 })
-Event.listen('setFixingPagination', ($el) => {
+Event.listen('setFixingPagination', ($el, pageSize = 10) => {
   const CURRENTARRAYS = a._GetCurrentArrays()
   $el.jqPaginator({
     totalCounts: CURRENTARRAYS.length ? CURRENTARRAYS.length : 1,
-    pageSize: 10,
+    pageSize,
     visiblePages: 5,
     currentPage: 1,
     prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
     next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
     page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
     onPageChange: function (num, type) {
-      Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1)
+      Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1, pageSize)
     }
   })
 })
 Event.listen('setMapMakerPoint', (item, isOne = false) => {
-  let userInfo = a._GetLoaclUserInfo()
-  let opts = {
-    width: 458,     // 信息窗口宽度
-  };
   let { entity_name, entity_desc, create_time, modify_time, latest_location } = item
-  let content,
+  if(item.positions) {
+    latest_location.longitude = item.positions.split(',')[0]
+    latest_location.latitude = item.positions.split(',')[1]
+    console.log()
+  }
+  let content, 
+    opts = { width: 458 },
+    userInfo = a._GetLoaclUserInfo()
     porintOnline = new BMap.Icon("/assets/porint_online.png", new BMap.Size(31, 44)),
     porintOffline = new BMap.Icon("/assets/porint_offline.png", new BMap.Size(31, 44)),
     point = new BMap.Point(latest_location.longitude, latest_location.latitude),
@@ -182,7 +335,12 @@ Event.listen('setMapMakerPoint', (item, isOne = false) => {
     let infoWindow = new BMap.InfoWindow(content, opts)  // 创建信息窗口对象 
     let clickListener = BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
       map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+      Event.trigger('GetLastPosition', item)
     })
+    // marker.addEventListener("click", function (e) {
+    //   map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+    // //   Event.trigger('GetLastPosition', item.entity_name)
+    // })
     BMapLib.EventWrapper.addListener(infoWindow, 'open', function (e) {
       //绑定信息框的单击事件
       $("#markerinfo").on("click", 'button', function (e) {
@@ -216,12 +374,12 @@ Event.listen('setMapMakerPoint', (item, isOne = false) => {
   })
 })
 Event.listen('setFixingInfoWindow', ({ fixingId, bindingList, fixinginfo }, { lng, lat }) => {
-   let $content, bindingListTmp,opts = {
+  let $content, bindingListTmp, opts = {
     width: 760
   }
   if (bindingList) {
     bindingListTmp = bindingList.map(item => {
-      return `<tr>
+      return `<tr class="pointer">
       <th scope="row" class="p-1 text-center" width="10%">
       <img src="${item.UserIcon}" width="16" height="16" />  
       </th>
@@ -320,6 +478,9 @@ Event.listen('panToMarkerPoint', (fixinginfo) => {
   Event.trigger('setMapMakerPoint', fixinginfo, true)
   map.panTo(new BMap.Point(fixinginfo.latest_location.longitude, fixinginfo.latest_location.latitude));
   map.setZoom(18)
+  if (location.href.search('control.html') > -1) {
+    Event.trigger('GetLastPosition', fixinginfo)
+  }
 })
 
 Event.listen('redirectControl', (fixingId, { lng, lat }) => {
@@ -331,16 +492,135 @@ Event.listen('redirectTrajectory', (fixingId, { lng, lat }) => {
 Event.listen('connectWebsocket', () => {
 
 })
-Event.listen('setLiveInfo', () => {
-
+Event.listen('GetLastPosition', fixinginfo => {
+  console.log('---after', a._GetIntervalerGetLastPosition())
+  clearInterval(a._GetIntervalerGetLastPosition())
+  console.log('---befor', a._GetIntervalerGetLastPosition())
+  a._SetIntervalerGetLastPosition(setInterval(() => {
+    let userinfo = a._GetLoaclUserInfo()
+    a.GetLastPosition({ adminId: userinfo.AdminId, fixingId: fixinginfo.entity_name }).then(res => {
+      map.clearOverlays()
+      Event.trigger('setMapMakerPoint', { ...fixinginfo, ...res})
+    })
+  }, 1000))
 })
-var a = (function (map) {
+Event.listen('setLiveInfo', ($el, liveinfo) => {
+  let { address, charge, code, createTime, electricity, mode, modestatus, positions, shutdown, fixingId } = liveinfo, $content, xx
+  if (shutdown === '1') {
+    xx = '在线'
+  }
+  if (shutdown !== '1') {
+    xx = '离线'
+  }
+  if (charge === '1') {
+    xx = '充电'
+  }
+  $content = $(`
+  <tr>
+    <th scope="row" class="normal pt-4 pb-4 text-center">${xx}</th>
+    <td class="normal pt-4 pb-4 text-center">${mode}</td>
+    <td class="normal pt-4 pb-4 text-center">${fixingId}</td>
+    <td class="normal pt-4 pb-4 text-center">${timestamp(createTime)}</td>
+    <td class="normal pt-4 pb-4 text-center">${address}</td>
+    <td class="normal pt-4 pb-4 text-center">${code}</td>
+  </tr>
+  `)
+  $el.append($content)
+})
+
+//百度地图API功能
+let map = (function (BMap) {
+  let baiduMap = new BMap.Map("baidumap");            // 创建Map实例
+  let point = new BMap.Point(116.331398, 39.897445); // 默认北京
+  let currentCity = new BMap.LocalCity();
+  // let geoc = new BMap.Geocoder(); // 类用于获取用户的地址解析。
+  let cityName
+  baiduMap.centerAndZoom(point, 14);
+  baiduMap.enableContinuousZoom(); // 启用连续缩放效果，默认禁用
+  baiduMap.enableScrollWheelZoom();  // 启用滚轮放大缩小
+  baiduMap.enableInertialDragging(); // 启用地图惯性拖拽，默认禁用
+  currentCity.get(function (result) {
+    cityName = result.name
+    baiduMap.setCenter(cityName)
+  })
+
+  // 因此解决办法就是: 每次zoom完后自动平移下地图
+  baiduMap.addEventListener('zoomend', function () {
+    var p = baiduMap.getCenter();
+    // 测试后得出的平移最小精度
+    // 如果设置更小的精度就没有办法完成"小小平移下地图"的动作,
+    // 有可能是百度地图做了平移的限制
+    p.lng += 0.00001;
+    try {
+      // 地图在panTo的时候有可能出现异常
+      map.panTo(p);
+    } catch (e) {
+      console.error(e.message);
+    }
+  });
+  // map.addEventListener("tilesloaded", function () {//地图加载完毕
+  //   let visibleMakers, makers, bs, bssw, bsne, b
+  //   makers = map.getOverlays()
+  //   bs = map.getBounds();   //获取可视区域
+  //   bssw = bs.getSouthWest();   //可视区域左下角
+  //   bsne = bs.getNorthEast();   //可视区域右上角
+  //   b = new BMap.Bounds(new BMap.Point(bssw.lng, bssw.lat),new BMap.Point(bsne.lng, bsne.lat));
+  //   visibleMakers = makers.map(maker => {
+  //     if(b.containsPoint(maker.getPosition())) {
+  //       return maker
+  //     }
+  //   })
+  //   console.log(visibleMakers.length)
+  //   $('.visible-maker').text(visibleMakers.length)
+  //   //加载可视区域内已保存的标点
+  //   //略...
+  // });
+  // //鼠标点击触发事件
+  // map.addEventListener("click", function (e) {
+  //   var pt = e.point; //获取标点
+  //   geoc.getLocation(pt, function (rs) {
+  //     //返回地址描述信息，是个字符串，比如：北京市丰台区海鹰路9号
+  //     var add = rs.address;
+
+  //     //返回结构化的地址描述信息，是个对象，返回省、市、县等信息
+  //     var addComp = rs.addressComponents;
+  //     //alert(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
+
+  //     //判断标点所属城市，非本城市不允许标点
+  //     if (addComp.city != cityName) {
+  //       alert('只能在本城市范围内标点');
+  //       return false;
+  //     }
+  //   });
+  // })
+
+  let size = new BMap.Size(10, 20);
+  baiduMap.addControl(new BMap.CityListControl({
+    anchor: BMAP_ANCHOR_TOP_LEFT,
+    offset: size,
+    // 切换城市之间事件
+    onChangeBefore: function () {
+      console.log('before');
+    },
+    // 切换城市之后事件
+    onChangeAfter: function (e) {
+      console.log(baiduMap.getCurrentCity())
+      console.log('after');
+    }
+  }));
+  return baiduMap
+})(BMap)
+
+let a = (function (map) {
   let userInfo = null,
     allArrays = null,
     onlineArrays = null,
     offlineArrays = null,
     currentArrays = null,
-    navTabActiveIndex = 0
+    navTabActiveIndex = 0,
+    oldliveinfo = null,
+    isFirstGetLastPosition = true,
+    intervalerGetLastPosition = null
 
   $LOGIN_FORM.submit(function (e) {
     e.preventDefault()
@@ -352,52 +632,63 @@ var a = (function (map) {
   // 账户登录
   function AdminLoginAccount({ username, password }) {
     return axios.post('/AdminLoginAccount', Qs.stringify({ username, password })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       userInfo = res.data
       _SetLoaclStorageUserInfo(res.data)
       Event.trigger('setUserInfo', $USER_CONTAINER)
-      GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' })
+      GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
+        let pageSize
+        Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+        Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+        if (location.href.search('control.html') > -1) {
+          pageSize = 6
+        } else {
+          pageSize = 10
+        }
+        Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+        if (location.href.search('control.html') > -1) {
+          Event.trigger('setFixingPagination-min', $FIXING_PAGEINATION)
+        } else {
+          Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+        }
+        res.map(item => Event.trigger('setMapMakerPoint', item))
+      })
       $LOGIN_MODAL.modal('hide')
     })
   }
   // 修改管理密码
   function AdminEditPassword({ adminId, oldPassword, newPassword }) {
-    return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword  })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+    return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword })).then(res => {
+      if (!res) return
       return res.data
     })
   }
   // 操作用户拉黑状态
   function AdminUpdateUserStatusInfo({ adminId, userId, userStatus }) {
     return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
   // 统计用户数据
   function StatisticsUserData({ adminId, time }) {
     return axios.post('/StatisticsUserData', Qs.stringify({ adminId, time })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
   // 统计设备数据
   function AdminStatisticsFixingData({ adminId, time }) {
     return axios.post('/AdminStatisticsFixingData', Qs.stringify({ adminId, time })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
 
   // 获取设备列表
   function GetFixingList({ adminId, keyword }) {
-    return axios.post('/GetFixingList', Qs.stringify({keyword })).then(res => {
-      if(!res) return
+    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
+      if (!res) return
       let fixings = res.data.data
       currentArrays = allArrays = Object.assign([], fixings)
       onlineArrays = fixings.filter(item => item.entity_desc === '在线')
@@ -409,8 +700,7 @@ var a = (function (map) {
   function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
     map.closeInfoWindow()
     return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
       return res.data
     })
@@ -418,8 +708,7 @@ var a = (function (map) {
   // 获取二维码
   function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {
     return axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       Event.trigger('setFixingQRCodeWindow', res.data.data, { lng, lat })
       return res.data
     })
@@ -427,47 +716,63 @@ var a = (function (map) {
   // 后台获取用户总数
   function GetUserCount({ adminId, seach }) {
     return axios.post('/GetUserCount', Qs.stringify({ adminId, seach })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
   // 后台获取用户列表
   function GetUserList({ adminId, start, limit, sidx, sord, seach }) {
     return axios.post('/GetUserList', Qs.stringify({ adminId, start, limit, sidx, sord, seach })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
   // 获取指定用户详情
   function GetUserInfo({ adminId, userId }) {
     return axios.post('/GetUserInfo', Qs.stringify({ adminId, userId })).then(res => {
-     
+      if (!res) return
       return res.data
     })
   }
   // 获取鞋垫运动数据（时间戳前7天）
   function GetFixingSportData({ adminId, fixingId, times }) {
     return axios.post('/GetFixingSportData', Qs.stringify({ adminId, fixingId, times })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
   // 获取鞋垫最近一次定位
   function GetLastPosition({ adminId, fixingId }) {
     return axios.post('/GetLastPosition', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
+      // 第一次获取
+      if (isFirstGetLastPosition) {
+        Event.trigger('setLiveInfo', $LIVE_INFO_TBODY, { ...res.data, fixingId })
+        isFirstGetLastPosition = false
+        oldliveinfo = Object.assign({}, { ...res.data, fixingId })
+        return res.data
+      }
+      // 对比设备id
+      if (oldliveinfo.fixingId !== fixingId) {
+        $LIVE_INFO_TBODY.empty()
+        Event.trigger('setLiveInfo', $LIVE_INFO_TBODY, { ...res.data, fixingId })
+        oldliveinfo = Object.assign({}, { ...res.data, fixingId })
+        return res.data
+      }
+      // 对比更新时间
+      if (oldliveinfo.createTime !== res.data.createTime) {
+        console.log(oldliveinfo.createTime, res.data.createTime)
+        Event.trigger('setLiveInfo', $LIVE_INFO_TBODY, { ...res.data, fixingId })
+        oldliveinfo = Object.assign({}, { ...res.data, fixingId })
+        return res.data
+      }
       return res.data
     })
   }
   // 获取指定时间戳内的轨迹（文字列表）
   function GetTrackList({ adminId, fixingId, time }) {
     return axios.post('/GetTrackList', Qs.stringify({ adminId, fixingId, time })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
@@ -478,8 +783,7 @@ var a = (function (map) {
     }, $content, $instructionslists
     map.closeInfoWindow()
     return axios.post('/AdminGetInstructionsList', Qs.stringify({ adminId })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       $instructionslists = res.data.data.map(item => {
         // <img src="/assets/choice_checkmark.png" alt="choice_checkmark" class="rounded-circle mr-2 ml-2" width="20" height="20">
         return $(`<div class="form-check">
@@ -544,8 +848,7 @@ var a = (function (map) {
   // 获取指定时间戳内的设备操作指令
   function AdminGetInstructions({ adminId, fixingId, time }) {
     return axios.post('/AdminGetInstructions', Qs.stringify({ adminId, fixingId, time })).then(res => {
-      if (res.data.ret == 1002) return window.alert(res.data.code)
-      if (res.data.ret == 1003) return window.alert(res.data.code)
+      if (!res) return
       return res.data
     })
   }
@@ -566,7 +869,7 @@ var a = (function (map) {
     })
 
   }
-  function ClearLoaclStorageUserInfo  () {
+  function ClearLoaclStorageUserInfo() {
     window.localStorage.removeItem('userinfo')
   }
   function _GetNavTabActiveIndex() {
@@ -596,6 +899,12 @@ var a = (function (map) {
   function _GetofflineArrays() {
     return offlineArrays
   }
+  function _GetIntervalerGetLastPosition() {
+    return intervalerGetLastPosition
+  }
+  function _SetIntervalerGetLastPosition(newIntervalerGetLastPosition) {
+    intervalerGetLastPosition = newIntervalerGetLastPosition
+  }
   return {
     AdminLoginAccount,
     AdminEditPassword,
@@ -623,6 +932,39 @@ var a = (function (map) {
     _GetCurrentArrays,
     _GetAllArrays,
     _GetOnlineArrays,
-    _GetofflineArrays
+    _GetofflineArrays,
+    _GetIntervalerGetLastPosition,
+    _SetIntervalerGetLastPosition
   }
-}(map))
+})(map)
+
+
+a.GetLoaclStorageUserInfo().then(res => {
+  let { fixingId, lng, lat } = Qs.parse(location.search.substr(1))
+  let userinfo = res, fixinginfo, pageSize
+  if (location.href.search('control.html') > -1) {
+    pageSize = 6
+  } else {
+    pageSize = 10
+  }
+  if (res && fixingId || lng || lat) {
+    a.GetFixingList({ adminId: userinfo.AdminId, keyword: '中国' }).then(res => {
+      if (!res) return
+      fixinginfo = res.filter(item => item.entity_name === fixingId)[0]
+      Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+      Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+      Event.trigger('setMapMakerPoint', fixinginfo, true)
+    }).then(res => {
+      Event.trigger('GetLastPosition', fixinginfo)
+    })
+  } else {
+    a.GetFixingList({ adminId: res.AdminId, keyword: '中国' }).then(res => {
+      if (!res) return
+      Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+      Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+      res.map(item => Event.trigger('setMapMakerPoint', item))
+    })
+  }
+}).catch(error => console.warn(error))

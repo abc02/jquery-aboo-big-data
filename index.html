@@ -60,7 +60,7 @@
           </div>
           <ul class="nav justify-content-center nav-tab-container">
           </ul>
-          <ul class="p-3 fixing-container">
+          <ul class="p-1 fixing-container">
           </ul>
           <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
         </div>
@@ -68,7 +68,7 @@
           <img src="/assets/extension.png" alt="extension">
         </button>
       </div>
-      <div id="allmap" class="d-flex relative" style="flex: 1;"></div>
+      <div id="baidumap" class="d-flex relative" style="flex: 1;"></div>
     </div>
   </main>
   <!-- Modal-->
@@ -112,20 +112,8 @@
   <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script type="text/javascript" src="/js/common.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
   <script type="text/javascript" src="/js/a.js"></script>
-  <script>
-    a.GetLoaclStorageUserInfo().then(res => {
-      if (res) a.GetFixingList({ adminId: res.AdminId, keyword: '中国' }).then(res => {
-        Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-        Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-        Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
-        res.map(item => Event.trigger('setMapMakerPoint', item))
-      })
-    }).catch(error => console.warn(error))
-  </script>
-
 </body>
 
 </html>
