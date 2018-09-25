@@ -34,8 +34,11 @@ const $FIXING_NAV_TAB_CONTAINER = $('.nav-tab-container'),
   $FIXING_NAV_SEARCH = $('.nav-search'),
   $LOGIN_FORM = $('.login-form'),
   $LOGIN_MODAL = $('#loginModal'),
+  $DATEPICKER = $('#datepicker'),
   $USER_CONTAINER = $('.user-container'),
-  $LIVE_INFO_TBODY = $('.live-info-tbody')
+  $VISIBLE_MARKER = $('.visible-marker'),
+  $LIVE_INFO_TBODY = $('.live-info-tbody'),
+  $TRACK_LIST_TBODT = $('.track-list-tbody')
 
 function financial(x, num = 4) {
   return Number.parseFloat(x).toFixed(num);
@@ -182,6 +185,7 @@ Event.listen('setFixingSearch', ($el) => {
   })
 })
 Event.listen('setFixingNavTab', ($el) => {
+  $el.empty()
   const ALLARRAYS = a._GetAllArrays()
   const ONLINEARRAYS = a._GetOnlineArrays()
   const OFFLINEARRAYS = a._GetofflineArrays()
@@ -198,9 +202,13 @@ Event.listen('setFixingNavTab', ($el) => {
   </li>
 `)
     .on('click', 'li', function (e) {
-      map.clearOverlays()
       let classNames = ['fixing-all', 'fixing-online', 'fixing-offline'],
         currentArrays, pageSize
+      if (location.href.search('index.html') > -1) {
+        pageSize = 10
+      } else {
+        pageSize = 6
+      }
       $currentTarget = $(e.currentTarget)
       a._SetNavTabActiveIndex($currentTarget.index())
       $currentTarget.removeClass('text-muted').addClass('border-bottom text-white').siblings().removeClass('border-bottom text-white').addClass('text-muted')
@@ -210,40 +218,25 @@ Event.listen('setFixingNavTab', ($el) => {
         case 'fixing-all':
           currentArrays = ALLARRAYS.filter(item => item.entity_name.search(value) > -1)
           a._SetCurrentArrays(currentArrays)
-          if (location.href.search('control.html') > -1) {
-            pageSize = 6
-          } else {
-            pageSize = 10
-          }
           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
+          Event.trigger('setVisibleMarkerPoint')
           break;
         case 'fixing-online':
           currentArrays = ONLINEARRAYS.filter(item => item.entity_name.search(value) > -1)
           a._SetCurrentArrays(currentArrays)
-          if (location.href.search('control.html') > -1) {
-            pageSize = 6
-          } else {
-            pageSize = 10
-          }
           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
+          Event.trigger('setVisibleMarkerPoint')
           break;
         case 'fixing-offline':
           currentArrays = OFFLINEARRAYS.filter(item => {
             return item.entity_name.search(value) > -1
           })
           a._SetCurrentArrays(currentArrays)
-          if (location.href.search('control.html') > -1) {
-            pageSize = 6
-          } else {
-            pageSize = 10
-          }
           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
+          Event.trigger('setVisibleMarkerPoint')
           break;
       }
     }).find('li').eq(a._GetNavTabActiveIndex()).removeClass('text-muted').addClass('border-bottom text-white')
@@ -256,9 +249,16 @@ Event.listen('setFixingLists', ($el, currentPage = 0, pageSize = 10) => {
     if (CURRENTARRAYS[index]) visibilityArrays.push(CURRENTARRAYS[index])
   }
   visibilityArrays = visibilityArrays.map(item => {
+    let img
+    if (item.entity_desc === '在线') {
+      img = '/assets/porint_online.png'
+    }
+    if (item.entity_desc === '离线') {
+      img = '/assets/porint_offline.png'
+    }
     let $tmp = $(`
           <li class="d-flex align-items-center justify-content-between m-2 p-2 pointer border-secondary">
-            <img src="/assets/abu.png" title="abu" class="ml-3 mr-3" width="19" height="24">
+            <img src="${img}" title="abu" class="ml-3 mr-3" width="19" height="24">
             <p class="text-muted" style="flex: 1;">${item.entity_name}</p>
             <p class="text-white">${item.entity_desc}</p>
           </li>
@@ -267,7 +267,7 @@ Event.listen('setFixingLists', ($el, currentPage = 0, pageSize = 10) => {
   })
   $el.off('click').empty().append(visibilityArrays).on('click', 'li', function (e) {
     let fixinginfo = $(e.currentTarget).data()
-    Event.trigger('panToMarkerPoint', fixinginfo)
+    Event.trigger('redirectControl', fixinginfo.entity_name, { lng: fixinginfo.latest_location.longitude, lat: fixinginfo.latest_location.latitude })
   })
 })
 Event.listen('setFixingPagination', ($el, pageSize = 10) => {
@@ -286,24 +286,28 @@ Event.listen('setFixingPagination', ($el, pageSize = 10) => {
   })
 })
 Event.listen('setMapMakerPoint', (item, isOne = false) => {
-  let { entity_name, entity_desc, create_time, modify_time, latest_location } = item
-  if(item.positions) {
+  let bs = map.getBounds(),   //获取可视区域
+    bssw = bs.getSouthWest(),   //可视区域左下角
+    bsne = bs.getNorthEast(),   //可视区域右上角
+    b = new BMap.Bounds(new BMap.Point(bssw.lng, bssw.lat), new BMap.Point(bsne.lng, bsne.lat)),
+    { entity_name, entity_desc, create_time, modify_time, latest_location } = item
+  if (item.positions) {
     latest_location.longitude = item.positions.split(',')[0]
     latest_location.latitude = item.positions.split(',')[1]
-    console.log()
   }
-  let content, 
-    opts = { width: 458 },
-    userInfo = a._GetLoaclUserInfo()
-    porintOnline = new BMap.Icon("/assets/porint_online.png", new BMap.Size(31, 44)),
-    porintOffline = new BMap.Icon("/assets/porint_offline.png", new BMap.Size(31, 44)),
-    point = new BMap.Point(latest_location.longitude, latest_location.latitude),
-    marker = new BMap.Marker(point, { icon: entity_desc === '在线' ? porintOnline : porintOffline }),
-    geoc = new BMap.Geocoder()
-  map.addOverlay(marker)          // 将标注添加到地图中
-  geoc.getLocation(point, res => {
-    // <span class='d-flex align-items-center'> <img class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%  </span>
-    content = `
+  if (b.containsPoint(new BMap.Point(latest_location.longitude, latest_location.latitude))) {
+    let content,
+      opts = { width: 458 },
+      userInfo = a._GetLoaclUserInfo(),
+      porintOnline = new BMap.Icon("/assets/porint_online.png", new BMap.Size(31, 44)),
+      porintOffline = new BMap.Icon("/assets/porint_offline.png", new BMap.Size(31, 44)),
+      point = new BMap.Point(latest_location.longitude, latest_location.latitude),
+      marker = new BMap.Marker(point, { icon: entity_desc === '在线' ? porintOnline : porintOffline }),
+      geoc = new BMap.Geocoder()
+    map.addOverlay(marker)          // 将标注添加到地图中
+    geoc.getLocation(point, res => {
+      // <span class='d-flex align-items-center'> <img class='mr-2' width='27' height='15' src='/assets/contro_electricity.png' />80%  </span>
+      content = `
       <div class='bg-dark' id='markerinfo'>
       <h5 class='d-flex justify-content-between text-white mb-2'>鞋垫ID：${entity_name}
       </h5>
@@ -332,46 +336,47 @@ Event.listen('setMapMakerPoint', (item, isOne = false) => {
       </div>
     </div>
     `
-    let infoWindow = new BMap.InfoWindow(content, opts)  // 创建信息窗口对象 
-    let clickListener = BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
-      map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
-      Event.trigger('GetLastPosition', item)
-    })
-    // marker.addEventListener("click", function (e) {
-    //   map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
-    // //   Event.trigger('GetLastPosition', item.entity_name)
-    // })
-    BMapLib.EventWrapper.addListener(infoWindow, 'open', function (e) {
-      //绑定信息框的单击事件
-      $("#markerinfo").on("click", 'button', function (e) {
-        let classNames = ['control-center', 'thetrajectory', 'fixing-info', 'instruction', 'fixing-qrcode']
-        let $currentTarget = $(e.currentTarget)
-        let { entity_name, latest_location } = item
-        const result = classNames.filter(className => $currentTarget.hasClass(className))
-        switch (result[0]) {
-          case 'control-center':
-            Event.trigger('redirectControl', entity_name, point)
-            break;
-          case 'thetrajectory':
-            Event.trigger('redirectTrajectory', entity_name, point)
-            break;
-          case 'fixing-info':
-            a.GetFixingInfo({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
-            break;
-          case 'instruction':
-            a.AdminGetInstructionsList({ adminId: userInfo.AdminId }, point)
-            break;
-          case 'fixing-qrcode':
-            a.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
-            break;
-        }
-      });
-    })
+      let infoWindow = new BMap.InfoWindow(content, opts)  // 创建信息窗口对象 
+      let clickListener = BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
+        map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+        // Event.trigger('GetLastPosition', item)
+      })
+      // marker.addEventListener("click", function (e) {
+      //   map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+      //   Event.trigger('GetLastPosition', item)
+      // })
+      BMapLib.EventWrapper.addListener(infoWindow, 'open', function (e) {
+        //绑定信息框的单击事件
+        $("#markerinfo").on("click", 'button', function (e) {
+          let classNames = ['control-center', 'thetrajectory', 'fixing-info', 'instruction', 'fixing-qrcode']
+          let $currentTarget = $(e.currentTarget)
+          let { entity_name, latest_location } = item
+          const result = classNames.filter(className => $currentTarget.hasClass(className))
+          switch (result[0]) {
+            case 'control-center':
+              Event.trigger('redirectControl', entity_name, point)
+              break;
+            case 'thetrajectory':
+              Event.trigger('redirectTrajectory', entity_name, point)
+              break;
+            case 'fixing-info':
+              a.GetFixingInfo({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
+              break;
+            case 'instruction':
+              a.AdminGetInstructionsList({ adminId: userInfo.AdminId }, point)
+              break;
+            case 'fixing-qrcode':
+              a.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
+              break;
+          }
+        });
+      })
 
-    if (isOne) {
-      BMapLib.EventWrapper.trigger(marker, "click");
-    }
-  })
+      if (isOne) {
+        BMapLib.EventWrapper.trigger(marker, "click");
+      }
+    })
+  }
 })
 Event.listen('setFixingInfoWindow', ({ fixingId, bindingList, fixinginfo }, { lng, lat }) => {
   let $content, bindingListTmp, opts = {
@@ -473,14 +478,11 @@ Event.listen('setFixingQRCodeWindow', (url, { lng, lat }) => {
   map.openInfoWindow(infoWindow, point); //开启信息窗口
 })
 Event.listen('panToMarkerPoint', (fixinginfo) => {
-  map.closeInfoWindow()
+  // map.closeInfoWindow()
   map.clearOverlays()
-  Event.trigger('setMapMakerPoint', fixinginfo, true)
   map.panTo(new BMap.Point(fixinginfo.latest_location.longitude, fixinginfo.latest_location.latitude));
   map.setZoom(18)
-  if (location.href.search('control.html') > -1) {
-    Event.trigger('GetLastPosition', fixinginfo)
-  }
+
 })
 
 Event.listen('redirectControl', (fixingId, { lng, lat }) => {
@@ -489,20 +491,54 @@ Event.listen('redirectControl', (fixingId, { lng, lat }) => {
 Event.listen('redirectTrajectory', (fixingId, { lng, lat }) => {
   location.href = `trajectory.html?fixingId=${fixingId}&lng=${lng}&lat=${lat}`
 })
-Event.listen('connectWebsocket', () => {
-
+Event.listen('setVisibleMarkerPoint', () => {
+  let pageName = location.pathname.substr(1),
+    { fixingId, lng, lat } = Qs.parse(location.search.substr(1))
+  if (!fixingId || !lng || !lat) {
+    map.clearOverlays()
+    let currentArrays = a._GetCurrentArrays()
+    currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
+    console.log(map.getOverlays().length)
+    $VISIBLE_MARKER.text(map.getOverlays().length)
+  }
 })
 Event.listen('GetLastPosition', fixinginfo => {
-  console.log('---after', a._GetIntervalerGetLastPosition())
-  clearInterval(a._GetIntervalerGetLastPosition())
-  console.log('---befor', a._GetIntervalerGetLastPosition())
-  a._SetIntervalerGetLastPosition(setInterval(() => {
-    let userinfo = a._GetLoaclUserInfo()
-    a.GetLastPosition({ adminId: userinfo.AdminId, fixingId: fixinginfo.entity_name }).then(res => {
+  if (location.href.search('control.html') > -1) {
+    clearInterval(a._GetIntervalerGetLastPosition())
+    a._SetIntervalerGetLastPosition(setInterval(() => {
+      let userinfo = a._GetLoaclUserInfo()
+      a.GetLastPosition({ adminId: userinfo.AdminId, fixingId: fixinginfo.entity_name }).then(res => {
+        map.clearOverlays()
+        map.panTo(new BMap.Point(res.positions.split(',')[0], res.positions.split(',')[1]));
+        Event.trigger('setMapMakerPoint', { ...fixinginfo, ...res })
+      })
+    }, 1000))
+  }
+})
+Event.listen('GetTrackList', fixinginfo => {
+  if (location.href.search('trajectory.html') > -1) {
+    let userinfo = a._GetLoaclUserInfo(),
+      time = timestamp(Date.now(), true)
+    $DATEPICKER.val(time)
+    a.GetTrackList({ adminId: userinfo.AdminId, fixingId: fixinginfo.entity_name, time }).then(res => {
       map.clearOverlays()
-      Event.trigger('setMapMakerPoint', { ...fixinginfo, ...res})
+      map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
+      res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
     })
-  }, 1000))
+  }
+})
+Event.listen('setTrackListMarkerPoint', item => {
+  let { address, create_time, longitude, latitude } = item,
+    porintOnline = new BMap.Icon("/assets/porint_online.png", new BMap.Size(31, 44)),
+    point = new BMap.Point(longitude, latitude),
+    marker = new BMap.Marker(point, porintOnline)
+  map.addOverlay(marker)          // 将标注添加到地图中
+
+  var polyline = new BMap.Polyline([
+    new BMap.Point(longitude, latitude),
+  ], { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });   //创建折线
+  map.addOverlay(polyline);   //增加折线
+
 })
 Event.listen('setLiveInfo', ($el, liveinfo) => {
   let { address, charge, code, createTime, electricity, mode, modestatus, positions, shutdown, fixingId } = liveinfo, $content, xx
@@ -527,72 +563,127 @@ Event.listen('setLiveInfo', ($el, liveinfo) => {
   `)
   $el.append($content)
 })
+Event.listen('setTrackList', ($el) => {
 
+})
+Event.listen('GetFixingList', (adminId, keyword = '中国') => {
+  let pageName = location.pathname.substr(1),
+    pageSize
+  switch (pageName) {
+    case 'index.html':
+      pageSize = 10
+      break;
+    case '':
+      pageSize = 10
+      break;
+    default:
+      pageSize = 6;
+      break;
+  }
+  a.GetFixingList({ adminId, keyword }).then(res => {
+    if (!res) return
+    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+    Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+    res.map(item => Event.trigger('setMapMakerPoint', item))
+    Event.trigger('setVisibleMarkerPoint')
+    map.addEventListener('moveend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+    map.addEventListener('zoomend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+  })
+})
+Event.listen('GetFixingLiveInfo', (adminId, keyword = '中国', fixingId) => {
+  let pageName = location.pathname.substr(1),
+    pageSize,
+    fixinginfo
+  switch (pageName) {
+    case 'index.html':
+      pageSize = 10
+      break;
+    case '':
+      pageSize = 10
+      break;
+    default:
+      pageSize = 6;
+      break;
+  }
+  a.GetFixingList({ adminId, keyword }).then(res => {
+    if (!res) return
+    fixinginfo = res.filter(item => item.entity_name === fixingId)[0]
+    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+    Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+    Event.trigger('setMapMakerPoint', fixinginfo)
+    Event.trigger('panToMarkerPoint', fixinginfo)
+    Event.trigger('GetLastPosition', fixinginfo)
+    Event.trigger('setVisibleMarkerPoint')
+    map.addEventListener('moveend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+    map.addEventListener('zoomend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+  })
+})
+Event.listen('GetFixingTrackList', (adminId, keyword = '中国', fixingId) => {
+  let pageName = location.pathname.substr(1),
+    pageSize,
+    fixinginfo
+  switch (pageName) {
+    case 'index.html':
+      pageSize = 10
+      break;
+    case '':
+      pageSize = 10
+      break;
+    default:
+      pageSize = 6;
+      break;
+  }
+  a.GetFixingList({ adminId, keyword }).then(res => {
+    if (!res) return
+    fixinginfo = res.filter(item => item.entity_name === fixingId)[0]
+    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+    Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+    Event.trigger('setMapMakerPoint', fixinginfo)
+    Event.trigger('panToMarkerPoint', fixinginfo)
+    Event.trigger('GetTrackList', fixinginfo)
+    Event.trigger('setVisibleMarkerPoint')
+    map.addEventListener('moveend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+    map.addEventListener('zoomend', function () {
+      Event.trigger('setVisibleMarkerPoint')
+    });
+  })
+})
 //百度地图API功能
 let map = (function (BMap) {
-  let baiduMap = new BMap.Map("baidumap");            // 创建Map实例
-  let point = new BMap.Point(116.331398, 39.897445); // 默认北京
-  let currentCity = new BMap.LocalCity();
-  // let geoc = new BMap.Geocoder(); // 类用于获取用户的地址解析。
-  let cityName
+  let baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
+    point = new BMap.Point(116.331398, 39.897445); // 默认北京
   baiduMap.centerAndZoom(point, 14);
   baiduMap.enableContinuousZoom(); // 启用连续缩放效果，默认禁用
   baiduMap.enableScrollWheelZoom();  // 启用滚轮放大缩小
   baiduMap.enableInertialDragging(); // 启用地图惯性拖拽，默认禁用
-  currentCity.get(function (result) {
-    cityName = result.name
-    baiduMap.setCenter(cityName)
-  })
+  getLocalCity()
 
-  // 因此解决办法就是: 每次zoom完后自动平移下地图
-  baiduMap.addEventListener('zoomend', function () {
-    var p = baiduMap.getCenter();
-    // 测试后得出的平移最小精度
-    // 如果设置更小的精度就没有办法完成"小小平移下地图"的动作,
-    // 有可能是百度地图做了平移的限制
-    p.lng += 0.00001;
-    try {
-      // 地图在panTo的时候有可能出现异常
-      map.panTo(p);
-    } catch (e) {
-      console.error(e.message);
-    }
+  function getLocalCity() {
+    let cityName, currentCity = new BMap.LocalCity(); // IP定位城市
+    currentCity.get(function (result) {
+      cityName = result.name
+      baiduMap.setCenter(cityName)
+    })
+  }
+
+
+  // 地图加载完毕
+  baiduMap.addEventListener("tilesloaded", () => {
+
   });
-  // map.addEventListener("tilesloaded", function () {//地图加载完毕
-  //   let visibleMakers, makers, bs, bssw, bsne, b
-  //   makers = map.getOverlays()
-  //   bs = map.getBounds();   //获取可视区域
-  //   bssw = bs.getSouthWest();   //可视区域左下角
-  //   bsne = bs.getNorthEast();   //可视区域右上角
-  //   b = new BMap.Bounds(new BMap.Point(bssw.lng, bssw.lat),new BMap.Point(bsne.lng, bsne.lat));
-  //   visibleMakers = makers.map(maker => {
-  //     if(b.containsPoint(maker.getPosition())) {
-  //       return maker
-  //     }
-  //   })
-  //   console.log(visibleMakers.length)
-  //   $('.visible-maker').text(visibleMakers.length)
-  //   //加载可视区域内已保存的标点
-  //   //略...
-  // });
-  // //鼠标点击触发事件
-  // map.addEventListener("click", function (e) {
-  //   var pt = e.point; //获取标点
-  //   geoc.getLocation(pt, function (rs) {
-  //     //返回地址描述信息，是个字符串，比如：北京市丰台区海鹰路9号
-  //     var add = rs.address;
-
-  //     //返回结构化的地址描述信息，是个对象，返回省、市、县等信息
-  //     var addComp = rs.addressComponents;
-  //     //alert(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
-
-  //     //判断标点所属城市，非本城市不允许标点
-  //     if (addComp.city != cityName) {
-  //       alert('只能在本城市范围内标点');
-  //       return false;
-  //     }
-  //   });
-  // })
 
   let size = new BMap.Size(10, 20);
   baiduMap.addControl(new BMap.CityListControl({
@@ -600,6 +691,7 @@ let map = (function (BMap) {
     offset: size,
     // 切换城市之间事件
     onChangeBefore: function () {
+      console.log(baiduMap.getCurrentCity())
       console.log('before');
     },
     // 切换城市之后事件
@@ -620,7 +712,8 @@ let a = (function (map) {
     navTabActiveIndex = 0,
     oldliveinfo = null,
     isFirstGetLastPosition = true,
-    intervalerGetLastPosition = null
+    intervalerGetLastPosition = null,
+    currentData = new Date()
 
   $LOGIN_FORM.submit(function (e) {
     e.preventDefault()
@@ -640,16 +733,16 @@ let a = (function (map) {
         let pageSize
         Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
         Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-        if (location.href.search('control.html') > -1) {
-          pageSize = 6
-        } else {
+        if (location.href.search('index.html') > -1) {
           pageSize = 10
+        } else {
+          pageSize = 6
         }
         Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-        if (location.href.search('control.html') > -1) {
-          Event.trigger('setFixingPagination-min', $FIXING_PAGEINATION)
-        } else {
+        if (location.href.search('index.html') > -1) {
           Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+        } else {
+          Event.trigger('setFixingPagination-min', $FIXING_PAGEINATION)
         }
         res.map(item => Event.trigger('setMapMakerPoint', item))
       })
@@ -773,6 +866,9 @@ let a = (function (map) {
   function GetTrackList({ adminId, fixingId, time }) {
     return axios.post('/GetTrackList', Qs.stringify({ adminId, fixingId, time })).then(res => {
       if (!res) return
+      $TRACK_LIST_TBODT.empty()
+      Event.trigger('setTrackList', $TRACK_LIST_TBODT, { ...res.data, fixingId })
+      // oldliveinfo = Object.assign({}, { ...res.data, fixingId })
       return res.data
     })
   }
@@ -855,7 +951,9 @@ let a = (function (map) {
   function _SetLoaclStorageUserInfo(userInfo) {
     window.localStorage.setItem('userinfo', JSON.stringify(userInfo))
   }
-
+  function GetCurrentData() {
+    return currentData
+  }
   // 获取本地存储用户信息
   function GetLoaclStorageUserInfo() {
     return new Promise((resolve, reject) => {
@@ -922,6 +1020,7 @@ let a = (function (map) {
     GetTrackList,
     AdminGetInstructionsList,
     AdminGetInstructions,
+    GetCurrentData,
     GetLoaclStorageUserInfo,
     ClearLoaclStorageUserInfo,
     _GetNavTabActiveIndex,
@@ -934,37 +1033,35 @@ let a = (function (map) {
     _GetOnlineArrays,
     _GetofflineArrays,
     _GetIntervalerGetLastPosition,
-    _SetIntervalerGetLastPosition
+    _SetIntervalerGetLastPosition,
   }
 })(map)
 
 
 a.GetLoaclStorageUserInfo().then(res => {
-  let { fixingId, lng, lat } = Qs.parse(location.search.substr(1))
-  let userinfo = res, fixinginfo, pageSize
-  if (location.href.search('control.html') > -1) {
-    pageSize = 6
-  } else {
-    pageSize = 10
+  let { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
+    pageName = location.pathname.substr(1)
+  switch (pageName) {
+    case 'index.html':
+      Event.trigger('GetFixingList', res.AdminId, '中国')
+      break;
+    case 'control.html':
+      if (res && fixingId || lng || lat) {
+        Event.trigger('GetFixingLiveInfo', res.AdminId, '中国', fixingId)
+      } else {
+        Event.trigger('GetFixingList', res.AdminId)
+      }
+      break;
+    case 'trajectory.html':
+      if (res && fixingId || lng || lat) {
+        Event.trigger('GetFixingTrackList', res.AdminId, '中国', fixingId)
+      } else {
+        Event.trigger('GetFixingList', res.AdminId)
+      }
+      break;
+    default:
+      Event.trigger('GetFixingList', res.AdminId, '中国')
+      break;
   }
-  if (res && fixingId || lng || lat) {
-    a.GetFixingList({ adminId: userinfo.AdminId, keyword: '中国' }).then(res => {
-      if (!res) return
-      fixinginfo = res.filter(item => item.entity_name === fixingId)[0]
-      Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-      Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-      Event.trigger('setMapMakerPoint', fixinginfo, true)
-    }).then(res => {
-      Event.trigger('GetLastPosition', fixinginfo)
-    })
-  } else {
-    a.GetFixingList({ adminId: res.AdminId, keyword: '中国' }).then(res => {
-      if (!res) return
-      Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-      Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-      res.map(item => Event.trigger('setMapMakerPoint', item))
-    })
-  }
+
 }).catch(error => console.warn(error))
