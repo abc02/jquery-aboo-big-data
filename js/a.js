@@ -110,6 +110,7 @@ axios.interceptors.request.use(function (config) {
 axios.interceptors.response.use(function (response) {
   // Do something with response data
   if (response.data.ret == 1002) {
+    console.log(response)
     window.alert(response.data.code)
     return null
   }
@@ -498,8 +499,8 @@ Event.listen('setVisibleMarkerPoint', () => {
     map.clearOverlays()
     let currentArrays = a._GetCurrentArrays()
     currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
-    console.log(map.getOverlays().length)
     $VISIBLE_MARKER.text(map.getOverlays().length)
+    console.log(map.getOverlays().length)
   }
 })
 Event.listen('GetLastPosition', fixinginfo => {
@@ -522,23 +523,34 @@ Event.listen('GetTrackList', fixinginfo => {
     $DATEPICKER.val(time)
     a.GetTrackList({ adminId: userinfo.AdminId, fixingId: fixinginfo.entity_name, time }).then(res => {
       map.clearOverlays()
-      map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
-      res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
+      // map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
+      Event.trigger('setTrackListMarkerStartPoint', res.data[0])
+      Event.trigger('setTrackListMarkerEndPoint', res.data[res.data.length - 1])
+      // res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
+      Event.trigger('setTrackListPolyline', res.data)
+      Event.trigger('setTrackList', $TRACK_LIST_TBODT, res.data, fixinginfo.entity_name)
     })
   }
 })
-Event.listen('setTrackListMarkerPoint', item => {
+Event.listen('setTrackListMarkerStartPoint', item => {
   let { address, create_time, longitude, latitude } = item,
-    porintOnline = new BMap.Icon("/assets/porint_online.png", new BMap.Size(31, 44)),
+    icon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
     point = new BMap.Point(longitude, latitude),
-    marker = new BMap.Marker(point, porintOnline)
+    marker = new BMap.Marker(point, { icon })
   map.addOverlay(marker)          // 将标注添加到地图中
-
-  var polyline = new BMap.Polyline([
-    new BMap.Point(longitude, latitude),
-  ], { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });   //创建折线
+})
+Event.listen('setTrackListMarkerEndPoint', item => {
+  let { address, create_time, longitude, latitude } = item,
+    icon = new BMap.Icon("/assets/trajectory_end.png", new BMap.Size(31, 44)),
+    point = new BMap.Point(longitude, latitude),
+    marker = new BMap.Marker(point, { icon })
+  map.addOverlay(marker)          // 将标注添加到地图中
+})
+Event.listen('setTrackListPolyline', Arrays => {
+  let polylines = Arrays.map(item => new BMap.Point(item.longitude, item.latitude)),
+    polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });   //创建折线
   map.addOverlay(polyline);   //增加折线
-
+  map.setViewport(polylines)
 })
 Event.listen('setLiveInfo', ($el, liveinfo) => {
   let { address, charge, code, createTime, electricity, mode, modestatus, positions, shutdown, fixingId } = liveinfo, $content, xx
@@ -563,8 +575,21 @@ Event.listen('setLiveInfo', ($el, liveinfo) => {
   `)
   $el.append($content)
 })
-Event.listen('setTrackList', ($el) => {
-
+Event.listen('setTrackList', ($el, Arrays, fixingId) => {
+  $el.empty()
+  let $contents = Arrays.map(item => {
+    let { address, create_time, mode } = item
+    return $(`<tr>
+    <th scope="row" class="normal pt-4 pb-4 text-center">在线</th>
+    <td class="normal pt-4 pb-4 text-center">${mode}</td>
+    <td class="normal pt-4 pb-4 text-center">${fixingId}</td>
+    <td class="normal pt-4 pb-4 text-center">${create_time}</td>
+    <td class="normal pt-4 pb-4 text-center breakword" style="width: 620px;">${address}</td>
+    <td class="normal pt-4 pb-4 text-center">定位成功</td>
+  </tr>
+  `)
+  })
+  $el.append($contents)
 })
 Event.listen('GetFixingList', (adminId, keyword = '中国') => {
   let pageName = location.pathname.substr(1),
@@ -649,8 +674,8 @@ Event.listen('GetFixingTrackList', (adminId, keyword = '中国', fixingId) => {
     Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
     Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
     Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-    Event.trigger('setMapMakerPoint', fixinginfo)
-    Event.trigger('panToMarkerPoint', fixinginfo)
+    // Event.trigger('setMapMakerPoint', fixinginfo)
+    // Event.trigger('panToMarkerPoint', fixinginfo)
     Event.trigger('GetTrackList', fixinginfo)
     Event.trigger('setVisibleMarkerPoint')
     map.addEventListener('moveend', function () {
@@ -663,6 +688,7 @@ Event.listen('GetFixingTrackList', (adminId, keyword = '中国', fixingId) => {
 })
 //百度地图API功能
 let map = (function (BMap) {
+  if(location.href.search('sportdata') > -1) return null
   let baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
     point = new BMap.Point(116.331398, 39.897445); // 默认北京
   baiduMap.centerAndZoom(point, 14);
@@ -721,6 +747,27 @@ let a = (function (map) {
       username = $currentTarget.find('#username').val(),
       password = $currentTarget.find('#password').val()
     AdminLoginAccount({ username, password })
+  })
+  $DATEPICKER.on('input', function (e) {
+    let userinfo = a._GetLoaclUserInfo(),
+      time = $(e.currentTarget).val(),
+      { fixingId } = Qs.parse(location.search.substr(1))
+      if (!time) {
+        alert('选择日期不能为空')
+        time = timestamp(Date.now(), true)
+        $DATEPICKER.val(time)
+        return
+      } 
+      a.GetTrackList({ adminId: userinfo.AdminId, fixingId, time }).then(res => {
+        if (!res) return res
+        map.clearOverlays()
+        // map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
+        Event.trigger('setTrackListMarkerStartPoint', res.data[0])
+        Event.trigger('setTrackListMarkerEndPoint', res.data[res.data.length - 1])
+        // res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
+        Event.trigger('setTrackListPolyline', res.data)
+        Event.trigger('setTrackList', $TRACK_LIST_TBODT, res.data, fixingId)
+      })
   })
   // 账户登录
   function AdminLoginAccount({ username, password }) {
@@ -865,10 +912,7 @@ let a = (function (map) {
   // 获取指定时间戳内的轨迹（文字列表）
   function GetTrackList({ adminId, fixingId, time }) {
     return axios.post('/GetTrackList', Qs.stringify({ adminId, fixingId, time })).then(res => {
-      if (!res) return
-      $TRACK_LIST_TBODT.empty()
-      Event.trigger('setTrackList', $TRACK_LIST_TBODT, { ...res.data, fixingId })
-      // oldliveinfo = Object.assign({}, { ...res.data, fixingId })
+      if (!res) return res
       return res.data
     })
   }
@@ -948,6 +992,13 @@ let a = (function (map) {
       return res.data
     })
   }
+  // 获取设备列表（搜索）
+  function GetFixingListForSearch({ adminId, query }) {
+    return axios.post('/GetFixingListForSearch', Qs.stringify({ adminId, query })).then(res => {
+      if (!res) return
+      return res.data
+    })
+  }
   function _SetLoaclStorageUserInfo(userInfo) {
     window.localStorage.setItem('userinfo', JSON.stringify(userInfo))
   }
@@ -1020,6 +1071,7 @@ let a = (function (map) {
     GetTrackList,
     AdminGetInstructionsList,
     AdminGetInstructions,
+    GetFixingListForSearch,
     GetCurrentData,
     GetLoaclStorageUserInfo,
     ClearLoaclStorageUserInfo,
