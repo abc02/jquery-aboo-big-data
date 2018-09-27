@@ -47,7 +47,7 @@ const $FIXING_NAV_TAB_CONTAINER = $('.nav-tab-container'),
 function financial(x, num = 4) {
   return Number.parseFloat(x).toFixed(num);
 }
-function timestamp(date, isType = false, getOneDate = 'DD') {
+function timestamp(date, isType = false, getOneDate) {
   if (!date) return ''
   if (String(date).length < 12) {
     date = Number.parseInt(date + '000')
@@ -854,7 +854,47 @@ let a = (function (map) {
     isFirstGetLastPosition = true,
     intervalerGetLastPosition = null,
     currentData = new Date()
+  $('#excel-file').change(function (e) {
+    var files = e.target.files;
+    var fileReader = new FileReader();
+    fileReader.onload = function (ev) {
+      try {
+        var data = ev.target.result,
+          workbook = XLSX.read(data, {
+            type: 'binary'
+          }), // 以二进制流方式读取得到整份excel表格对象
+          persons = []; // 存储获取到的数据
+      } catch (e) {
+        console.log('文件类型不正确');
+        return;
+      }
 
+      // 表格的表格范围，可用于判断表头是否数量是否正确
+      var fromTo = '';
+      // 遍历每张表读取
+      for (var sheet in workbook.Sheets) {
+        if (workbook.Sheets.hasOwnProperty(sheet)) {
+          fromTo = workbook.Sheets[sheet]['!ref'];
+          console.log(fromTo);
+          for (var page in workbook.Sheets[sheet])
+            switch (page) {
+              case '!margins':
+                break;
+              case '!ref':
+                break;
+              default:
+                persons.push(workbook.Sheets[sheet][page].v)
+                break;
+            }
+          // persons = persons.concat(XLSX.utils.sheet_to_csv(workbook.Sheets[sheet], ','));
+          break; // 如果只取第一张表，就取消注释这行
+        }
+      }
+      console.log(persons);
+    };
+    // 以二进制方式打开文件
+    fileReader.readAsBinaryString(files[0]);
+  });
   $LOGIN_FORM.submit(function (e) {
     e.preventDefault()
     let $currentTarget = $(e.currentTarget),
