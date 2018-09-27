@@ -528,7 +528,7 @@ Event.listen('GetLastPosition', fixinginfo => {
         map.panTo(new BMap.Point(res.positions.split(',')[0], res.positions.split(',')[1]));
         Event.trigger('setMapMakerPoint', { ...fixinginfo, ...res })
       })
-    }, 1000))
+    }, 60000))
   }
 })
 Event.listen('GetTrackList', fixinginfo => {
