@@ -38,12 +38,16 @@ const $FIXING_NAV_TAB_CONTAINER = $('.nav-tab-container'),
   $USER_CONTAINER = $('.user-container'),
   $VISIBLE_MARKER = $('.visible-marker'),
   $LIVE_INFO_TBODY = $('.live-info-tbody'),
-  $TRACK_LIST_TBODT = $('.track-list-tbody')
+  $TRACK_LIST_TBODT = $('.track-list-tbody'),
+  $STEPS = $('#steps'),
+  $CALORIE = $('#calorie'),
+  $WEIGHT = $('#weight'),
+  $DISTANCE = $('#distance')
 
 function financial(x, num = 4) {
   return Number.parseFloat(x).toFixed(num);
 }
-function timestamp(date, isType = false) {
+function timestamp(date, isType = false, getOneDate = 'DD') {
   if (!date) return ''
   if (String(date).length < 12) {
     date = Number.parseInt(date + '000')
@@ -78,6 +82,17 @@ function timestamp(date, isType = false) {
   }
   let YYYYMMDD = handleToYYYYMMDD(new Date(date))
   let HHMMSSMS = handleToHHMMSSMS(new Date(date))
+  switch (getOneDate) {
+    case 'YYYY':
+      return YYYYMMDD.YYYY
+      break;
+    case 'MM':
+      return handleToPad(YYYYMMDD.MM)
+      break;
+    case 'DD':
+      return handleToPad(YYYYMMDD.DD)
+      break;
+  }
   if (isType) {
     return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)}`
   }
@@ -674,7 +689,6 @@ Event.listen('GetFixingTrackList', (adminId, keyword = '中国', fixingId) => {
     Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
     Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
     Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-    // Event.trigger('setMapMakerPoint', fixinginfo)
     // Event.trigger('panToMarkerPoint', fixinginfo)
     Event.trigger('GetTrackList', fixinginfo)
     Event.trigger('setVisibleMarkerPoint')
@@ -686,9 +700,109 @@ Event.listen('GetFixingTrackList', (adminId, keyword = '中国', fixingId) => {
     });
   })
 })
+Event.listen('GetFixingSportData', function (adminId, keyword = '中国', fixingId, times) {
+  let pageName = location.pathname.substr(1),
+    pageSize,
+    fixinginfo
+  switch (pageName) {
+    case 'index.html':
+      pageSize = 10
+      break;
+    case '':
+      pageSize = 10
+      break;
+    default:
+      pageSize = 6;
+      break;
+  }
+  a.GetFixingList({ adminId, keyword }).then(res => {
+    if (!res) return
+    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+    Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+  }).then(() => {
+    a.GetFixingSportData({ adminId, fixingId, times }).then(res => {
+      if (!res) return
+      let calories,
+        createTimes,
+        distances,
+        steps,
+        weights,
+        stepsOption = {
+          title: {
+            text: '计步数据'
+          },
+          xAxis: {
+            data: []
+          },
+          yAxis: {},
+          series: [{
+            type: 'line',
+            data: []
+          }]
+        },
+        caloriesOption = {
+          title: {
+            text: '卡路里数据'
+          },
+          xAxis: {
+            data: []
+          },
+          yAxis: {},
+          series: [{
+            type: 'bar',
+            data: []
+          }]
+        },
+        weightOption = {
+          title: {
+            text: '体重数据'
+          },
+          xAxis: {
+            data: []
+          },
+          yAxis: {},
+          series: [{
+            type: 'bar',
+            data: []
+          }]
+        },
+        distanceOption = {
+          title: {
+            text: '距离数据'
+          },
+          xAxis: {
+            data: []
+          },
+          yAxis: {},
+          series: [{
+            type: 'line',
+            data: []
+          }]
+        };
+      // 指定图表的配置项和数据
+      res.sportList.map(item => {
+        let xAxis = `${timestamp(item.createTime, null, 'DD')}日`
+        stepsOption.xAxis.data.push(xAxis)
+        caloriesOption.xAxis.data.push(xAxis)
+        weightOption.xAxis.data.push(xAxis)
+        distanceOption.xAxis.data.push(xAxis)
+        stepsOption.series[0].data.push(item.steps)
+        caloriesOption.series[0].data.push(item.calorie)
+        weightOption.series[0].data.push(item.weight)
+        distanceOption.series[0].data.push(item.distance)
+      })
+      echarts.init($('#steps')[0], 'bigdata').setOption(stepsOption);
+      echarts.init($('#calorie')[0], 'bigdata').setOption(caloriesOption);
+      echarts.init($('#weight')[0], 'bigdata').setOption(weightOption);
+      echarts.init($('#distance')[0], 'bigdata').setOption(distanceOption);
+    })
+  })
+
+})
 //百度地图API功能
 let map = (function (BMap) {
-  if(location.href.search('sportdata') > -1) return null
+  if (location.href.search('sportdata') > -1) return null
   let baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
     point = new BMap.Point(116.331398, 39.897445); // 默认北京
   baiduMap.centerAndZoom(point, 14);
@@ -752,22 +866,22 @@ let a = (function (map) {
     let userinfo = a._GetLoaclUserInfo(),
       time = $(e.currentTarget).val(),
       { fixingId } = Qs.parse(location.search.substr(1))
-      if (!time) {
-        alert('选择日期不能为空')
-        time = timestamp(Date.now(), true)
-        $DATEPICKER.val(time)
-        return
-      } 
-      a.GetTrackList({ adminId: userinfo.AdminId, fixingId, time }).then(res => {
-        if (!res) return res
-        map.clearOverlays()
-        // map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
-        Event.trigger('setTrackListMarkerStartPoint', res.data[0])
-        Event.trigger('setTrackListMarkerEndPoint', res.data[res.data.length - 1])
-        // res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
-        Event.trigger('setTrackListPolyline', res.data)
-        Event.trigger('setTrackList', $TRACK_LIST_TBODT, res.data, fixingId)
-      })
+    if (!time) {
+      alert('选择日期不能为空')
+      time = timestamp(Date.now(), true)
+      $DATEPICKER.val(time)
+      return
+    }
+    a.GetTrackList({ adminId: userinfo.AdminId, fixingId, time }).then(res => {
+      if (!res) return res
+      map.clearOverlays()
+      // map.panTo(new BMap.Point(res.data[0].longitude, res.data[0].latitude));
+      Event.trigger('setTrackListMarkerStartPoint', res.data[0])
+      Event.trigger('setTrackListMarkerEndPoint', res.data[res.data.length - 1])
+      // res.data.map(item => Event.trigger('setTrackListMarkerPoint', item))
+      Event.trigger('setTrackListPolyline', res.data)
+      Event.trigger('setTrackList', $TRACK_LIST_TBODT, res.data, fixingId)
+    })
   })
   // 账户登录
   function AdminLoginAccount({ username, password }) {
@@ -781,17 +895,14 @@ let a = (function (map) {
         Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
         Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
         if (location.href.search('index.html') > -1) {
-          pageSize = 10
-        } else {
           pageSize = 6
-        }
-        Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-        if (location.href.search('index.html') > -1) {
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
         } else {
-          Event.trigger('setFixingPagination-min', $FIXING_PAGEINATION)
+          pageSize = 10
         }
-        res.map(item => Event.trigger('setMapMakerPoint', item))
+        if (location.href.search('index.html') > -1) {
+          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+          res.map(item => Event.trigger('setMapMakerPoint', item))
+        }
       })
       $LOGIN_MODAL.modal('hide')
     })
@@ -1092,7 +1203,8 @@ let a = (function (map) {
 
 a.GetLoaclStorageUserInfo().then(res => {
   let { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
-    pageName = location.pathname.substr(1)
+    pageName = location.pathname.substr(1),
+    times = Math.round(new Date() / 1000)
   switch (pageName) {
     case 'index.html':
       Event.trigger('GetFixingList', res.AdminId, '中国')
@@ -1110,6 +1222,8 @@ a.GetLoaclStorageUserInfo().then(res => {
       } else {
         Event.trigger('GetFixingList', res.AdminId)
       }
+    case 'sportdata.html':
+      Event.trigger('GetFixingSportData', res.AdminId, '中国', fixingId, times)
       break;
     default:
       Event.trigger('GetFixingList', res.AdminId, '中国')
