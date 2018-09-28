@@ -171,136 +171,136 @@ axios.interceptors.response.use(function (response) {
 
 //   $el.html($userInfo)
 // })
-Event.listen('setFixingSearch', ($el) => {
-  let currentArrays
-  const ALLARRAYS = a._GetAllArrays()
-  const ONLINEARRAYS = a._GetOnlineArrays()
-  const OFFLINEARRAYS = a._GetofflineArrays()
-  const NAVTABACTIVEINDEX = a._GetNavTabActiveIndex()
-  $el.on('input', function (e) {
-    const value = $el.val()
-    switch (NAVTABACTIVEINDEX) {
-      case 0:
-        currentArrays = ALLARRAYS.filter(item => {
-          return item.entity_name.search(value) > -1
-        })
-        break;
-      case 1:
-        currentArrays = ONLINEARRAYS.filter(item => {
-          return item.entity_name.search(value) > -1
-        })
-        break;
-      case 2:
-        currentArrays = OFFLINEARRAYS.filter(item => {
-          return item.entity_name.search(value) > -1
-        })
-        break;
-    }
-    a._SetCurrentArrays(currentArrays)
-    Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
-  })
-})
-Event.listen('setFixingNavTab', ($el) => {
-  $el.empty()
-  const ALLARRAYS = a._GetAllArrays()
-  const ONLINEARRAYS = a._GetOnlineArrays()
-  const OFFLINEARRAYS = a._GetofflineArrays()
-  $el
-    .append(`
-  <li class="nav-item text-muted fixing-all">
-    <a class="nav-link " href="#">全部（${ALLARRAYS.length}）</a>
-  </li>
-  <li class="nav-item text-muted fixing-online">
-    <a class="nav-link " href="#" >在线（${ONLINEARRAYS.length}）</a>
-  </li>
-  <li class="nav-item text-muted fixing-offline">
-    <a class="nav-link" href="#">离线（${OFFLINEARRAYS.length}）</a>
-  </li>
-`)
-    .on('click', 'li', function (e) {
-      let classNames = ['fixing-all', 'fixing-online', 'fixing-offline'],
-        currentArrays, pageSize
-      if (location.href.search('index.html') > -1) {
-        pageSize = 10
-      } else {
-        pageSize = 6
-      }
-      $currentTarget = $(e.currentTarget)
-      a._SetNavTabActiveIndex($currentTarget.index())
-      $currentTarget.removeClass('text-muted').addClass('border-bottom text-white').siblings().removeClass('border-bottom text-white').addClass('text-muted')
-      const result = classNames.filter(className => $currentTarget.hasClass(className))
-      const value = $FIXING_NAV_SEARCH.val()
-      switch (result[0]) {
-        case 'fixing-all':
-          currentArrays = ALLARRAYS.filter(item => item.entity_name.search(value) > -1)
-          a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          Event.trigger('setVisibleMarkerPoint')
-          break;
-        case 'fixing-online':
-          currentArrays = ONLINEARRAYS.filter(item => item.entity_name.search(value) > -1)
-          a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          Event.trigger('setVisibleMarkerPoint')
-          break;
-        case 'fixing-offline':
-          currentArrays = OFFLINEARRAYS.filter(item => {
-            return item.entity_name.search(value) > -1
-          })
-          a._SetCurrentArrays(currentArrays)
-          Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          Event.trigger('setVisibleMarkerPoint')
-          break;
-      }
-    }).find('li').eq(a._GetNavTabActiveIndex()).removeClass('text-muted').addClass('border-bottom text-white')
-})
+// Event.listen('setFixingSearch', ($el) => {
+//   let currentArrays
+//   const ALLARRAYS = a._GetAllArrays()
+//   const ONLINEARRAYS = a._GetOnlineArrays()
+//   const OFFLINEARRAYS = a._GetofflineArrays()
+//   const NAVTABACTIVEINDEX = a._GetNavTabActiveIndex()
+//   $el.on('input', function (e) {
+//     const value = $el.val()
+//     switch (NAVTABACTIVEINDEX) {
+//       case 0:
+//         currentArrays = ALLARRAYS.filter(item => {
+//           return item.entity_name.search(value) > -1
+//         })
+//         break;
+//       case 1:
+//         currentArrays = ONLINEARRAYS.filter(item => {
+//           return item.entity_name.search(value) > -1
+//         })
+//         break;
+//       case 2:
+//         currentArrays = OFFLINEARRAYS.filter(item => {
+//           return item.entity_name.search(value) > -1
+//         })
+//         break;
+//     }
+//     a._SetCurrentArrays(currentArrays)
+//     Event.trigger('setFixingPagination', $FIXING_PAGEINATION)
+//   })
+// })
+// Event.listen('setFixingNavTab', ($el) => {
+//   $el.empty()
+//   const ALLARRAYS = a._GetAllArrays()
+//   const ONLINEARRAYS = a._GetOnlineArrays()
+//   const OFFLINEARRAYS = a._GetofflineArrays()
+//   $el
+//     .append(`
+//   <li class="nav-item text-muted fixing-all">
+//     <a class="nav-link " href="#">全部（${ALLARRAYS.length}）</a>
+//   </li>
+//   <li class="nav-item text-muted fixing-online">
+//     <a class="nav-link " href="#" >在线（${ONLINEARRAYS.length}）</a>
+//   </li>
+//   <li class="nav-item text-muted fixing-offline">
+//     <a class="nav-link" href="#">离线（${OFFLINEARRAYS.length}）</a>
+//   </li>
+// `)
+//     .on('click', 'li', function (e) {
+//       let classNames = ['fixing-all', 'fixing-online', 'fixing-offline'],
+//         currentArrays, pageSize
+//       if (location.href.search('index.html') > -1) {
+//         pageSize = 10
+//       } else {
+//         pageSize = 6
+//       }
+//       $currentTarget = $(e.currentTarget)
+//       a._SetNavTabActiveIndex($currentTarget.index())
+//       $currentTarget.removeClass('text-muted').addClass('border-bottom text-white').siblings().removeClass('border-bottom text-white').addClass('text-muted')
+//       const result = classNames.filter(className => $currentTarget.hasClass(className))
+//       const value = $FIXING_NAV_SEARCH.val()
+//       switch (result[0]) {
+//         case 'fixing-all':
+//           currentArrays = ALLARRAYS.filter(item => item.entity_name.search(value) > -1)
+//           a._SetCurrentArrays(currentArrays)
+//           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+//           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+//           Event.trigger('setVisibleMarkerPoint')
+//           break;
+//         case 'fixing-online':
+//           currentArrays = ONLINEARRAYS.filter(item => item.entity_name.search(value) > -1)
+//           a._SetCurrentArrays(currentArrays)
+//           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+//           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+//           Event.trigger('setVisibleMarkerPoint')
+//           break;
+//         case 'fixing-offline':
+//           currentArrays = OFFLINEARRAYS.filter(item => {
+//             return item.entity_name.search(value) > -1
+//           })
+//           a._SetCurrentArrays(currentArrays)
+//           Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, pageSize)
+//           Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+//           Event.trigger('setVisibleMarkerPoint')
+//           break;
+//       }
+//     }).find('li').eq(a._GetNavTabActiveIndex()).removeClass('text-muted').addClass('border-bottom text-white')
+// })
 
-Event.listen('setFixingLists', ($el, currentPage = 0, pageSize = 10) => {
-  let visibilityArrays = []
-  const CURRENTARRAYS = a._GetCurrentArrays()
-  for (let index = currentPage * pageSize; index < (currentPage * pageSize) + pageSize; index++) {
-    if (CURRENTARRAYS[index]) visibilityArrays.push(CURRENTARRAYS[index])
-  }
-  visibilityArrays = visibilityArrays.map(item => {
-    let img
-    if (item.entity_desc === '在线') {
-      img = '/assets/porint_online.png'
-    }
-    if (item.entity_desc === '离线') {
-      img = '/assets/porint_offline.png'
-    }
-    let $tmp = $(`
-          <li class="d-flex align-items-center justify-content-between m-2 p-2 pointer border-secondary">
-            <img src="${img}" title="abu" class="ml-3 mr-3" width="19" height="24">
-            <p class="text-muted" style="flex: 1;">${item.entity_name}</p>
-            <p class="text-white">${item.entity_desc}</p>
-          </li>
-        `).data(item)
-    return $tmp
-  })
-  $el.off('click').empty().append(visibilityArrays).on('click', 'li', function (e) {
-    let fixinginfo = $(e.currentTarget).data()
-    Event.trigger('redirectControl', fixinginfo.entity_name, { lng: fixinginfo.latest_location.longitude, lat: fixinginfo.latest_location.latitude })
-  })
-})
-Event.listen('setFixingPagination', ($el, pageSize = 10) => {
-  const CURRENTARRAYS = a._GetCurrentArrays()
-  $el.jqPaginator({
-    totalCounts: CURRENTARRAYS.length ? CURRENTARRAYS.length : 1,
-    pageSize,
-    visiblePages: 5,
-    currentPage: 1,
-    prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
-    next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
-    page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
-    onPageChange: function (num, type) {
-      Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1, pageSize)
-    }
-  })
-})
+// Event.listen('setFixingLists', ($el, currentPage = 0, pageSize = 10) => {
+//   let visibilityArrays = []
+//   const CURRENTARRAYS = a._GetCurrentArrays()
+//   for (let index = currentPage * pageSize; index < (currentPage * pageSize) + pageSize; index++) {
+//     if (CURRENTARRAYS[index]) visibilityArrays.push(CURRENTARRAYS[index])
+//   }
+//   visibilityArrays = visibilityArrays.map(item => {
+//     let img
+//     if (item.entity_desc === '在线') {
+//       img = '/assets/porint_online.png'
+//     }
+//     if (item.entity_desc === '离线') {
+//       img = '/assets/porint_offline.png'
+//     }
+//     let $tmp = $(`
+//           <li class="d-flex align-items-center justify-content-between m-2 p-2 pointer border-secondary">
+//             <img src="${img}" title="abu" class="ml-3 mr-3" width="19" height="24">
+//             <p class="text-muted" style="flex: 1;">${item.entity_name}</p>
+//             <p class="text-white">${item.entity_desc}</p>
+//           </li>
+//         `).data(item)
+//     return $tmp
+//   })
+//   $el.off('click').empty().append(visibilityArrays).on('click', 'li', function (e) {
+//     let fixinginfo = $(e.currentTarget).data()
+//     Event.trigger('redirectControl', fixinginfo.entity_name, { lng: fixinginfo.latest_location.longitude, lat: fixinginfo.latest_location.latitude })
+//   })
+// })
+// Event.listen('setFixingPagination', ($el, pageSize = 10) => {
+//   const CURRENTARRAYS = a._GetCurrentArrays()
+//   $el.jqPaginator({
+//     totalCounts: CURRENTARRAYS.length ? CURRENTARRAYS.length : 1,
+//     pageSize,
+//     visiblePages: 5,
+//     currentPage: 1,
+//     prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
+//     next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
+//     page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
+//     onPageChange: function (num, type) {
+//       Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1, pageSize)
+//     }
+//   })
+// })
 Event.listen('setMapMakerPoint', (item, isOne = false) => {
   let bs = map.getBounds(),   //获取可视区域
     bssw = bs.getSouthWest(),   //可视区域左下角
@@ -1358,6 +1358,22 @@ var utils = (function () {
   function SetUserInfo(newUserInfo) {
     return userInfo = newUserInfo
   }
+  function FilterFixingLists(source, key, value) {
+    return source.filter(item => item[key] === value)
+  }
+  function FilterFixingListsSearch(source, key, value) {
+    return source.filter(item => item[key].search(value) > -1)
+  }
+  function GetFixingListsPaginationPageSize(urlPageName) {
+    switch (urlPageName) {
+      case 'index.html':
+        return 10
+      case '':
+        return 10
+      default:
+        return 6;
+    }
+  }
   return {
     GetUrlPageName,
     GetUrlParams,
@@ -1367,7 +1383,10 @@ var utils = (function () {
     GetLoaclStorageUserInfo,
     DelLoaclStorageUserInfo,
     GetUserInfo,
-    SetUserInfo
+    SetUserInfo,
+    FilterFixingLists,
+    FilterFixingListsSearch,
+    GetFixingListsPaginationPageSize
   }
 })()
 
@@ -1409,14 +1428,7 @@ var STATISTICS_API = (function () {
 var FIXING_API = (function () {
   // 获取设备列表
   function GetFixingList({ adminId, keyword }) {
-    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
-      if (!res) return
-      let fixings = res.data.data
-      currentArrays = allArrays = Object.assign([], fixings)
-      onlineArrays = fixings.filter(item => item.entity_desc === '在线')
-      offlineArrays = fixings.filter(item => item.entity_desc === '离线')
-      return fixings
-    })
+    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword }))
   }
   // 后台获取鞋垫详情
   function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
@@ -1435,43 +1447,38 @@ var FIXING_API = (function () {
       return res.data
     })
   }
+
   return {
     GetFixingList,
     GetFixingInfo,
     GetFixingQRCode
   }
-})
+})()
 
 // 头部模块
 var header = (function ($el) {
   Event.create('header').listen('loginSuccess', function (userInfo) {
     header.refresh(userInfo)
   })
-  return {
-    refresh: function (userInfo) {
-      let $userInfo
-      if (userInfo) {
-        $userInfo = $(`
-        <img src="/assets/default.png" wdith="48" height="48" />
-        <div class="dropdown mr-2 ml-2">
-          <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            ${userInfo.UserName}
-          </button>
-        </div>
-      `)
-      } else {
-        $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
-        </div>`)
-      }
 
-      $el.html($userInfo)
+  return {
+    refresh(userInfo) {
+      $el.html(`<img src="/assets/default.png" wdith="48" height="48" /><span class="ml-2 mr-2">${userInfo.UserName}</span>`)
     }
   }
 })($USER_CONTAINER)
 
 // 导航栏模块
 var navigationMenu = (function () {
+  Event.create('navigationMenu').listen('loginSuccess', function () {
+    navigationMenu.refresh()
+  })
 
+  return {
+    refresh() {
+      console.log('navigationMenu refresh')
+    }
+  }
 })()
 
 // 鞋垫地图计数模块
@@ -1479,8 +1486,9 @@ var fixingMarkerCount = (function ($el) {
   Event.create('fixing').listen('fixingMarkerCount', function (map) {
     fixingMarkerCount.refresh(map)
   })
+
   return {
-    refresh: function (map) {
+    refresh(map) {
       $el.text(map.getOverlays().length)
     }
   }
@@ -1488,34 +1496,164 @@ var fixingMarkerCount = (function ($el) {
 
 // 鞋垫搜索模块
 var fixingSearch = (function ($el) {
-  Event.create('fixing').listen('fixingSearch', function () {
-    fixingSearch.refresh()
+  Event.create('fixing').listen('fixingSearch', function (source) {
+    fixingSearch.refresh(source)
   })
   return {
-    refresh: function () {
+    refresh(source) {
+      const KEY = 'entity_desc'
+      let pageName = utils.GetUrlPageName(),
+        pageSize = utils.GetFixingListsPaginationPageSize(pageName),
+        allArrays = Object.assign([], source),
+        onlineArrays = utils.FilterFixingLists(source, KEY, '在线'),
+        offlineArrays = utils.FilterFixingLists(source, KEY, '离线')
+      $el.off('input').on('input', function (e) {
+        const KEY = 'entity_name',
+          VALUE = $(e.currentTarget).val()
+        let { fixingListsTabIndex } = utils.GetUrlParams()
+        if (!fixingListsTabIndex) {
+          fixingListsTabIndex = 0
+        }
+        switch (fixingListsTabIndex) {
+          case 0:
+            let filterSearchAllArrays = utils.FilterFixingListsSearch(allArrays, KEY, VALUE)
+            Event.create('fixing').trigger('fixingListsPagination', filterSearchAllArrays, pageSize)
+            break;
+          case 1:
+            let filterSearchOnlineArrys = utils.FilterFixingLists(onlineArrays, KEY, VALUE)
+            Event.create('fixing').trigger('fixingListsPagination', filterSearchOnlineArrys, pageSize)
+            break;
+          case 2:
+            let filterSearchOfflineArrys = utils.FilterFixingLists(offlineArrays, KEY, VALUE)
+            Event.create('fixing').trigger('fixingListsPagination', filterSearchOfflineArrys, pageSize)
+            break;
+        }
+
+      })
     }
   }
 })($FIXING_SEARCH)
 
 // 鞋垫列表Tab模块 
 var fixingListsTab = (function ($el) {
+  Event.create('fixing').listen('fixingListsTab', function (source) {
+    fixingListsTab.refresh(source)
+  })
+  return {
+    refresh(source) {
+      const KEY = 'entity_desc'
+      let allArrays = Object.assign([], source),
+        onlineArrays = utils.FilterFixingLists(source, KEY, '在线'),
+        offlineArrays = utils.FilterFixingLists(source, KEY, '离线'),
+        { fixingListsTabIndex } = utils.GetUrlParams()
+      if (!fixingListsTabIndex) {
+        fixingListsTabIndex = 0
+      }
+      $el.html(`
+        <li class="nav-item text-muted fixing-all">
+            <a class="nav-link " href="#">全部（${allArrays.length}）</a>
+          </li>
+          <li class="nav-item text-muted fixing-online">
+            <a class="nav-link " href="#" >在线（${onlineArrays.length}）</a>
+          </li>
+          <li class="nav-item text-muted fixing-offline">
+            <a class="nav-link" href="#">离线（${offlineArrays.length}）</a>
+          </li>`).off('click').on('click', 'li', function (e) {
+          let classNames = ['fixing-all', 'fixing-online', 'fixing-offline'],
+            $currentTarget = $(e.currentTarget)
+          // a._SetNavTabActiveIndex($currentTarget.index())
+          $currentTarget
+            .removeClass('text-muted')
+            .addClass('border-bottom text-white')
+            .siblings().removeClass('border-bottom text-white')
+            .addClass('text-muted')
+          const RESULT = classNames.filter(className => $currentTarget.hasClass(className)),
+            VALUE = $FIXING_SEARCH.val(),
+            KEY = 'entity_name'
+
+            var url = location.pathname + '?page=' +  'abc'
+            history.pushState({url: url, title: document.title}, document.title, url)
+          switch (RESULT[0]) {
+            case 'fixing-all':
+            // 首页 于 其他 页面 冲突   上班再改
+              let filterSearchAllArrays = utils.FilterFixingListsSearch(allArrays, KEY, VALUE)
+              Event.create('fixing').trigger('fixingListsPagination', filterSearchAllArrays)
+              Event.create('map').trigger('mapMarkerPoint', map, filterSearchAllArrays)
+              break;
+            case 'fixing-online':
+              let filterSearchOnlineArrays = utils.FilterFixingListsSearch(onlineArrays, KEY, VALUE)
+              console.log(filterSearchOnlineArrays)
+              Event.create('fixing').trigger('fixingListsPagination', filterSearchOnlineArrays)
+              Event.create('map').trigger('mapMarkerPoint', map, filterSearchAllArrays)
+              break;
+            case 'fixing-offline':
+              let filterSearchOfflineArrays = utils.FilterFixingListsSearch(offlineArrays, KEY, VALUE)
+              Event.create('fixing').trigger('fixingListsPagination', filterSearchOfflineArrays)
+              Event.create('map').trigger('mapMarkerPoint', map, filterSearchAllArrays)
+              break;
+          }
+        }).find('li').eq(fixingListsTabIndex).removeClass('text-muted').addClass('border-bottom text-white')
+    }
+  }
 
 })($FIXING_NAV_TAB_CONTAINER)
 
 // 鞋垫列表模块
 var fixingLists = (function ($el) {
-  Event.create('fixing').listen('fixingLists', function () {
-    fixingLists.refresh()
+  Event.create('fixing').listen('fixingLists', function (source, currentPage = 0, pageSize = 10) {
+    console.log('fixingLists')
+    fixingLists.refresh(source, currentPage, pageSize)
   })
   return {
-    refresh: function () {
+    refresh(source, currentPage, pageSize) {
+      let visibilityArrays = []
+      for (let index = currentPage * pageSize; index < (currentPage * pageSize) + pageSize; index++) {
+        if (source[index]) visibilityArrays.push(source[index])
+      }
+      visibilityArrays = visibilityArrays.map(item => {
+        let img
+        if (item.entity_desc === '在线') img = '/assets/porint_online.png'
+        if (item.entity_desc === '离线') img = '/assets/porint_offline.png'
+        let $tmp = $(`
+              <li class="d-flex align-items-center justify-content-between m-2 p-2 pointer border-secondary">
+                <img src="${img}" title="abu" class="ml-3 mr-3" width="19" height="24">
+                <p class="text-muted" style="flex: 1;">${item.entity_name}</p>
+                <p class="text-white">${item.entity_desc}</p>
+              </li>
+            `).data(item)
+        return $tmp
+      })
+      $el.html(visibilityArrays).off('click').on('click', 'li', function (e) {
+        let fixinginfo = $(e.currentTarget).data()
+        console.log(fixinginfo)
+        // Event.trigger('redirectControl', fixinginfo.entity_name, { lng: fixinginfo.latest_location.longitude, lat: fixinginfo.latest_location.latitude })
+      })
     }
   }
 })($FIXING_LIST_CONTAINER)
 
 // 鞋垫列表分页模块
-var fixingPagination = (function ($el) {
-
+var fixingListsPagination = (function ($el) {
+  Event.create('fixing').listen('fixingListsPagination', function (source, pageSize = 10) {
+    fixingListsPagination.refresh(source, pageSize)
+  })
+  return {
+    refresh(source, pageSize) {
+      $el.jqPaginator({
+        totalCounts: source.length ? source.length : 1,
+        pageSize,
+        visiblePages: 5,
+        currentPage: 1,
+        prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
+        next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
+        page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
+        onPageChange: function (num) {
+          Event.create('fixing').trigger('fixingLists', source, num - 1, pageSize)
+          // Event.trigger('setFixingLists', $FIXING_LIST_CONTAINER, num - 1, pageSize)
+        }
+      })
+    }
+  }
 })($FIXING_PAGEINATION)
 
 // 鞋垫信息实时模块
@@ -1528,6 +1666,88 @@ var fixinTrajectory = (function ($el) {
 
 })($TRACK_LIST_TBODT)
 
+
+var mapMarkerPoint = (function () {
+  Event.create('map').listen('mapMarkerPoint', function (map, source) {
+    mapMarkerPoint.refresh(map, source)
+  })
+
+  return {
+    refresh(map, source) {
+      console.log(source)
+      map.clearOverlays()
+      let bs = map.getBounds(),   //获取可视区域
+        bssw = bs.getSouthWest(),   //可视区域左下角
+        bsne = bs.getNorthEast(),   //可视区域右上角
+        b = new BMap.Bounds(new BMap.Point(bssw.lng, bssw.lat), new BMap.Point(bsne.lng, bsne.lat))
+
+      source.forEach(item => {
+        let { latest_location } = item,
+          { longitude, latitude } = latest_location
+        if (!b.containsPoint(new BMap.Point(longitude, latitude))) {
+          return
+        }
+        let icon,
+          iconPath,
+          point,
+          marker,
+          { entity_desc } = item
+        if (entity_desc === '在线') iconPath = '/assets/porint_online.png'
+        if (entity_desc === '离线') iconPath = '/assets/porint_offline.png'
+
+        icon = new BMap.Icon(iconPath, new BMap.Size(31, 44))
+        point = new BMap.Point(longitude, latitude)
+        marker = new BMap.Marker(point, { icon })
+        map.addOverlay(marker)          // 将标注添加到地图中
+      })
+    }
+  }
+})()
+
+// 地图移动事件模块
+var mapMoveendEvent = (function () {
+  Event.create('map').listen('mapMoveendEvent', function (map, source) {
+    mapMoveendEvent.refresh(map, source)
+  })
+
+  return {
+    refresh(map, source) {
+      map.addEventListener('moveend', function () {
+        Event.create('map').trigger('mapMarkerPoint', map, source)
+        Event.create('fixing').trigger('fixingMarkerCount', map)
+      });
+    }
+  }
+})()
+
+// 地图放大事件模块
+var mapZoomendEvent = (function () {
+  Event.create('map').listen('mapZoomendEvent', function (map, source) {
+    mapZoomendEvent.refresh(map, source)
+  })
+
+  return {
+    refresh(map, source) {
+      map.addEventListener('zoomend', function () {
+        Event.create('map').trigger('mapMarkerPoint', map, source)
+        Event.create('fixing').trigger('fixingMarkerCount', map)
+      });
+    }
+  }
+})()
+
+var mapPanToMarkerPoint = (function () {
+  Event.create('map').listen('mapPanToMarkerPoint', function (map, point) {
+    mapPanToMarkerPoint.refresh(map, point)
+  })
+
+  return {
+    refresh(map, { lng, lat }) {
+      console.log('mapPanToMarkerPoint')
+      map.panTo(new BMap.Point(lng, lat))
+    }
+  }
+})()
 
 // 登陆模块
 var login = (function ($el) {
@@ -1555,7 +1775,28 @@ var login = (function ($el) {
 })($LOGIN_FORM)
 
 // 首页模块
-var index = (function (pageName) {
+var index = (function () {
+  if (!(utils.GetUrlPageName().search('index') > -1) && !!(utils.GetUrlPageName().length)) {
+    return
+  }
+  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  if (!userInfo) {
+    login.redirect('login')
+  }
+  Event.create('header').trigger('loginSuccess', userInfo)
+  FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
+    Event.create('fixing').trigger('fixingSearch', res.data.data)
+    Event.create('fixing').trigger('fixingListsTab', res.data.data)
+    Event.create('fixing').trigger('fixingListsPagination', res.data.data)
+    Event.create('map').trigger('mapMarkerPoint', map, res.data.data)
+    Event.create('map').trigger('mapMoveendEvent', map, res.data.data)
+    Event.create('map').trigger('mapZoomendEvent', map, res.data.data)
+    Event.create('fixing').trigger('fixingMarkerCount', map)
+  })
+})()
+
+// 控制中心模块
+var control = (function (pageName) {
   if (!(utils.GetUrlPageName().search(pageName) > -1)) {
     return
   }
@@ -1565,27 +1806,25 @@ var index = (function (pageName) {
   }
   Event.create('header').trigger('loginSuccess', userInfo)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-    // Event.create('fixing').trigger('fixingMarkerCount', map)
-    if (location.href.search('index.html') > -1) {
-      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-      res.map(item => Event.trigger('setMapMakerPoint', item))
+    const KEY = 'entity_name'
+    let { fixingId } = utils.GetUrlParams(),
+      fixing
+    if (!fixingId) {
+      fixing = [res.data.data[0]]
+    } else {
+      fixing = utils.FilterFixingLists(res.data.data, KEY, fixingId)
     }
+    let { latest_location } = fixing[0],
+      { longitude, latitude } = latest_location
+    Event.create('fixing').trigger('fixingSearch', res.data.data)
+    Event.create('fixing').trigger('fixingListsTab', res.data.data)
+    Event.create('fixing').trigger('fixingListsPagination', res.data.data, 6)
+    Event.create('map').trigger('mapMarkerPoint', map, fixing)
+    Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: longitude, lat: latitude })
+    Event.create('map').trigger('mapMoveendEvent', map, fixing)
+    Event.create('map').trigger('mapZoomendEvent', map, fixing)
+    Event.create('fixing').trigger('fixingMarkerCount', map)
   })
-})('index')
-
-// 控制中心模块
-var control = (function (pageName) {
-  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
-    return
-  }
-  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-  console.log(userInfo)
-  if (!userInfo) {
-    login.redirect('login')
-  }
-  Event.create('header').trigger('loginSuccess', userInfo)
 })('control')
 
 // 轨迹管理模块
