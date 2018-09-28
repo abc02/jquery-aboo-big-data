@@ -578,3 +578,31 @@
   border-radius: 6px;
  background-color: #3662fd !important;
 }
+
+
+.file {
+  position: relative;
+  display: inline-block;
+  background: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  padding: 4px 12px;
+  overflow: hidden;
+  color: white;
+  text-decoration: none;
+  text-indent: 0;
+  line-height: 20px;
+}
+.file input {
+  position: absolute;
+  font-size: 100px;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
+.file:hover {
+  background: #007bff;
+  border-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
