@@ -1293,3 +1293,12 @@ a.GetLoaclStorageUserInfo().then(res => {
   }
 
 }).catch(error => console.warn(error))
+
+
+let header = (function() {
+  
+})()
+
+let leftNav = (function() {
+
+})()
