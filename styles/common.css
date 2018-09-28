@@ -542,10 +542,10 @@
   position: absolute;
   bottom: 0;
   left: 50%;
-  margin-left: -24px;
-  width: 48px;
+  margin-left: -54px;
+  width: 108px;
   height: 2px;
-  background-color: #409EFF;
+  background-color: rgba(0, 0, 0, .2);
 }
 
 .pagination-container .active {
