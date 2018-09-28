@@ -31,12 +31,12 @@ $('.bottom-close').click(function () {
 const $FIXING_NAV_TAB_CONTAINER = $('.nav-tab-container'),
   $FIXING_LIST_CONTAINER = $('.fixing-container'),
   $FIXING_PAGEINATION = $('#pagination'),
-  $FIXING_NAV_SEARCH = $('.nav-search'),
+  $FIXING_SEARCH = $('.nav-search'),
   $LOGIN_FORM = $('.login-form'),
   $LOGIN_MODAL = $('#loginModal'),
   $DATEPICKER = $('#datepicker'),
   $USER_CONTAINER = $('.user-container'),
-  $VISIBLE_MARKER = $('.visible-marker'),
+  $FIXING_MARKER_COUNT = $('.visible-marker'),
   $LIVE_INFO_TBODY = $('.live-info-tbody'),
   $TRACK_LIST_TBODT = $('.track-list-tbody'),
   $STEPS = $('#steps'),
@@ -132,8 +132,8 @@ axios.interceptors.response.use(function (response) {
   if (response.data.ret == 1003) {
     window.alert(response.data.code)
     if (response.data.code === '认证失败') {
-      a.ClearLoaclStorageUserInfo()
-      a._SetLoaclUserInfo(null)
+      utils.DelLoaclStorageUserInfo()
+      utils.SetLoaclUserInfo(null)
       Event.trigger('setUserInfo', $USER_CONTAINER)
       $LOGIN_MODAL.modal('show')
       return null
@@ -152,25 +152,25 @@ axios.interceptors.response.use(function (response) {
 
 
 
-Event.listen('setUserInfo', ($el) => {
-  const USERINFO = a._GetLoaclUserInfo()
-  let $userInfo
-  if (USERINFO) {
-    $userInfo = $(`
-    <img src="/assets/default.png" wdith="48" height="48" />
-    <div class="dropdown mr-2 ml-2">
-      <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        ${USERINFO.UserName}
-      </button>
-    </div>
-  `)
-  } else {
-    $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
-    </div>`)
-  }
+// Event.listen('setUserInfo', ($el) => {
+//   const USERINFO = a._GetLoaclUserInfo()
+//   let $userInfo
+//   if (USERINFO) {
+//     $userInfo = $(`
+//     <img src="/assets/default.png" wdith="48" height="48" />
+//     <div class="dropdown mr-2 ml-2">
+//       <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+//         ${USERINFO.UserName}
+//       </button>
+//     </div>
+//   `)
+//   } else {
+//     $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
+//     </div>`)
+//   }
 
-  $el.html($userInfo)
-})
+//   $el.html($userInfo)
+// })
 Event.listen('setFixingSearch', ($el) => {
   let currentArrays
   const ALLARRAYS = a._GetAllArrays()
@@ -514,7 +514,7 @@ Event.listen('setVisibleMarkerPoint', () => {
     map.clearOverlays()
     let currentArrays = a._GetCurrentArrays()
     currentArrays.map(item => Event.trigger('setMapMakerPoint', item))
-    $VISIBLE_MARKER.text(map.getOverlays().length)
+    $FIXING_MARKER_COUNT.text(map.getOverlays().length)
     console.log(map.getOverlays().length)
   }
 })
@@ -802,7 +802,7 @@ Event.listen('GetFixingSportData', function (adminId, keyword = '中国', fixing
 })
 //百度地图API功能
 let map = (function (BMap) {
-  if (location.href.search('sportdata') > -1) return null
+  if (location.href.search('sportdata') > -1 || location.href.search('login') > -1) return null
   let baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
     point = new BMap.Point(116.331398, 39.897445); // 默认北京
   baiduMap.centerAndZoom(point, 14);
@@ -866,7 +866,7 @@ let a = (function (map) {
           workbook = XLSX.read(data, {
             type: 'binary'
           }) // 以二进制流方式读取得到整份excel表格对象
-          // persons = []; // 存储获取到的数据
+        // persons = []; // 存储获取到的数据
       } catch (e) {
         console.log('文件类型不正确');
         return;
@@ -904,19 +904,19 @@ let a = (function (map) {
   }
   $('#excel-file').on('change', handlerFile);
   $('#restart-file').on('change', handlerFile);
-  $('#update-file').on('click', function() {
+  $('#update-file').on('click', function () {
     let userinfo = a._GetLoaclUserInfo()
-    a.BatchAddFixing({ adminId: userinfo.AdminId, batchId: '', fixingIds: persons.join(',')}).then(res => {
+    a.BatchAddFixing({ adminId: userinfo.AdminId, batchId: '', fixingIds: persons.join(',') }).then(res => {
       alert(res.code)
     })
   })
-  $LOGIN_FORM.submit(function (e) {
-    e.preventDefault()
-    let $currentTarget = $(e.currentTarget),
-      username = $currentTarget.find('#username').val(),
-      password = $currentTarget.find('#password').val()
-    AdminLoginAccount({ username, password })
-  })
+  // $LOGIN_FORM.submit(function (e) {
+  //   e.preventDefault()
+  //   let $currentTarget = $(e.currentTarget),
+  //     username = $currentTarget.find('#username').val(),
+  //     password = $currentTarget.find('#password').val()
+  //   AdminLoginAccount({ username, password })
+  // })
   $DATEPICKER.on('input', function (e) {
     let userinfo = a._GetLoaclUserInfo(),
       time = $(e.currentTarget).val(),
@@ -938,87 +938,74 @@ let a = (function (map) {
       Event.trigger('setTrackList', $TRACK_LIST_TBODT, res.data, fixingId)
     })
   })
-  // 账户登录
-  function AdminLoginAccount({ username, password }) {
-    return axios.post('/AdminLoginAccount', Qs.stringify({ username, password })).then(res => {
-      if (!res) return
-      userInfo = res.data
-      _SetLoaclStorageUserInfo(res.data)
-      Event.trigger('setUserInfo', $USER_CONTAINER)
-      GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-        let pageSize
-        Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
-        Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
-        if (location.href.search('index.html') > -1) {
-          pageSize = 6
-        } else {
-          pageSize = 10
-        }
-        if (location.href.search('index.html') > -1) {
-          Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
-          res.map(item => Event.trigger('setMapMakerPoint', item))
-        }
-      })
-      $LOGIN_MODAL.modal('hide')
-    })
-  }
-  // 修改管理密码
-  function AdminEditPassword({ adminId, oldPassword, newPassword }) {
-    return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword })).then(res => {
-      if (!res) return
-      return res.data
-    })
-  }
-  // 操作用户拉黑状态
-  function AdminUpdateUserStatusInfo({ adminId, userId, userStatus }) {
-    return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus })).then(res => {
-      if (!res) return
-      return res.data
-    })
-  }
-  // 统计用户数据
-  function StatisticsUserData({ adminId, time }) {
-    return axios.post('/StatisticsUserData', Qs.stringify({ adminId, time })).then(res => {
-      if (!res) return
-      return res.data
-    })
-  }
-  // 统计设备数据
-  function AdminStatisticsFixingData({ adminId, time }) {
-    return axios.post('/AdminStatisticsFixingData', Qs.stringify({ adminId, time })).then(res => {
-      if (!res) return
-      return res.data
-    })
-  }
+  // // 账户登录
+  // function AdminLoginAccount({ username, password }) {
+  //   return axios.post('/AdminLoginAccount', Qs.stringify({ username, password })).then(res => {
+  //     if (!res) return
+  //     userInfo = res.data
+  //     _SetLoaclStorageUserInfo(res.data)
+  //     Event.trigger('setUserInfo', $USER_CONTAINER)
+  //     GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
+  //       let pageSize
+  //       Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+  //       Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+  //       if (location.href.search('index.html') > -1) {
+  //         pageSize = 6
+  //       } else {
+  //         pageSize = 10
+  //       }
+  //       if (location.href.search('index.html') > -1) {
+  //         Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+  //         res.map(item => Event.trigger('setMapMakerPoint', item))
+  //       }
+  //     })
+  //     $LOGIN_MODAL.modal('hide')
+  //   })
+  // }
+  // // 修改管理密码
+  // function AdminEditPassword({ adminId, oldPassword, newPassword }) {
+  //   return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword })).then(res => {
+  //     if (!res) return
+  //     return res.data
+  //   })
+  // }
+  // // 操作用户拉黑状态
+  // function AdminUpdateUserStatusInfo({ adminId, userId, userStatus }) {
+  //   return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus })).then(res => {
+  //     if (!res) return
+  //     return res.data
+  //   })
+  // }
 
-  // 获取设备列表
-  function GetFixingList({ adminId, keyword }) {
-    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
-      if (!res) return
-      let fixings = res.data.data
-      currentArrays = allArrays = Object.assign([], fixings)
-      onlineArrays = fixings.filter(item => item.entity_desc === '在线')
-      offlineArrays = fixings.filter(item => item.entity_desc === '离线')
-      return fixings
-    })
-  }
-  // 后台获取鞋垫详情
-  function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
-    map.closeInfoWindow()
-    return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (!res) return
-      Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
-      return res.data
-    })
-  }
-  // 获取二维码
-  function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {
-    return axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (!res) return
-      Event.trigger('setFixingQRCodeWindow', res.data.data, { lng, lat })
-      return res.data
-    })
-  }
+  // // 获取设备列表
+  // function GetFixingList({ adminId, keyword }) {
+  //   return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
+  //     if (!res) return
+  //     let fixings = res.data.data
+  //     currentArrays = allArrays = Object.assign([], fixings)
+  //     onlineArrays = fixings.filter(item => item.entity_desc === '在线')
+  //     offlineArrays = fixings.filter(item => item.entity_desc === '离线')
+  //     return fixings
+  //   })
+  // }
+  // // 后台获取鞋垫详情
+  // function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
+  //   map.closeInfoWindow()
+  //   return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
+  //     if (!res) return
+  //     Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
+  //     return res.data
+  //   })
+  // }
+  // // 获取二维码
+  // function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {
+  //   return axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
+  //     if (!res) return
+  //     Event.trigger('setFixingQRCodeWindow', res.data.data, { lng, lat })
+  //     return res.data
+  //   })
+  // }
+
   // 后台获取用户总数
   function GetUserCount({ adminId, seach }) {
     return axios.post('/GetUserCount', Qs.stringify({ adminId, seach })).then(res => {
@@ -1166,7 +1153,7 @@ let a = (function (map) {
     })
   }
   function BatchAddFixing({ adminId, batchId, fixingIds }) {
-    return axios.post('/BatchAddFixing', Qs.stringify({ adminId, batchId, fixingIds})).then(res => {
+    return axios.post('/BatchAddFixing', Qs.stringify({ adminId, batchId, fixingIds })).then(res => {
       if (!res) return
       return res.data
     })
@@ -1227,14 +1214,14 @@ let a = (function (map) {
     intervalerGetLastPosition = newIntervalerGetLastPosition
   }
   return {
-    AdminLoginAccount,
-    AdminEditPassword,
-    AdminUpdateUserStatusInfo,
-    StatisticsUserData,
-    AdminStatisticsFixingData,
-    GetFixingList,
-    GetFixingInfo,
-    GetFixingQRCode,
+    // AdminLoginAccount,
+    // AdminEditPassword,
+    // AdminUpdateUserStatusInfo,
+    // StatisticsUserData,
+    // AdminStatisticsFixingData,
+    // GetFixingList,
+    // GetFixingInfo,
+    // GetFixingQRCode,
     GetUserCount,
     GetUserList,
     GetUserInfo,
@@ -1263,42 +1250,367 @@ let a = (function (map) {
 })(map)
 
 
-a.GetLoaclStorageUserInfo().then(res => {
-  let { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
-    pageName = location.pathname.substr(1),
-    times = Math.round(new Date() / 1000)
-  switch (pageName) {
-    case 'index.html':
-      Event.trigger('GetFixingList', res.AdminId, '中国')
-      break;
-    case 'control.html':
-      if (res && fixingId || lng || lat) {
-        Event.trigger('GetFixingLiveInfo', res.AdminId, '中国', fixingId)
-      } else {
-        Event.trigger('GetFixingList', res.AdminId)
-      }
-      break;
-    case 'trajectory.html':
-      if (res && fixingId || lng || lat) {
-        Event.trigger('GetFixingTrackList', res.AdminId, '中国', fixingId)
-      } else {
-        Event.trigger('GetFixingList', res.AdminId)
-      }
-    case 'sportdata.html':
-      Event.trigger('GetFixingSportData', res.AdminId, '中国', fixingId, times)
-      break;
-    default:
-      Event.trigger('GetFixingList', res.AdminId, '中国')
-      break;
+// a.GetLoaclStorageUserInfo().then(res => {
+//   let { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
+//     pageName = location.pathname.substr(1),
+//     times = Math.round(new Date() / 1000)
+//   switch (pageName) {
+//     case 'index.html':
+//       Event.trigger('GetFixingList', res.AdminId, '中国')
+//       break;
+//     case 'control.html':
+//       if (res && fixingId || lng || lat) {
+//         Event.trigger('GetFixingLiveInfo', res.AdminId, '中国', fixingId)
+//       } else {
+//         Event.trigger('GetFixingList', res.AdminId)
+//       }
+//       break;
+//     case 'trajectory.html':
+//       if (res && fixingId || lng || lat) {
+//         Event.trigger('GetFixingTrackList', res.AdminId, '中国', fixingId)
+//       } else {
+//         Event.trigger('GetFixingList', res.AdminId)
+//       }
+//     case 'sportdata.html':
+//       Event.trigger('GetFixingSportData', res.AdminId, '中国', fixingId, times)
+//       break;
+//     default:
+//       Event.trigger('GetFixingList', res.AdminId, '中国')
+//       break;
+//   }
+
+// }).catch(error => console.warn(error))
+var utils = (function () {
+  function GetUrlPageName() {
+    return location.pathname.substr(1)
   }
-
-}).catch(error => console.warn(error))
-
-
-let header = (function() {
-  
+  function GetUrlParams() {
+    return Qs.parse(location.search.substr(1))
+  }
+  function handleToPad(num, n = 2) {
+    if ((num + '').length >= n) return num
+    return handleToPad('0' + num, n)
+  }
+  function handleTimestamp(date, isType = false, getOneDate) {
+    if (!date) return ''
+    if (String(date).length < 12) {
+      date = Number.parseInt(date + '000')
+    }
+    let handleToYYYYMMDD = date => {
+      let Year, Month, Day
+      Year = date.getFullYear()
+      Month = date.getMonth() + 1
+      Day = date.getDate()
+      return {
+        YYYY: Year,
+        MM: Month,
+        DD: Day
+      }
+    }
+    let handleToHHMMSSMS = date => {
+      let Hours, Minutes, Seconds, Milliseconds
+      Hours = date.getHours()
+      Minutes = date.getMinutes()
+      Seconds = date.getSeconds()
+      Milliseconds = date.getMilliseconds()
+      return {
+        HH: Hours,
+        MM: Minutes,
+        SS: Seconds,
+        MS: Milliseconds
+      }
+    }
+    // let handleToPad = (num, n = 2) => {
+    //   if ((num + '').length >= n) return num
+    //   return handleToPad('0' + num, n)
+    // }
+    let YYYYMMDD = handleToYYYYMMDD(new Date(date))
+    let HHMMSSMS = handleToHHMMSSMS(new Date(date))
+    switch (getOneDate) {
+      case 'YYYY':
+        return YYYYMMDD.YYYY
+        break;
+      case 'MM':
+        return handleToPad(YYYYMMDD.MM)
+        break;
+      case 'DD':
+        return handleToPad(YYYYMMDD.DD)
+        break;
+    }
+    if (isType) {
+      return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)}`
+    }
+    return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)} ${handleToPad(HHMMSSMS.HH)}:${handleToPad(HHMMSSMS.MM)}:${handleToPad(HHMMSSMS.SS)}`
+  }
+  function SetLoaclStorageUserInfo(key, userInfo) {
+    window.localStorage.setItem(key, JSON.stringify(userInfo))
+    return userInfo
+  }
+  function GetLoaclStorageUserInfo(key) {
+    return JSON.parse(window.localStorage.getItem(key))
+  }
+  function DelLoaclStorageUserInfo(key) {
+    return window.localStorage.removeItem(key)
+  }
+  function GetUserInfo() {
+    return userInfo
+  }
+  function SetUserInfo(newUserInfo) {
+    return userInfo = newUserInfo
+  }
+  return {
+    GetUrlPageName,
+    GetUrlParams,
+    handleToPad,
+    handleTimestamp,
+    SetLoaclStorageUserInfo,
+    GetLoaclStorageUserInfo,
+    DelLoaclStorageUserInfo,
+    GetUserInfo,
+    SetUserInfo
+  }
 })()
 
-let leftNav = (function() {
+var LOGIN_API = (function () {
+  // 账户登录
+  function AdminLoginAccount({ username, password }) {
+    return axios.post('/AdminLoginAccount', Qs.stringify({ username, password }))
+  }
+  // 修改管理密码
+  function AdminEditPassword({ adminId, oldPassword, newPassword }) {
+    return axios.post('/AdminEditPassword', Qs.stringify({ adminId, oldPassword, newPassword }))
+  }
+  // 操作用户拉黑状态
+  function AdminUpdateUserStatusInfo({ adminId, userId, userStatus }) {
+    return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus }))
+  }
+  return {
+    AdminLoginAccount,
+    AdminEditPassword,
+    AdminUpdateUserStatusInfo,
+  }
+})()
+
+var STATISTICS_API = (function () {
+  // 统计用户数据
+  function StatisticsUserData({ adminId, time }) {
+    return axios.post('/StatisticsUserData', Qs.stringify({ adminId, time }))
+  }
+  // 统计设备数据
+  function AdminStatisticsFixingData({ adminId, time }) {
+    return axios.post('/AdminStatisticsFixingData', Qs.stringify({ adminId, time }))
+  }
+  return {
+    StatisticsUserData,
+    AdminStatisticsFixingData
+  }
+})
+
+var FIXING_API = (function () {
+  // 获取设备列表
+  function GetFixingList({ adminId, keyword }) {
+    return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword })).then(res => {
+      if (!res) return
+      let fixings = res.data.data
+      currentArrays = allArrays = Object.assign([], fixings)
+      onlineArrays = fixings.filter(item => item.entity_desc === '在线')
+      offlineArrays = fixings.filter(item => item.entity_desc === '离线')
+      return fixings
+    })
+  }
+  // 后台获取鞋垫详情
+  function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
+    map.closeInfoWindow()
+    return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
+      if (!res) return
+      Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
+      return res.data
+    })
+  }
+  // 获取二维码
+  function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {
+    return axios.post('/GetFixingQRCode', Qs.stringify({ adminId, fixingId })).then(res => {
+      if (!res) return
+      Event.trigger('setFixingQRCodeWindow', res.data.data, { lng, lat })
+      return res.data
+    })
+  }
+  return {
+    GetFixingList,
+    GetFixingInfo,
+    GetFixingQRCode
+  }
+})
+
+// 头部模块
+var header = (function ($el) {
+  Event.create('header').listen('loginSuccess', function (userInfo) {
+    header.refresh(userInfo)
+  })
+  return {
+    refresh: function (userInfo) {
+      let $userInfo
+      if (userInfo) {
+        $userInfo = $(`
+        <img src="/assets/default.png" wdith="48" height="48" />
+        <div class="dropdown mr-2 ml-2">
+          <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            ${userInfo.UserName}
+          </button>
+        </div>
+      `)
+      } else {
+        $userInfo = (`<button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
+        </div>`)
+      }
+
+      $el.html($userInfo)
+    }
+  }
+})($USER_CONTAINER)
+
+// 导航栏模块
+var navigationMenu = (function () {
 
 })()
+
+// 鞋垫地图计数模块
+var fixingMarkerCount = (function ($el) {
+  Event.create('fixing').listen('fixingMarkerCount', function (map) {
+    fixingMarkerCount.refresh(map)
+  })
+  return {
+    refresh: function (map) {
+      $el.text(map.getOverlays().length)
+    }
+  }
+})($FIXING_MARKER_COUNT)
+
+// 鞋垫搜索模块
+var fixingSearch = (function ($el) {
+  Event.create('fixing').listen('fixingSearch', function () {
+    fixingSearch.refresh()
+  })
+  return {
+    refresh: function () {
+    }
+  }
+})($FIXING_SEARCH)
+
+// 鞋垫列表Tab模块 
+var fixingListsTab = (function ($el) {
+
+})($FIXING_NAV_TAB_CONTAINER)
+
+// 鞋垫列表模块
+var fixingLists = (function ($el) {
+  Event.create('fixing').listen('fixingLists', function () {
+    fixingLists.refresh()
+  })
+  return {
+    refresh: function () {
+    }
+  }
+})($FIXING_LIST_CONTAINER)
+
+// 鞋垫列表分页模块
+var fixingPagination = (function ($el) {
+
+})($FIXING_PAGEINATION)
+
+// 鞋垫信息实时模块
+var fixingInfoLive = (function ($el) {
+
+})($LIVE_INFO_TBODY)
+
+// 鞋垫历史轨迹信息模块
+var fixinTrajectory = (function ($el) {
+
+})($TRACK_LIST_TBODT)
+
+
+// 登陆模块
+var login = (function ($el) {
+  Event.create('login').listen('loginSuccess', function (url) {
+    login.redirect(url)
+  })
+  if ($el.length) {
+    $el.submit(function (e) {
+      e.preventDefault()
+      let $currentTarget = $(e.currentTarget),
+        username = $currentTarget.find('#username').val(),
+        password = $currentTarget.find('#password').val()
+      LOGIN_API.AdminLoginAccount({ username, password }).then(res => {
+        let userInfo = res.data
+        utils.SetLoaclStorageUserInfo('userinfo', userInfo)
+        Event.create('login').trigger('loginSuccess', 'index')
+      })
+    })
+  }
+  return {
+    redirect: function (url) {
+      return location.assign(`${url}.html`)
+    }
+  }
+})($LOGIN_FORM)
+
+// 首页模块
+var index = (function (pageName) {
+  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
+    return
+  }
+  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  if (!userInfo) {
+    login.redirect('login')
+  }
+  Event.create('header').trigger('loginSuccess', userInfo)
+  FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
+    Event.trigger('setFixingSearch', $FIXING_NAV_SEARCH)
+    Event.trigger('setFixingNavTab', $FIXING_NAV_TAB_CONTAINER)
+    // Event.create('fixing').trigger('fixingMarkerCount', map)
+    if (location.href.search('index.html') > -1) {
+      Event.trigger('setFixingPagination', $FIXING_PAGEINATION, pageSize)
+      res.map(item => Event.trigger('setMapMakerPoint', item))
+    }
+  })
+})('index')
+
+// 控制中心模块
+var control = (function (pageName) {
+  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
+    return
+  }
+  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  console.log(userInfo)
+  if (!userInfo) {
+    login.redirect('login')
+  }
+  Event.create('header').trigger('loginSuccess', userInfo)
+})('control')
+
+// 轨迹管理模块
+var trajectory = (function (pageName) {
+  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
+    return
+  }
+  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  console.log(userInfo)
+  if (!userInfo) {
+    login.redirect('login')
+  }
+  Event.create('header').trigger('loginSuccess', userInfo)
+})('trajectory')
+
+// 运动数据模块
+var sportdata = (function (pageName) {
+  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
+    return
+  }
+  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  console.log(userInfo)
+  if (!userInfo) {
+    login.redirect('login')
+  }
+  Event.create('header').trigger('loginSuccess', userInfo)
+
+})('sportdata')
