@@ -26,15 +26,15 @@
       </div>
     </header>
     <div class="d-flex flex-row" style="flex: 1;">
-      <div class="d-flex flex-row relative slider-dialog-container">
-        <nav class="nav d-flex flex-column bg-dark border-right">
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 home-button" href="javascript:void(0);">
-            <img src="/assets/home_select.png" title="home" width="38" height="30"><p class="pt-2">首页</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/control.html">
+      <div class="d-flex flex-row relative">
+        <nav class="nav d-flex flex-column bg-dark border-right navigation-menu">
+          <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 index" href="javascript:void(0);">
+            <img src="/assets/home_select.png" title="home" width="38" height="30"><p class="pt-2 text-primary">首页</p></a>
+          <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 control" href="javascript:void(0);">
             <img src="/assets/control.png" title="conctrol" width="38" height="34"><p class="pt-2">控制中心</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/trajectory.html">
+          <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 trajectory" href="javascript:void(0);">
             <img src="/assets/trajectory.png" title="trajectory" width="38" height="40"><p class="pt-2">轨迹管理</p></a>
-          <a class="nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2" href="/sportdata.html">
+          <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata" href="javascript:void(0);">
             <img src="/assets/sportdata.png" title="movement" width="40" height="38"><p class="pt-2">运动数据</p></a>
         </nav>
         <div class="slider-dialog bg-dark shadow-right-big text-white" style="z-index: 999; width: 368px; display: block;">
@@ -77,7 +77,15 @@
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
-  <script type="text/javascript" src="/js/a.js"></script>
+  <script type="text/javascript" src="/js/base.js"></script>
+  <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/map.js"></script>
+  <script type="text/javascript" src="/js/fixing_api.js"></script>
+  <script type="text/javascript" src="/js/fixing_event.js"></script>
+  <script type="text/javascript" src="/js/map_event.js"></script>
+  <script type="text/javascript" src="/js/header.js"></script>
+  <script type="text/javascript" src="/js/navigation_menu.js"></script>
+  <script type="text/javascript" src="/js/index.js"></script>
 </body>
 
 </html>
