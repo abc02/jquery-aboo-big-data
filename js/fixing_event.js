@@ -1,15 +1,4 @@
-// 鞋垫地图计数模块
-var fixingMarkerCount = (function ($el) {
-  Event.create('fixing').listen('GetFixingList', function (map) {
-    fixingMarkerCount.refresh(map)
-  })
 
-  return {
-    refresh(map) {
-      $el.text(map.getOverlays().length)
-    }
-  }
-})($('.visible-marker'))
 // // 鞋垫搜索模块
 // var fixingSearch = (function ($el) {
 //   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
@@ -84,6 +73,7 @@ var fixingListsTab = (function ($el) {
             .addClass('text-muted')
           // 获取 tabIndex
           params.fixingListsTabIndex = $(e.currentTarget).index()
+          params.currentPage = 0
           // 根据 tabIndex 设置默认 fixingId
           switch (Number.parseInt(params.fixingListsTabIndex)) {
             case 0:
@@ -95,20 +85,26 @@ var fixingListsTab = (function ($el) {
             case 2:
               if (offlineArrays[0] && offlineArrays.length) params.fixingId = offlineArrays[0].entity_name
               break;
+            default:
+              if (allArrays[0] && allArrays.length) params.fixingId = allArrays[0].entity_name
+              break;
           }
           // 设置 url tabIndex fixingId 参数
           utils.SetUrlParams(params)
           // 通知 map fixing 更新 
           // marker 传递给 fixinglist 暂缓
           switch (pageName) {
+            case '':
+              Event.create('map').trigger('GetFixingList', map, source, fixing)
+              break;
             case 'index.html':
-              Event.create('map').trigger('GetFixingList', map, source)
+              Event.create('map').trigger('GetFixingList', map, source, fixing)
               break;
             case 'control.html':
-              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce)
+              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
               break;
             case 'trajectory.html':
-              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce)
+              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
               break;
           }
           Event.create('fixing').trigger('GetFixingList', map, source, fixing)
@@ -129,19 +125,26 @@ var fixingLists = (function ($el) {
     fixingLists.refresh(map, source, fixing)
   })
   return {
-    refresh(map, source, { currentPage, pageSize, marker }) {
+    refresh(map, source, fixing) {
       let cache = [],
         allArrays = Object.assign([], source),
         onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
         offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
         pageName = utils.GetUrlPageName(),
-        params = utils.GetUrlParams()
+        params = utils.GetUrlParams(),
+        currentPage = Number.parseInt(params.currentPage),
+        pageSize = Number.parseInt(params.pageSize)
       // url 无参数 默认 tabIndex 0
       if (!params.fixingListsTabIndex) {
         params.fixingListsTabIndex = 0
       }
-      // 仅处理展示前10条数据
-      let handleToCaches = (source) => {
+      // 仅处理展示前10/6条数据
+      let handleToCaches = source => {
+        if ((source.length / pageSize) < currentPage) {
+          // url
+          params.currentPage = currentPage = 0
+          utils.SetUrlParams(params)
+        }
         for (let index = currentPage * pageSize; index < (currentPage * pageSize) + pageSize; index++) {
           if (source[index]) cache.push(source[index])
         }
@@ -155,6 +158,9 @@ var fixingLists = (function ($el) {
           break;
         case 2:
           handleToCaches(offlineArrays)
+          break;
+        default:
+          handleToCaches(allArrays)
           break;
       }
       // 处理 cache 数据
@@ -204,10 +210,17 @@ var fixingLists = (function ($el) {
         // 覆盖物单个once
         switch (pageName) {
           case 'control.html':
-            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce)
+            clearInterval(window.setIntervaler)
+            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
+            Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
+            window.setIntervaler = setInterval(function () {
+              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'update' })
+              Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
+            }, 60000)
+            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
             break;
           case 'trajectory.html':
-            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce)
+            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
             break;
         }
         // BMapLib.EventWrapper.trigger(marker, "click")
@@ -227,31 +240,44 @@ var fixingListsPagination = (function ($el) {
         allArrays = Object.assign([], source),
         onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
         offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
-        params = utils.GetUrlParams()
+        params = utils.GetUrlParams(),
+        fixingListsTabIndex = Number.parseInt(params.fixingListsTabIndex),
+        pageSize = Number.parseInt(fixing.pageSize),
+        currentPage = Number.parseInt(fixing.currentPage) + 1
       // 根据 tabIndex 选择分组
-      switch (Number.parseInt(params.fixingListsTabIndex)) {
+      let hadnleToCache = source => {
+        cache = source
+        if ((source.length / pageSize) + 1 < currentPage) {
+          currentPage = 1
+        }
+      }
+      switch (fixingListsTabIndex) {
         case 0:
-          cache = allArrays
+          hadnleToCache(allArrays)
           break;
         case 1:
-          cache = onlineArrays
+          hadnleToCache(onlineArrays)
           break;
         case 2:
-          cache = offlineArrays
+          hadnleToCache(offlineArrays)
+          break;
+        default:
+          hadnleToCache(allArrays)
           break;
       }
       $el.jqPaginator({
         totalCounts: cache.length ? cache.length : 1,
-        pageSize: fixing.pageSize,
+        pageSize,
         visiblePages: 5,
-        currentPage: 1,
+        currentPage,
         prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
         next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
         page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
         onPageChange: function (num, type) {
           if (type === 'init') return
-          // console.log('fixingListsPagination', num, type, fixing)
-          Event.create('fixing').trigger('GetFixingList', map, cache, { currentPage: num - 1, pageSize: fixing.pageSize })
+          params.currentPage = num - 1
+          utils.SetUrlParams(params)
+          Event.create('fixing').trigger('GetFixingList', map, source, params)
         }
       })
     }
@@ -266,121 +292,151 @@ var fixingInfo = (function ($el) {
   })
 
   return {
-    refresh(map, source, { fixingId }) {
-      console.log(fixingId)
+    refresh(map, source, { fixingId, infoWindow }) {
       // loacl 获取数据
       let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingInfo({ adminId: AdminId, fixingId }).then(res => {
-        console.log(res)
+        let { bindingList, fixinginfo } = res.data, bindingListContent
+        let activatedTime = utils.handleTimestampToDate(fixinginfo.activatedTime),
+          createTime = utils.handleTimestampToDate(fixinginfo.createTime),
+          expireTime = utils.handleTimestampToDate(fixinginfo.expireTime),
+          mode = fixinginfo.mode === '1' ? '开机' : '关机'
+        // 更新窗口对象HTML信息
+        infoWindow.setWidth(760)
+        if (bindingList) {
+          bindingListContent = `
+            <table class="p table table-borderless">
+              <thead class="p-2 normal">
+                <tr>
+                  <th scope="col" class="normal text-muted p-1" width="10%">头像</th>
+                  <th scope="col" class="normal text-muted p-1" width="10%">昵称</th>
+                  <th scope="col" class="normal text-muted p-1" width="15%">电话</th>
+                  <th scope="col" class="normal text-muted p-1" width="20%">鞋垫昵称</th>
+                  <th scope="col" class="normal text-muted p-1" width="30%">绑定时间</th>
+                  <th scope="col" class="normal text-muted p-1" width="15%">审核</th>
+                </tr>
+              </thead>
+              <tbody>
+              ${bindingList.map(item => {
+              return `<tr class="pointer">
+                <th scope="row" class="p-1 text-center" width="10%">
+                <img src="${item.UserIcon}" width="16" height="16" />  
+                </th>
+                <td class="p p-1" width="10%">${item.relation}</td>
+                <td class="p p-1 text-white-50" width="15%">${item.Phone}</td>
+                <td class="p p-1 text-white-50" width="20%">${item.fixingName}</td>
+                <td class="p p-1 text-white-50" width="30%">${item.createTime}</td>
+                <td class="p p-1 text-white-50" width="15%">${item.state}</td>
+              </tr>`
+            }).join(' ')}
+              </tbody>
+            </table>`
+        } else {
+          bindingListContent = '<h5 class="d-flex align-items-center">该设备未绑定</h5>'
+        }
+        infoWindow.setContent(`<div>
+        <div class="d-flex text-white">
+          <div class="base-container mr-2">
+            <h5 class="normal mb-3">基本信息</h5>
+            <div style="background-color: #151934; width: 230px;" class="p-3">
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">${fixingId}
+                  <span>${mode}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">鞋垫ID
+                  <span>鞋垫状态</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">${fixinginfo.batchId}
+                  <span>${fixinginfo.emergencyContact}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">产品批次
+                  <span>紧急联系人</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">${createTime}
+                  <span>${expireTime}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">生产时间
+                  <span>月卡时间</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-start">${activatedTime}
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">激活时间
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+              <h6 class="normal d-flex justify-content-start">${fixinginfo.sms}
+              </h6>
+              <p class="p text-muted d-flex justify-content-start">
+                <span>服务手机号</span>
+              </p>
+            </div>
+            </div>
+          </div>
+          <div class="bing-container d-flex flex-column" style="flex: 1;">
+          <h5 class="normal mb-3">绑定者信息</h5>
+          <div class="d-flex justify-content-center" style="background-color: #151934; flex: 1;">
+            ${bindingListContent}
+            </div>
+          </div>
+        </div>
+        </div>`)
       })
-      let $content, bindingListTmp, opts = {
-        width: 760
-      }
-      if (bindingList) {
-        bindingListTmp = bindingList.map(item => {
-          return `<tr class="pointer">
-          <th scope="row" class="p-1 text-center" width="10%">
-          <img src="${item.UserIcon}" width="16" height="16" />  
-          </th>
-          <td class="p p-1" width="10%">${item.relation}</td>
-          <td class="p p-1 text-white-50" width="15%">${item.Phone}</td>
-          <td class="p p-1 text-white-50" width="20%">${item.fixingName}</td>
-          <td class="p p-1 text-white-50" width="30%">${item.createTime}</td>
-          <td class="p p-1 text-white-50" width="15%">${item.state}</td>
-        </tr>`
-        })
-      } else {
-        bindingListTmp = []
-      }
-      $content = $(`<div>
-    <div class="d-flex text-white">
-      <div class="base-container mr-2">
-        <h5 class="normal mb-3">基本信息</h5>
-        <div style="background-color: #151934; width: 230px;" class="p-3">
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${fixingId}
-              <span>${fixinginfo.mode === '1' ? '在线' : '离线'}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">鞋垫ID
-              <span>鞋垫状态</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">4
-              <span>${fixinginfo.emergencyContact}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">产品批次
-              <span>紧急联系人</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.createTime, true)}
-              <span>${timestamp(fixinginfo.expireTime, true)}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">生成时间
-              <span>月卡时间</span>
-            </p>
-          </div>
-          <div class="pt-3 pb-3">
-            <h6 class="normal d-flex justify-content-between">${timestamp(fixinginfo.activatedTime, true)}
-              <span>${fixinginfo.emergencyContact}</span>
-            </h6>
-            <p class="p text-muted d-flex justify-content-between">激活时间
-              <span>服务手机号</span>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="bing-container d-flex flex-column " style="flex: 1;">
-        <h5 class="normal mb-3">绑定者信息</h5>
-        <div style="background-color: #151934; flex: 1;">
-          <table class="p table table-borderless">
-            <thead class="p-2 normal">
-              <tr>
-                <th scope="col" class="normal text-muted p-1" width="10%">头像</th>
-                <th scope="col" class="normal text-muted p-1" width="10%">昵称</th>
-                <th scope="col" class="normal text-muted p-1" width="15%">电话</th>
-                <th scope="col" class="normal text-muted p-1" width="20%">鞋垫昵称</th>
-                <th scope="col" class="normal text-muted p-1" width="30%">绑定时间</th>
-                <th scope="col" class="normal text-muted p-1" width="15%">审核</th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-      </div>
-    </div>
-    </div>`)
-
-      $content.find('.table').append(`<tbody>${bindingListTmp.join(' ')}</tbody>`)
-      let point = new BMap.Point(lng, lat);
-      let infoWindow = new BMap.InfoWindow($content.html(), opts);  // 创建信息窗口对象 
-      map.openInfoWindow(infoWindow, point); //开启信息窗口
     }
   }
 })()
 
 // 鞋垫指令
 var fixingInstructions = (function ($el) {
-  Event.create('fixing').listen('', function (map, source, fixing) {
-    fixingInstructions.refresh()
+  Event.create('fixing').listen('AdminGetInstructionsList', function (map, source, fixing) {
+    fixingInstructions.refresh(map, source, fixing)
   })
 
   return {
-    refresh(map, source, fixing) {
-
+    refresh(map, source, { infoWindow, fixingId }) {
+      // loacl 获取数据
+      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo'),
+        time = utils.handleTimestampToDate(new Date())
+      FIXING_API.AdminGetInstructions({ adminId: AdminId, fixingId, time }).then(res => {
+        let instructions = res.data.data,
+          instructionsContent = instructions.map(item => {
+            return `<li class="mb-3 d-flex flex-row instruction-item"><p class="time text-muted" style="width: 100px;">${item.shijian}</p>
+            <p class="ml-4 breakAll" style="flex: 1;">${item.content}</p></li>`
+          }).join('')
+        infoWindow.setWidth(680)
+        infoWindow.setContent(`
+                <h5 class="normal text-white mb-3">指令回复</h5>
+                <ul class="instructions-container">
+                  ${instructionsContent}
+                </ul>
+          `)
+      })
     }
   }
 })()
 
 // 鞋垫二维码
 var fixingQRCode = (function ($el) {
-  Event.create('fixing').listen('', function (map, source, fixing) {
-    fixingQRCode.refresh()
+  Event.create('fixing').listen('GetFixingQRCode', function (map, source, fixing) {
+    fixingQRCode.refresh(map, source, fixing)
   })
 
   return {
-    refresh(map, source, fixing) {
-
+    refresh(map, source, { infoWindow, fixingId }) {
+      // loacl 获取数据
+      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.GetFixingQRCode({ adminId: AdminId, fixingId }).then(res => {
+        infoWindow.setWidth(485)
+        infoWindow.setContent(`<h5 class="normal mb-3">二维码</h5>
+        <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data}" width="218" height="218" />
+        </div>`)
+      })
     }
   }
 })()
@@ -388,12 +444,39 @@ var fixingQRCode = (function ($el) {
 // 鞋垫信息实时模块
 var fixingInfoLive = (function ($el) {
   Event.create('fixing').listen('GetLastPosition', function (map, source, fixing) {
-    fixingInfoLive.refresh()
+    fixingInfoLive.refresh(map, source, fixing)
   })
 
   return {
     refresh(map, source, fixing) {
-
+      if (fixing.type === 'init') $el.empty()
+      // loacl 获取数据
+      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
+      // 请求最后位置信息接口
+      FIXING_API.GetLastPosition({ adminId: AdminId, fixingId: fixing.fixingId }).then(res => {
+        let positions = res.data.positions.split(','),
+          shutdown = res.data.shutdown === '0' ? '关机' : '开机',
+          lng = utils.handleToCut(positions[0]),
+          lat = utils.handleToCut(positions[1]),
+          createTime = utils.handleTimestampToDateTime(res.data.createTime),
+          charge = res.data.shutdown === '1' ? '充电中' : '未充电',
+          modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
+          status = res.data.status === '1' ? '运动' : '静止'
+        $el.append(`
+        <tr>
+          <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
+          <td class="normal pt-4 pb-4 text-center">${res.data.mode}</td>
+          <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
+          <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+          <td class="normal pt-4 pb-4 text-center">${res.data.address}</td>
+          <td class="normal pt-4 pb-4 text-center">${res.data.code}</td>
+        </tr>
+        `)
+        $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
+          $(e.currentTarget).addClass('active').siblings().removeClass('active')
+          // Event.create('map').trigger('GetFixingListOnce', map, source, { ...res.data, ...fixing })
+        })
+      })
     }
   }
 })($('.live-info-tbody'))
@@ -401,12 +484,18 @@ var fixingInfoLive = (function ($el) {
 // 鞋垫历史轨迹信息模块
 var fixinTrajectory = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, source, fixing) {
-    fixinTrajectory.refresh()
+    fixinTrajectory.refresh(map, source, fixing)
   })
 
   return {
     refresh(map, source, fixing) {
-
+      // loacl 获取数据
+      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo'),
+        time = Number.parseInt(fixing.time)
+      // 请求轨迹接口
+      FIXING_API.GetTrackList({ adminId: AdminId, fixingId: fixing.fixingId, time }).then(res => {
+        console.log(res.data)
+      })
     }
   }
 })($('.track-list-tbody'))

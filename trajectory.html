@@ -8,6 +8,8 @@
   <title>Document</title>
   <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
     crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
+
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
 </head>
@@ -30,18 +32,28 @@
     <div class="d-flex flex-row" style="flex: 1;">
       <nav class="nav d-flex flex-column bg-dark border-right navigation-menu">
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 index" href="javascript:void(0);">
-          <img src="/assets/home.png" title="home" width="38" height="30"><p class="pt-2">首页</p></a>
+          <img src="/assets/home.png" title="home" width="38" height="30">
+          <p class="pt-2">首页</p>
+        </a>
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 control" href="javascript:void(0);">
-          <img src="/assets/control.png" title="conctrol" width="38" height="34"><p class="pt-2">控制中心</p></a>
-        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 trajectory" href="javascript:void(0);">
-          <img src="/assets/trajectory_select.png" title="trajectory" width="38" height="40"><p class="pt-2 text-primary">轨迹管理</p></a>
-        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata" href="javascript:void(0);">
-          <img src="/assets/sportdata.png" title="movement" width="40" height="38"><p class="pt-2">运动数据</p></a>
+          <img src="/assets/control.png" title="conctrol" width="38" height="34">
+          <p class="pt-2">控制中心</p>
+        </a>
+        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 trajectory"
+          href="javascript:void(0);">
+          <img src="/assets/trajectory_select.png" title="trajectory" width="38" height="40">
+          <p class="pt-2 text-primary">轨迹管理</p>
+        </a>
+        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata"
+          href="javascript:void(0);">
+          <img src="/assets/sportdata.png" title="movement" width="40" height="38">
+          <p class="pt-2">运动数据</p>
+        </a>
       </nav>
       <div class="d-flex flex-column " style="flex: 1;">
         <div class="d-flex flex-row" style="flex: 1;">
           <div class="d-flex flex-row relative">
-            <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px; display: block;">
+            <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 9; width: 368px; display: block;">
               <h5 class="d-flex justify-content-between text-light ml-4 mr-4 mt-3 mb-2">查看设备数量
                 <!-- <img src="/assets/close.png" title="close" class="slider-close pointer" width="15" height="15"> -->
               </h5>
@@ -65,27 +77,31 @@
               </ul>
               <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
             </div>
-            <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
+            <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 9; transform: translateX(100%);">
               <img src="/assets/extension.png" alt="extension">
             </button>
           </div>
           <div class="baidumap-container d-flex relative" style="flex: 1;">
             <div id="baidumap" class="d-flex" style="flex: 1;"></div>
-            <button class="bottom-doork-map absolute-bottom-center pointer" style="bottom: -45px;z-index: 999; transform: rotate(270deg); display: none;">
+            <button class="bottom-doork-map absolute-bottom-center pointer" style="bottom: -45px;z-index: 9; transform: rotate(270deg); display: none;">
               <img src="/assets/extension.png" alt="extension">
             </button>
           </div>
         </div>
         <div class="relative liveinfo-container bg-dark border-top text-white" style="height: 230px; overflow-y: auto;">
-          <button class="bottom-doork-live absolute-top-center pointer" style="top: -45px; z-index: 999; transform: rotate(90deg);">
+          <button class="bottom-doork-live absolute-top-center pointer" style="top: -45px; z-index: 9; transform: rotate(90deg);">
             <img src="/assets/extension.png" alt="extension">
           </button>
           <div class="d-flex flex-column">
-            <h5 class="pt-3 pb-3 pl-4 pr-4 d-flex flex-row align-items-center">轨迹信息
-              <div class="ml-4 mr-2">
-                <input type="date" id="datepicker" class="form-control bg-dark text-white border-0">
+            <div class="p-4 d-flex flex-row align-items-center">
+              <h5 class="normal mr-4">轨迹信息</h5>
+              <div class="date">
+                <input type="text" class="form-control datepicker" >
+                <div class="input-group-addon">
+                  <span class="glyphicon glyphicon-th"></span>
+                </div>
               </div>
-            </h5>
+            </div>
             <table class="live-info-table">
               <thead>
                 <tr>
@@ -105,34 +121,6 @@
       </div>
     </div>
   </main>
-  <!-- Modal-->
-  <div class="modal fade" id="loginModal">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalCenterTitle">用户登录</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form class="login-form">
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="exampleInputEmail1">手机号码</label>
-              <input type="phone" class="form-control" id="username" aria-describedby="userHelp" placeholder="请输入手机号码">
-            </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">密码</label>
-              <input type="password" class="form-control" id="password" placeholder="请输入密码">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary login-button">登录</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-          </div>
-          </from>
-      </div>
-    </div>
   </div>
   <script type="text/javascript" src="https://api.map.baidu.com/library/EventWrapper/1.2/src/EventWrapper.js"></script>
   <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
@@ -143,12 +131,23 @@
     crossorigin="anonymous"></script>
   <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
   <script type="text/javascript" src="https://cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
-  <script type="text/javascript" src="/lib/bootstrap-datetimepicker.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
-  <script type="text/javascript" src="/js/a.js"></script>
+  <!-- <script type="text/javascript" src="/js/a.js"></script> -->
+  <script type="text/javascript" src="/js/base.js"></script>
+  <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/map.js"></script>
+  <script type="text/javascript" src="/js/fixing_api.js"></script>
+  <script type="text/javascript" src="/js/fixing_event.js"></script>
+  <script type="text/javascript" src="/js/map_event.js"></script>
+  <script type="text/javascript" src="/js/header.js"></script>
+  <script type="text/javascript" src="/js/navigation_menu.js"></script>
+  <script type="text/javascript" src="/js/datepicker.js"></script>
+  <script type="text/javascript" src="/js/trajectory.js"></script>
 </body>
 
 </html>

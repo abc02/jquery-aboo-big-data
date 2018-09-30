@@ -553,7 +553,7 @@
   color: white;
 }
 
-#datepicker {
+.datepicker {
   background-color: #1C2340 !important;
   color: white;
 }
@@ -578,7 +578,18 @@
   border-radius: 6px;
  background-color: #3662fd !important;
 }
-
+.instruction-item {
+  border-top: solid 1px rgba(0, 0, 0, .2);
+  border-bottom: solid 1px rgba(0, 0, 0, .2);
+}
+.instruction-item:hover {
+  color: white !important;
+  border-top: solid 1px rgba(255, 255, 255, .8);
+  border-bottom: solid 1px rgba(255, 255, 255, .8);
+}
+.instruction-item:hover .time{
+  color: white !important;
+}
 
 .file {
   position: relative;
@@ -605,4 +616,11 @@
   border-color: #007bff;
   color: white;
   text-decoration: none;
+}
+
+.active {
+  border-top: 1px solid rgba(255,255,255, .2);
+  border-bottom: 1px solid rgba(255,255,255, .2);
+  background-color: #262C4C;
+  color: white !important;
 }

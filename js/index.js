@@ -10,15 +10,12 @@ var index = (function () {
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-
-    Event.create('map').trigger('GetFixingList', map, res.data.data, { currentPage: 0, pageSize: 10 })
-    Event.create('fixing').trigger('GetFixingList', map, res.data.data,  { currentPage: 0, pageSize: 10 })
-    // Event.create('fixing').trigger('fixingSearch', res.data.data)
-    // Event.create('fixing').trigger('fixingListsTab', res.data.data)
-    // Event.create('fixing').trigger('fixingListsPagination', res.data.data)
-    // Event.create('map').trigger('mapMarkerPoint', map, res.data.data)
-    // Event.create('map').trigger('mapMoveendEvent', map, res.data.data)
-    // Event.create('map').trigger('mapZoomendEvent', map, res.data.data)
-    // Event.create('fixing').trigger('fixingMarkerCount', map)
+    let params = utils.GetUrlParams()
+    if (!params.currentPage) params.currentPage = 0
+    if (!params.pageSize) params.pageSize = 10
+    if (params.pageSize < 10) params.pageSize = 10
+    utils.SetUrlParams(params)
+    Event.create('map').trigger('GetFixingList', map, res.data.data, params)
+    Event.create('fixing').trigger('GetFixingList', map, res.data.data,  params)
   })
 })()

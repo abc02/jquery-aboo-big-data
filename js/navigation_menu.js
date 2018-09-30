@@ -9,11 +9,25 @@ var navigationMenu = (function ($el) {
     refresh() {
       $el.on('click', '.nav-menu', function (e) {
         e.preventDefault()
-        const $CURRENTTAGET = $(e.currentTarget),
-          CLASSNAMES = ['index', 'control', 'trajectory', 'sportdata'],
-          RESULT = CLASSNAMES.filter(className => $CURRENTTAGET.hasClass(className)),
-          PARAMS = utils.GetUrlParams()
-        location.assign(`${RESULT[0]}.html?${Qs.stringify(PARAMS)}`)
+        let $currentTarget = $(e.currentTarget),
+          classNames = ['index', 'control', 'trajectory', 'sportdata'],
+          result = classNames.filter(className => $currentTarget.hasClass(className)),
+          params = utils.GetUrlParams()
+        switch (result[0]) {
+          case 'index':
+            params.pageSize = 10
+            break;
+          case 'control':
+            params.pageSize = 6
+            break;
+          case 'trajectory':
+            params.pageSize = 6
+            break;
+          case 'sportdata':
+            params.pageSize = 6
+            break;
+        }
+        location.assign(`${result[0]}.html?${Qs.stringify(params)}`)
       })
     }
   }

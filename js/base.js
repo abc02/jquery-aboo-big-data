@@ -1,8 +1,5 @@
 axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-// axios.defaults.headers.common[''] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBZG1pbklkIjoiMyIsImV4cCI6MTUzODI4OTgwM30.YkXr2kW9F58d0Nt9EjHLp1NgHoTN4Ykg7iqTHYzMiug'
-
-
 // Add a request interceptor
 axios.interceptors.request.use(function (config) {
   // Do something before request is sent
@@ -26,23 +23,12 @@ axios.interceptors.response.use(function (response) {
   // Do something with response data
   if (response.data.ret == 1002) {
     console.log(response)
-    // window.alert(response.data.code)
-    return null
+    return response
   }
   if (response.data.ret == 1003) {
-    if (response.data.code === '认证失败') {
-      console.log(response)
-      location.assign('login.html')
-      return null
-    }
-    if (response.data.code === '定位失败') {
-      console.log(response)
-      // clearInterval(a._GetIntervalerGetLastPosition())
-      return null
-    }
-    return null
+    return alert(response.data.code)
   }
-  return response;
+  return response
 }, function (error) {
   // Do something with response error
   return Promise.reject(error);

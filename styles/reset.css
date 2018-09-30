@@ -70,7 +70,9 @@ img {
     width: 100%;
     height: 100%; */
 }
-
+.BMap_pop > div:nth-of-type(9){
+  overflow-y: auto !important;
+}
 .BMap_pop > div, .BMap_pop > img {
   /* display: none; */
 }

@@ -31,13 +31,23 @@
     <div class="d-flex flex-row" style="flex: 1;">
       <nav class="nav d-flex flex-column bg-dark border-right navigation-menu">
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 index" href="javascript:void(0);">
-          <img src="/assets/home.png" title="home" width="38" height="30"><p class="pt-2 ">首页</p></a>
+          <img src="/assets/home.png" title="home" width="38" height="30">
+          <p class="pt-2">首页</p>
+        </a>
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 control" href="javascript:void(0);">
-          <img src="/assets/control.png" title="conctrol" width="38" height="34"><p class="pt-2">控制中心</p></a>
-        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 trajectory" href="javascript:void(0);">
-          <img src="/assets/trajectory.png" title="trajectory" width="38" height="40"><p class="pt-2">轨迹管理</p></a>
-        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata" href="javascript:void(0);">
-          <img src="/assets/sportdata_select.png" title="movement" width="40" height="38"><p class="pt-2 text-primary">运动数据</p></a>
+          <img src="/assets/control.png" title="conctrol" width="38" height="34">
+          <p class="pt-2">控制中心</p>
+        </a>
+        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 trajectory"
+          href="javascript:void(0);">
+          <img src="/assets/trajectory.png" title="trajectory" width="38" height="40">
+          <p class="pt-2">轨迹管理</p>
+        </a>
+        <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata"
+          href="javascript:void(0);">
+          <img src="/assets/sportdata_select.png" title="movement" width="40" height="38">
+          <p class="pt-2 text-primary">运动数据</p>
+        </a>
       </nav>
       <div class="d-flex flex-column " style="flex: 1;">
         <div class="d-flex flex-row" style="flex: 1;">
@@ -52,8 +62,9 @@
               <ul class="p-1 fixing-container">
               </ul>
               <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
-              <div id="datepicker" class="d-flex justify-content-center" data-date="new Date()"></div>
+              <div class="datepicker d-flex justify-content-center" data-date="new Date()"></div>
               <input type="hidden" id="my_hidden_input">
+             
             </div>
 
             <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
@@ -61,44 +72,19 @@
             </button>
           </div>
           <div style="flex: 1; background-color: #141831; padding-left: 60px;" class="d-flex flex-row flex-wrap align-items-center justify-content-center">
-            <div id="calorie" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;" class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="distance" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;" class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="steps" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;" class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="weight" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;" class="mt-2 mb-2 mr-4 ml-4 border"></div>
+            <div id="calorie" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
+              class="mt-2 mb-2 mr-4 ml-4 border"></div>
+            <div id="distance" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
+              class="mt-2 mb-2 mr-4 ml-4 border"></div>
+            <div id="steps" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
+              class="mt-2 mb-2 mr-4 ml-4 border"></div>
+            <div id="weight" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
+              class="mt-2 mb-2 mr-4 ml-4 border"></div>
           </div>
         </div>
       </div>
     </div>
   </main>
-  <!-- Modal-->
-  <div class="modal fade" id="loginModal">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalCenterTitle">用户登录</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form class="login-form">
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="exampleInputEmail1">手机号码</label>
-              <input type="phone" class="form-control" id="username" aria-describedby="userHelp" placeholder="请输入手机号码">
-            </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">密码</label>
-              <input type="password" class="form-control" id="password" placeholder="请输入密码">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary login-button">登录</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-          </div>
-          </from>
-      </div>
-    </div>
-  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.js"></script>
   <script type="text/javascript" src="https://api.map.baidu.com/library/EventWrapper/1.2/src/EventWrapper.js"></script>
   <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
@@ -115,7 +101,16 @@
   <script type="text/javascript" src="/lib/bigdata.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
-  <script type="text/javascript" src="/js/a.js"></script>
+  <!-- <script type="text/javascript" src="/js/a.js"></script> -->
+  <script type="text/javascript" src="/js/base.js"></script>
+  <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/map.js"></script>
+  <script type="text/javascript" src="/js/fixing_api.js"></script>
+  <script type="text/javascript" src="/js/fixing_event.js"></script>
+  <script type="text/javascript" src="/js/map_event.js"></script>
+  <script type="text/javascript" src="/js/header.js"></script>
+  <script type="text/javascript" src="/js/navigation_menu.js"></script>
+  <script type="text/javascript" src="/js/sportdata.js"></script>
 
   <script type="text/javascript">
 
@@ -130,15 +125,16 @@
       clear: "清除"
     };
 
-    $('#datepicker').datepicker({
+    $('.datepicker').datepicker({
       format: 'yyyy-mm-dd',
       language: 'cn'
     });
-    $('#datepicker').on('changeDate', function () {
-      let userinfo = a._GetLoaclUserInfo(),
-        { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
-        times = Math.round(new Date($('#datepicker').datepicker('getFormattedDate')) / 1000)
-      Event.trigger('GetFixingSportData', userinfo.AdminId, '中国', fixingId, times)
+    $('.datepicker').on('changeDate', function (e) {
+      console.log(e)
+      // let userinfo = utils.GetLocalString、(),
+        // { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
+        // times = Math.round(new Date($('#datepicker').datepicker('getFormattedDate')) / 1000)
+      // Event.trigger('GetFixingSportData', userinfo.AdminId, '中国', fixingId, times)
     });
 
   </script>
