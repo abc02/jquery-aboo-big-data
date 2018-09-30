@@ -6,13 +6,11 @@ var FIXING_API = (function () {
     return axios.post('/GetFixingList', Qs.stringify({ adminId, keyword }))
   }
   // 后台获取鞋垫详情
-  function GetFixingInfo({ adminId, fixingId }, { lng, lat }) {
-    map.closeInfoWindow()
-    return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId })).then(res => {
-      if (!res) return
-      Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
-      return res.data
-    })
+  function GetFixingInfo({ adminId, fixingId }) {
+    // map.closeInfoWindow()
+    return axios.post('/GetFixinginfo', Qs.stringify({ adminId, fixingId }))
+      // Event.trigger('setFixingInfoWindow', { fixingId, ...res.data }, { lng, lat })
+      // return res.data
   }
   // 获取二维码
   function GetFixingQRCode({ adminId, fixingId }, { lng, lat }) {

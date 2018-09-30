@@ -3,11 +3,39 @@ var mapMarkerPoint = (function () {
   Event.create('map').listen('GetFixingList', function (map, source) {
     mapMarkerPoint.refresh(map, source)
   })
+  Event.create('map').listen('GetFixingListOnce', function (map, source) {
+    mapMarkerPoint.refreshOnce(map, source)
+  })
 
   return {
+    refreshOnce(map, source) {
+      map.clearOverlays()
+      let icon,
+        iconPath,
+        point,
+        marker
+      source.forEach(item => {
+        let { entity_name, entity_desc, latest_location } = item,
+          { longitude, latitude } = latest_location
+        
+        if (entity_desc === '在线') iconPath = '/assets/porint_online.png'
+        if (entity_desc === '离线') iconPath = '/assets/porint_offline.png'
+
+        icon = new BMap.Icon(iconPath, new BMap.Size(31, 44))
+        point = new BMap.Point(longitude, latitude)
+        marker = new BMap.Marker(point, { icon })
+        map.addOverlay(marker)
+        Event.create('map').trigger('mapSetInfoWindow', map, source, { marker, point, ...item, fixingId: entity_name })
+      })
+    },
     refresh(map, source) {
       map.clearOverlays()
-      let bs = map.getBounds(),   //获取可视区域
+      let cache = null,
+        allArrays = Object.assign([], source),
+        onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
+        offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
+        params = utils.GetUrlParams(),
+        bs = map.getBounds(),   //获取可视区域
         bssw = bs.getSouthWest(),   //可视区域左下角
         bsne = bs.getNorthEast(),   //可视区域右上角
         b = new BMap.Bounds(new BMap.Point(bssw.lng, bssw.lat), new BMap.Point(bsne.lng, bsne.lat)),
@@ -15,10 +43,22 @@ var mapMarkerPoint = (function () {
         iconPath,
         point,
         marker
-
-      source.forEach(item => {
+      // 根据 tabIndex 选择分组
+      switch (Number.parseInt(params.fixingListsTabIndex)) {
+        case 0:
+          cache = allArrays
+          break;
+        case 1:
+          cache = onlineArrays
+          break;
+        case 2:
+          cache = offlineArrays
+          break;
+      }
+      cache.forEach(item => {
         let { entity_name, entity_desc, latest_location } = item,
           { longitude, latitude } = latest_location
+        // 判断当前是否在当前视野范围内
         if (!b.containsPoint(new BMap.Point(longitude, latitude))) {
           return
         }
@@ -29,33 +69,38 @@ var mapMarkerPoint = (function () {
         point = new BMap.Point(longitude, latitude)
         marker = new BMap.Marker(point, { icon })
         map.addOverlay(marker)          // 将标注添加到地图中
-        Event.create('map').trigger('mapInfoWindow', map, source, { marker, point, fixingId: entity_name })
+        // Event.create('fixing').trigger('GetFixingList', map, source, { currentPage, pageSize, marker })
+        Event.create('map').trigger('mapSetInfoWindow', map, source, { marker, point, ...item, fixingId: entity_name })
       })
-      // Event.create('fixing').trigger('fixingSearch', source, { marker, point })
-      // Event.create('fixing').trigger('fixingListsTab', source, { marker, point })
-      // Event.create('fixing').trigger('fixingListsPagination', source, 10, { marker, point })
     }
   }
 })()
 
 // 地图窗口模块 
 var mapInfoWindow = (function () {
-  Event.create('map').listen('mapInfoWindow', function (map, source, fixing) {
+  Event.create('map').listen('mapSetInfoWindow', function (map, source, fixing) {
     mapInfoWindow.refresh(map, source, fixing)
   })
 
   return {
     refresh(map, source, { marker, point, fixingId }) {
+      // 默认创建窗口对象
       let opts = { width: 458 },
-        infoWindow = new BMap.InfoWindow(`加载中..`, opts) // 创建信息窗口对象 
+        infoWindow = new BMap.InfoWindow(`加载中..`, opts)
+      // 监听覆盖物 click 事件
       BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
-        map.openInfoWindow(infoWindow, point); //单击marker显示InfoWindow
+        map.openInfoWindow(infoWindow, point)
       })
+      /*  监听窗口 open 事件
+          移除地图 移动 放大 事件跟 open 地图窗口有冲突 bug 无限关闪
+      */
       BMapLib.EventWrapper.addListener(infoWindow, 'open', function (e) {
+        // 通知移除事件
         BMapLib.EventWrapper.clearListeners(map, 'moveend')
         BMapLib.EventWrapper.clearListeners(map, 'zoomend')
-        console.log('open')
+        // loacl 获取数据
         let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
+        // 请求最后位置信息接口
         FIXING_API.GetLastPosition({ adminId: AdminId, fixingId }).then(res => {
           let positions = res.data.positions.split(','),
             shutdown = res.data.shutdown === '0' ? '关机' : '开机',
@@ -65,6 +110,8 @@ var mapInfoWindow = (function () {
             charge = res.data.shutdown === '1' ? '充电中' : '未充电',
             modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
             status = res.data.status === '1' ? '运动' : '静止'
+
+          // 更新窗口对象HTML信息
           infoWindow.setContent(`
             <div class='bg-dark' id='markerinfo'>
             <h5 class='d-flex justify-content-between text-white mb-2'><p>鞋垫ID：<span class="fixingid">${fixingId}</span></p>
@@ -89,9 +136,9 @@ var mapInfoWindow = (function () {
               <p style='flex: 1;'><spann class='mr-2'>位置 </span><span class='text-white address'>${res.data.address}</span></p>
             </div>
             <div class='d-flex justify-content-center info-window-buttons'>
-              <button type='button' class='control-center ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+              <button type='button' class='control ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                   width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
-              <button type='button' class='thetrajectory ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+              <button type='button' class='trajectory ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                   width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
               <button type='button' class='fixing-info  ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
                   width='14' height='17' src='/assets/contro_data.png' />资料</button>
@@ -102,36 +149,43 @@ var mapInfoWindow = (function () {
             </div>
           </div>
           `)
+          return res
+        }).then(res => {
+          $("#markerinfo").on("click", 'button', function (e) {
+            let classNames = ['control', 'trajectory', 'fixing-info', 'instruction', 'fixing-qrcode'],
+              $currentTarget = $(e.currentTarget),
+              result = classNames.filter(className => $currentTarget.hasClass(className)),
+              params = utils.GetUrlParams()
+            console.log(result)
+            switch (result[0]) {
+              case 'control':
+                location.assign(`${result[0]}.html?${Qs.stringify(params)}`)
+                break;
+              case 'trajectory':
+                location.assign(`${result[0]}.html?${Qs.stringify(params)}`)
+                break;
+              case 'fixing-info':
+                Event.create('fixing').trigger('GetFixingInfo', map, source, { fixingId })
+                // a.GetFixingInfo({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
+                break;
+              case 'instruction':
+                // a.AdminGetInstructionsList({ adminId: userInfo.AdminId }, point)
+                break;
+              case 'fixing-qrcode':
+                // a.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
+                break;
+            }
+          })
         })
-        //绑定信息框的单击事件
-        $("#markerinfo").on("click", 'button', function (e) {
-          let classNames = ['control-center', 'thetrajectory', 'fixing-info', 'instruction', 'fixing-qrcode'],
-            $currentTarget = $(e.currentTarget),
-            result = classNames.filter(className => $currentTarget.hasClass(className)),
-            { entity_name, latest_location } = item
-          switch (result[0]) {
-            case 'control-center':
-              // Event.trigger('redirectControl', entity_name, point)
-              break;
-            case 'thetrajectory':
-              // Event.trigger('redirectTrajectory', entity_name, point)
-              break;
-            case 'fixing-info':
-              // a.GetFixingInfo({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
-              break;
-            case 'instruction':
-              // a.AdminGetInstructionsList({ adminId: userInfo.AdminId }, point)
-              break;
-            case 'fixing-qrcode':
-              // a.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: entity_name }, point)
-              break;
-          }
-        });
       })
+
+      // 重新监听地图移动、放大事件
       BMapLib.EventWrapper.addListener(infoWindow, 'close', function () {
         Event.create('map').trigger('mapMoveendEvent', map, source)
         Event.create('map').trigger('mapZoomendEvent', map, source)
       })
+
+
     }
   }
 })()
