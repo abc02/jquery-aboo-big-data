@@ -62,7 +62,7 @@
               <ul class="p-1 fixing-container">
               </ul>
               <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
-              <div class="datepicker d-flex justify-content-center" data-date="new Date()"></div>
+              <div id="datepicker" class="datepicker d-flex p0 justify-content-center" data-date="new Date()"></div>
               <input type="hidden" id="my_hidden_input">
              
             </div>
@@ -104,40 +104,15 @@
   <!-- <script type="text/javascript" src="/js/a.js"></script> -->
   <script type="text/javascript" src="/js/base.js"></script>
   <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/login.js"></script>
   <script type="text/javascript" src="/js/map.js"></script>
   <script type="text/javascript" src="/js/fixing_api.js"></script>
   <script type="text/javascript" src="/js/fixing_event.js"></script>
-  <script type="text/javascript" src="/js/map_event.js"></script>
+  <script type="text/javascript" src="/js/sportdata_event.js"></script>
   <script type="text/javascript" src="/js/header.js"></script>
   <script type="text/javascript" src="/js/navigation_menu.js"></script>
+  <script type="text/javascript" src="/js/datepicker.js"></script>
   <script type="text/javascript" src="/js/sportdata.js"></script>
-
-  <script type="text/javascript">
-
-
-    $.fn.datepicker.dates['cn'] = {   //切换为中文显示
-      days: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
-      daysShort: ["日", "一", "二", "三", "四", "五", "六", "七"],
-      daysMin: ["日", "一", "二", "三", "四", "五", "六", "七"],
-      months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-      monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-      today: "今天",
-      clear: "清除"
-    };
-
-    $('.datepicker').datepicker({
-      format: 'yyyy-mm-dd',
-      language: 'cn'
-    });
-    $('.datepicker').on('changeDate', function (e) {
-      console.log(e)
-      // let userinfo = utils.GetLocalString、(),
-        // { fixingId, lng, lat } = Qs.parse(location.search.substr(1)),
-        // times = Math.round(new Date($('#datepicker').datepicker('getFormattedDate')) / 1000)
-      // Event.trigger('GetFixingSportData', userinfo.AdminId, '中国', fixingId, times)
-    });
-
-  </script>
 </body>
 
 </html>

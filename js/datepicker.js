@@ -8,7 +8,7 @@ $.fn.datepicker.dates['cn'] = {   //切换为中文显示
   clear: "清除"
 };
 
-$('.datepicker').datepicker({
+$('#datepicker').datepicker({
   format: 'yyyy-mm-dd',
   language: 'cn'
 });

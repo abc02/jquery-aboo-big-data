@@ -104,7 +104,7 @@ var fixingListsTab = (function ($el) {
               Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
               break;
             case 'trajectory.html':
-              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
+              // Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
               break;
           }
           Event.create('fixing').trigger('GetFixingList', map, source, fixing)
@@ -134,6 +134,7 @@ var fixingLists = (function ($el) {
         params = utils.GetUrlParams(),
         currentPage = Number.parseInt(params.currentPage),
         pageSize = Number.parseInt(params.pageSize)
+
       // url 无参数 默认 tabIndex 0
       if (!params.fixingListsTabIndex) {
         params.fixingListsTabIndex = 0
@@ -194,11 +195,12 @@ var fixingLists = (function ($el) {
       })
       $el.html(cache).off('click').on('click', 'li', function (e) {
         let { entity_name, latest_location } = $(e.currentTarget).data(),
-          { longitude, latitude } = latest_location
-        params.fixingId = entity_name
+          { longitude, latitude } = latest_location,
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          timeData
+        params.fixingId = entity_name // update fixingid
         utils.SetUrlParams(params)
 
-        let fixingOnce = utils.FilterFxingListUrl(source)
         // 设置 css样式
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -206,11 +208,13 @@ var fixingLists = (function ($el) {
           .siblings()
           .removeClass('text-white')
           .addClass('text-muted')
-        Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: longitude, lat: latitude })
+
         // 覆盖物单个once
         switch (pageName) {
           case 'control.html':
             clearInterval(window.setIntervaler)
+            let fixingOnce = utils.FilterFxingListUrl(source)
+            Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: longitude, lat: latitude })
             Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
             Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
             window.setIntervaler = setInterval(function () {
@@ -220,7 +224,39 @@ var fixingLists = (function ($el) {
             Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
             break;
           case 'trajectory.html':
-            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
+            map.clearOverlays()
+            timeData = $('#datepicker').datepicker('getDate')
+            $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
+            params = utils.GetUrlParams()
+            if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
+            utils.SetUrlParams(params)
+            FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: params.fixingId, time: utils.handleTimestampToDate(params.time) }).then(res => {
+              if (res.data.ret === 1001) {
+                Event.create('map').trigger('GetTrackList', map, res.data.data, params)
+                Event.create('fixing').trigger('GetTrackList', map, res.data.data, params)
+              }
+              if (res.data.ret === 1002) {
+                Event.create('map').trigger('GetTrackList', map, null, params)
+                Event.create('fixing').trigger('GetTrackList', map, null, params)
+                window.alert(res.data.code)
+              }
+            })
+            break;
+          case 'sportdata.html':
+            timeData = $('#datepicker').datepicker('getDate')
+            params = utils.GetUrlParams()
+            if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
+            $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
+            utils.SetUrlParams(params)
+            FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: params.fixingId, times: params.time }).then(res => {
+              if (res.data.ret === 1001) {
+                Event.create('sportData').trigger('GetFixingSportData', null, res.data, params)
+              }
+              if (res.data.ret === 1002) {
+                Event.create('sportData').trigger('GetFixingSportData', null, null, params)
+                window.alert(res.data.code)
+              }
+            })
             break;
         }
         // BMapLib.EventWrapper.trigger(marker, "click")
@@ -459,7 +495,7 @@ var fixingInfoLive = (function ($el) {
           lng = utils.handleToCut(positions[0]),
           lat = utils.handleToCut(positions[1]),
           createTime = utils.handleTimestampToDateTime(res.data.createTime),
-          charge = res.data.shutdown === '1' ? '充电中' : '未充电',
+          charge = res.data.charge === '1' ? '充电中' : '未充电',
           modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
           status = res.data.status === '1' ? '运动' : '静止'
         $el.append(`
@@ -489,13 +525,99 @@ var fixinTrajectory = (function ($el) {
 
   return {
     refresh(map, source, fixing) {
-      // loacl 获取数据
-      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo'),
-        time = Number.parseInt(fixing.time)
-      // 请求轨迹接口
-      FIXING_API.GetTrackList({ adminId: AdminId, fixingId: fixing.fixingId, time }).then(res => {
-        console.log(res.data)
+      $el.empty()
+      if (!source) {
+        return
+      }
+      let $contents = source.map(item => {
+        let { address, create_time, mode } = item
+        return $(`<tr>
+            <th scope="row" class="normal pt-4 pb-4 text-center">在线</th>
+            <td class="normal pt-4 pb-4 text-center">${mode}</td>
+            <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
+            <td class="normal pt-4 pb-4 text-center">${create_time}</td>
+            <td class="normal pt-4 pb-4 text-center breakword" style="width: 620px;">${address}</td>
+            <td class="normal pt-4 pb-4 text-center">定位成功</td>
+          </tr>
+          `).off('click').on('click', function (e) {
+            $(this).addClass('active').siblings().removeClass('active')
+            let address = item.address,
+              charge = item.charge === '1' ? '充电中' : '未充电',
+              createTime = item.create_time,
+              electricity = item.electricity, // 电量
+              longitude = utils.handleToCut(item.longitude),
+              latitude = utils.handleToCut(item.latitude),
+              mode = item.mode,
+              modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+              radius = item.radius,
+              shutdown = item.shutdown === '0' ? '关机' : '开机',
+              status = item.status === '1' ? '运动' : '静止',
+              point = new BMap.Point(longitude, latitude)
+
+
+            let opts = { width: 458 },
+              infoWindow = new BMap.InfoWindow(` <div class='bg-dark' id='markerinfo'>
+              <h5 class='d-flex justify-content-between text-white mb-2'><p>鞋垫ID：<span class="fixingid">${fixing.fixingId}</span></p>
+              </h5>
+              <div class='d-flex flex-row color-drak mb-2'>
+                <p style='flex: 1;'><span class='mr-2'>描述 </span><span class='text-white shutdown'>${shutdown}<span></p>
+                <p style='flex: 1;'><span class='mr-2'>定位类型 </span><span class='color-white mode'>${mode}</span></p>
+              </div>
+              <div class='d-flex flex-row color-drak mb-2'>
+                <p style='flex: 1;'><span class='mr-2'>充电状态 </span><span class='text-white charge'>${charge}<span></p>
+                <p style='flex: 1;'><span class='mr-2'>当前模式 </span><span class='color-white modestatus'>${modestatus}</span></p>
+              </div>
+              <div class='d-flex flex-row color-drak mb-2'>
+              <p style='flex: 1;'><span class='mr-2'>精度 </span><span class='text-white radius'>${radius}<span></p>
+              <p style='flex: 1;'><span class='mr-2'>状态 </span><span class='color-white status'>${status}</span></p>
+            </div>
+              <div class='d-flex flex-row color-drak mb-2'>
+                <p style='flex: 1;'><span class='mr-2'>经纬度 </span><span class='text-white positions'>${latitude}, ${longitude}</span></p>
+                <p style='flex: 1;'><span class='mr-2'>定位时间 </span><span class='text-white createTime'>${createTime}</span></p>
+              </div>
+              <div class='d-flex flex-row color-drak mb-4'>
+                <p style='flex: 1;'><spann class='mr-2'>位置 </span><span class='text-white address'>${address}</span></p>
+              </div>
+            </div>`, opts)
+
+            map.openInfoWindow(infoWindow, point)
+            // Event.create('map').trigger('mapInitInfoWindow', map, source, fixing)
+          })
       })
+      $el.append($contents)
     }
   }
 })($('.track-list-tbody'))
+
+
+var fixingDatepicker = (function ($el) {
+  Event.create('fixing').listen('GetTrackList', function (map, source, fixing) {
+    fixingDatepicker.refresh(map, source, fixing)
+  })
+  return {
+    refresh(map, source, fixing) {
+      $el.off('changeDate').one('changeDate', function (e) {
+        map.clearOverlays()
+        // loacl 获取数据
+        let userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          data = $('#datepicker').datepicker('getDate'),
+          params = utils.GetUrlParams()
+        params.time = Math.round(new Date(data) / 1000) // update 日期
+        utils.SetUrlParams(params)
+        $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
+        // 请求轨迹接口
+        FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: params.fixingId, time: utils.handleTimestampToDate(params.time) }).then(res => {
+          if (res.data.ret === 1001) {
+            Event.create('map').trigger('GetTrackList', map, res.data.data, params)
+            Event.create('fixing').trigger('GetTrackList', map, res.data.data, params)
+          }
+          if (res.data.ret === 1002) {
+            Event.create('map').trigger('GetTrackList', map, null, params)
+            Event.create('fixing').trigger('GetTrackList', map, null, params)
+            window.alert(res.data.code)
+          }
+        })
+      })
+    }
+  }
+})($('#datepicker'))

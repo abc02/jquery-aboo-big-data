@@ -10,9 +10,13 @@ var login = (function ($el) {
         username = $currentTarget.find('#username').val(),
         password = $currentTarget.find('#password').val()
       LOGIN_API.AdminLoginAccount({ username, password }).then(res => {
-        let userInfo = res.data
-        utils.SetLoaclStorageUserInfo('userinfo', userInfo)
-        Event.create('login').trigger('loginSuccess', 'index')
+        if (res.data.ret === 1001) {
+          utils.SetLoaclStorageUserInfo('userinfo', res.data)
+          Event.create('login').trigger('loginSuccess', 'index')
+        }
+        if (res.data.ret === 1002) {
+          window.alert(res.data.code)
+        }
       })
     })
   }

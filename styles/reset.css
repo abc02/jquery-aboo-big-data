@@ -101,3 +101,6 @@ img {
 .table th {
   border-top: none;
 }
+.table-condensed{
+  width: 100% !important;
+}

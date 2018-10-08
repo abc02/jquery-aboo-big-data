@@ -553,7 +553,7 @@
   color: white;
 }
 
-.datepicker {
+.datepicker,#datepicker {
   background-color: #1C2340 !important;
   color: white;
 }
@@ -624,3 +624,4 @@
   background-color: #262C4C;
   color: white !important;
 }
+

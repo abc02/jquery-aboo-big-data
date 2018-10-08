@@ -21,13 +21,6 @@ axios.interceptors.request.use(function (config) {
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
   // Do something with response data
-  if (response.data.ret == 1002) {
-    console.log(response)
-    return response
-  }
-  if (response.data.ret == 1003) {
-    return alert(response.data.code)
-  }
   return response
 }, function (error) {
   // Do something with response error

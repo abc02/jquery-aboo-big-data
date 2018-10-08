@@ -1,23 +1,4 @@
-// 鞋垫地图计数模块
-var mapMarkerCount = (function ($el) {
-  Event.create('map').listen('GetFixingList', function (map) {
-    mapMarkerCount.refresh(map)
-  })
-  Event.create('map').listen('GetFixingListOnce', function (map) {
-    mapMarkerCount.refresh(map)
-  })
-  Event.create('map').listen('GetLastPosition', function (map) {
-    mapMarkerCount.refresh(map)
-  })
-  Event.create('map').listen('GetTrackList', function (map) {
-    mapMarkerCount.refresh(map)
-  })
-  return {
-    refresh(map) {
-      $el.text(map.getOverlays().length)
-    }
-  }
-})($('.visible-marker'))
+
 
 // 地图遮罩物模块
 var mapMarkerPoint = (function () {
@@ -27,8 +8,40 @@ var mapMarkerPoint = (function () {
   Event.create('map').listen('GetFixingListOnce', function (map, source, fixing) {
     mapMarkerPoint.refreshOnce(map, source, fixing)
   })
+  Event.create('map').listen('GetTrackList', function (map, source, fixing) {
+    mapMarkerPoint.refreshTrackList(map, source, fixing)
+  })
+
 
   return {
+    refreshTrackList(map, source, fixing) {
+      if (!source) return
+      let icon,
+        iconPath,
+        point,
+        marker,
+        infoWindow
+      source.forEach(item => {
+        let { shutdown, longitude, latitude  } = item
+
+        if (shutdown === '0') iconPath = '/assets/porint_offline.png'
+        if (shutdown === '1') iconPath = '/assets/porint_online.png'
+
+        icon = new BMap.Icon(iconPath, new BMap.Size(31, 44))
+        point = new BMap.Point(longitude, latitude)
+        marker = new BMap.Marker(point, { icon, offset: new BMap.Size(2, -15) })
+        map.addOverlay(marker)
+        // switch (fixing.type) {
+        //   case 'init':
+        //     Event.create('map').trigger('mapInitInfoWindow', map, source, { marker, point, ...item, ...fixing })
+        //     break;
+        //   case 'update':
+        //     infoWindow = map.getInfoWindow()
+        //     Event.create('map').trigger('mapUpdateInfoWindow', map, source, { infoWindow, marker, point, ...item, ...fixing })
+        //     break
+        // }
+      })
+    },
     refreshOnce(map, source, fixing) {
       map.clearOverlays()
       let icon,
@@ -47,7 +60,6 @@ var mapMarkerPoint = (function () {
         point = new BMap.Point(longitude, latitude)
         marker = new BMap.Marker(point, { icon })
         map.addOverlay(marker)
-        console.log(fixing)
         switch (fixing.type) {
           case 'init':
             Event.create('map').trigger('mapInitInfoWindow', map, source, { marker, point, ...item, ...fixing })
@@ -135,12 +147,12 @@ var mapInfoWindow = (function () {
         let positions = res.data.positions.split(','),
           shutdown = res.data.shutdown === '0' ? '关机' : '开机',
           lng = utils.handleToCut(positions[0]),
-          lat = utils.handleToCut(positions[1])
-        createTime = utils.handleTimestampToDateTime(res.data.createTime),
-          charge = res.data.shutdown === '1' ? '充电中' : '未充电',
+          lat = utils.handleToCut(positions[1]),
+          createTime = utils.handleTimestampToDateTime(res.data.createTime),
+          charge = res.data.charge === '1' ? '充电中' : '未充电',
           modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
           status = res.data.status === '1' ? '运动' : '静止'
-
+        console.log(charge)
         // 更新窗口对象HTML信息
         infoWindow.setWidth(458)
         infoWindow.setContent(`
@@ -241,7 +253,7 @@ var mapInfoWindow = (function () {
             lng = utils.handleToCut(positions[0]),
             lat = utils.handleToCut(positions[1]),
             createTime = utils.handleTimestampToDateTime(res.data.createTime),
-            charge = res.data.shutdown === '1' ? '充电中' : '未充电',
+            charge = res.data.charge === '1' ? '充电中' : '未充电',
             modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
             status = res.data.status === '1' ? '运动' : '静止'
 
@@ -371,4 +383,55 @@ var mapPanToMarkerPoint = (function () {
     }
   }
 })()
+
+// 地图轨迹模式
+var mapTrajectory = (function () {
+  Event.create('map').listen('GetTrackList', function (map, source, fixing) {
+    mapTrajectory.refresh(map, source, fixing)
+  })
+
+  return {
+    refresh(map, source, fixing) {
+      if(!source) return
+      let startItem = source[0],
+        endItem = source[source.length - 1],
+        startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
+        endIcon = new BMap.Icon("/assets/trajectory_end.png", new BMap.Size(31, 44)),
+        startPoint = new BMap.Point(startItem.longitude, startItem.latitude),
+        endPoint = new BMap.Point(endItem.longitude, endItem.latitude),
+        startMarker = new BMap.Marker(startPoint, { icon: startIcon }),
+        endMarker = new BMap.Marker(endPoint, { icon: endIcon }),
+        polylines = source.map(item => new BMap.Point(item.longitude, item.latitude)),
+        polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 3, strokeOpacity: 0.5 });   //创建折线
+
+      map.addOverlay(startMarker)
+      map.addOverlay(endMarker)
+      map.addOverlay(polyline);   //增加折线
+      map.setViewport(polylines)
+    }
+  }
+})()
+
+
+
+// 鞋垫地图计数模块
+var mapMarkerCount = (function ($el) {
+  Event.create('map').listen('GetFixingList', function (map) {
+    mapMarkerCount.refresh(map)
+  })
+  Event.create('map').listen('GetFixingListOnce', function (map) {
+    mapMarkerCount.refresh(map)
+  })
+  Event.create('map').listen('GetLastPosition', function (map) {
+    mapMarkerCount.refresh(map)
+  })
+  Event.create('map').listen('GetTrackList', function (map) {
+    mapMarkerCount.refresh(map)
+  })
+  return {
+    refresh(map) {
+      $el.text(map.getOverlays().length)
+    }
+  }
+})($('.visible-marker'))
 
