@@ -469,8 +469,10 @@ var fixingQRCode = (function ($el) {
       FIXING_API.GetFixingQRCode({ adminId: AdminId, fixingId }).then(res => {
         infoWindow.setWidth(485)
         infoWindow.setContent(`<h5 class="normal mb-3">二维码</h5>
+        <div class="bg-white" style="width: 318px; height: 318px;">
         <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data}" width="218" height="218" />
+        </div>
         </div>`)
       })
     }
