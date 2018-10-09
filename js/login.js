@@ -3,6 +3,9 @@ var login = (function ($el) {
   Event.create('login').listen('loginSuccess', function (url) {
     login.redirect(url)
   })
+  Event.create('login').listen('logOut', function (url) {
+    login.redirect(url)
+  })
   if ($el.length) {
     $el.submit(function (e) {
       e.preventDefault()
