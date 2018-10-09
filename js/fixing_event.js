@@ -1,44 +1,8 @@
-
-// 鞋垫搜索模块
-// var fixingSearch = (function ($el) {
-//   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
-//     fixingSearch.refresh(map, source, fixing)
-//   })
-//   return {
-//     refresh(map, source, fixing) {
-//       const KEY = 'entity_desc'
-//       let pageName = utils.GetUrlPageName(),
-//         pageSize = utils.GetFixingListsPaginationPageSize(pageName),
-//         allArrays = Object.assign([], source),
-//         onlineArrays = utils.FilterFixingLists(source, KEY, '在线'),
-//         offlineArrays = utils.FilterFixingLists(source, KEY, '离线'),
-//         cache = null
-//       $el.off('input').on('input', function (e) {
-//         const KEY = 'entity_name',
-//           VALUE = $(e.currentTarget).val()
-//         let { fixingListsTabIndex } = utils.GetUrlParams()
-//         if (!fixingListsTabIndex) {
-//           fixingListsTabIndex = 0
-//         }
-//         switch (fixingListsTabIndex) {
-//           case '0':
-//             cache = utils.FilterFixingListsSearch(allArrays, KEY, VALUE)
-//             break;
-//           case '1':
-//             cache = utils.FilterFixingListsSearch(onlineArrays, KEY, VALUE)
-//             break;
-//           case '2':
-//             cache = utils.FilterFixingListsSearch(offlineArrays, KEY, VALUE)
-//             break;
-//         }
-//         Event.create('fixing').trigger('GetFixingList', cache, { ...fixing, pageSize })
-//       })
-//     }
-//   }
-// })($('.nav-search'))
-
-// 搜索模块
+// 搜索
 var fixingSearch = (function ($el) {
+  Event.create('fixing').listen('index', function (map, source, fixing) {
+    fixingSearch.refresh(map, source, fixing)
+  })
   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
     fixingSearch.refresh(map, source, fixing)
   })
@@ -51,15 +15,14 @@ var fixingSearch = (function ($el) {
         if (!value) {
           FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
             Event.create('map').trigger('GetFixingList', map, res.data.data, params)
-            Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+            Event.create('fixing').trigger('GetFixingListSuccess', map, res.data.data, params)
           })
           return
         }
 
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
-          console.log(res)
           Event.create('map').trigger('GetFixingList', map, res.data.data, params)
-          Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+          Event.create('fixing').trigger('GetFixingListSuccess', map, res.data.data, params)
         })
       })
     }
@@ -67,80 +30,50 @@ var fixingSearch = (function ($el) {
 })($('.search-container'))
 
 
-// 鞋垫列表Tab模块 
+// 列表Tab
 var fixingListsTab = (function ($el) {
+  Event.create('fixing').listen('index', function (map, source, fixing) {
+    fixingListsTab.refresh(map, source, fixing)
+  })
   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
     fixingListsTab.refresh(map, source, fixing)
   })
   return {
     refresh(map, source, fixing) {
-      let cache = null,
-        allArrays = Object.assign([], source),
-        onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
-        offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
-        pageName = utils.GetUrlPageName(),
-        params = utils.GetUrlParams(),
-        fixingOnce = utils.FilterFxingListUrl(source)
-      if (!params.fixingListsTabIndex) {
-        params.fixingListsTabIndex = 0
-      }
-      $el.html(`
-          <li class="nav-item text-muted fixing-all">
-            <a class="nav-link " href="#">全部（${allArrays.length}）</a>
-          </li>
-          <li class="nav-item text-muted fixing-online">
-            <a class="nav-link " href="#" >在线（${onlineArrays.length}）</a>
-          </li>
-          <li class="nav-item text-muted fixing-offline">
-            <a class="nav-link" href="#">离线（${offlineArrays.length}）</a>
-          </li>`).off('click').on('click', 'li', function (e) {
-          // 设置 css样式
+      let pageName = utils.GetUrlPageName(),
+        params = utils.GetUrlParams()
+      $el.html(`<li class="nav-item fixing-all"><a class="nav-link " href="#">全部（${source.length}）</a></li>
+          <li class="nav-item fixing-online"><a class="nav-link " href="#" >在线（${utils.FilterFixingLists(source, 'entity_desc', '在线').length}）</a></li>
+          <li class="nav-item fixing-offline"><a class="nav-link" href="#">离线（${utils.FilterFixingLists(source, 'entity_desc', '离线').length}）</a></li>`)
+        .off('click')
+        .on('click', 'li', function (e) {
+          // update tabindex css
           $(e.currentTarget)
+            .siblings()
             .removeClass('text-muted')
             .addClass('border-bottom text-white')
-            .siblings()
-            .removeClass('border-bottom text-white')
-            .addClass('text-muted')
-          // 获取 tabIndex
+
+          // // update map fixing
+          // switch (pageName) {
+          //   case '':
+          //     Event.create('map').trigger('GetFixingList', map, source, fixing)
+          //     break;
+          //   case 'index.html':
+          //     Event.create('map').trigger('GetFixingList', map, source, fixing)
+          //     break;
+          //   case 'control.html':
+          //     Event.create('map').trigger('GetFixingListOnce', map, utils.FilterFxingListUrl(source), fixing)
+          //     break;
+          // }
           params.fixingListsTabIndex = $(e.currentTarget).index()
-          params.currentPage = 0
-          // 根据 tabIndex 设置默认 fixingId
-          switch (Number.parseInt(params.fixingListsTabIndex)) {
-            case 0:
-              if (allArrays[0] && allArrays.length) params.fixingId = allArrays[0].entity_name
-              break;
-            case 1:
-              if (onlineArrays[0] && onlineArrays.length) params.fixingId = onlineArrays[0].entity_name
-              break;
-            case 2:
-              if (offlineArrays[0] && offlineArrays.length) params.fixingId = offlineArrays[0].entity_name
-              break;
-            default:
-              if (allArrays[0] && allArrays.length) params.fixingId = allArrays[0].entity_name
-              break;
-          }
-          // 设置 url tabIndex fixingId 参数
+          console.log(params)
           utils.SetUrlParams(params)
-          // 通知 map fixing 更新 
-          // marker 传递给 fixinglist 暂缓
-          switch (pageName) {
-            case '':
-              Event.create('map').trigger('GetFixingList', map, source, fixing)
-              break;
-            case 'index.html':
-              Event.create('map').trigger('GetFixingList', map, source, fixing)
-              break;
-            case 'control.html':
-              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
-              break;
-            case 'trajectory.html':
-              // Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, fixing)
-              break;
-          }
-          Event.create('fixing').trigger('GetFixingList', map, source, fixing)
+          Event.create('map').trigger('GetFixingList', map, source, params)
+          Event.create('fixing').trigger('index', map, source, params)
         })
-        //  初始对应下标 tab css
+        // int tabIndex css
         .find('li')
+        .addClass('text-muted')
         .eq(params.fixingListsTabIndex)
         .removeClass('text-muted')
         .addClass('border-bottom text-white')
@@ -151,24 +84,151 @@ var fixingListsTab = (function ($el) {
 
 // 鞋垫列表模块
 var fixingLists = (function ($el) {
+  Event.create('fixing').listen('index', function (map, source, fixing) {
+    fixingLists.refresh(map, source, fixing)
+    fixingLists.indexEvent(map, source, fixing)
+  })
+  Event.create('fixing').listen('control', function (map, source, fixing) {
+    fixingLists.refresh(map, source, fixing)
+    fxingLists.controlEvent(map, source, fixing)
+  })
+  Event.create('fixing').listen('trajectory', function (map, source, fixing) {
+    fixingLists.refresh(map, source, fixing)
+    fxingLists.trajectoryEvent(map, source, fixing)
+  })
+  Event.create('fixing').listen('sportdata', function (map, source, fixing) {
+    fixingLists.refresh(map, source, fixing)
+    fxingLists.sportdataEvent(map, source, fixing)
+  })
   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
     fixingLists.refresh(map, source, fixing)
   })
   return {
+    indexEvent(map, source, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data()
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+
+        // update fixingid
+        fixing.fixingId = item.entity_name
+        utils.SetUrlParams(fixing)
+        Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: item.latest_location.longitude, lat: item.latest_location.latitude })
+      })
+
+    },
+    controlEvent(map, source, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data()
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+
+        // update fixingid
+        fixing.fixingId = entity_name
+        utils.SetUrlParams(fixing)
+
+        // 覆盖物单个once
+        clearInterval(window.setIntervaler)
+        let fixingOnce = utils.FilterFxingListUrl(source)
+        Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: item.latest_location.longitude, lat: item.latest_location.latitude })
+        Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
+        Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
+        window.setIntervaler = setInterval(function () {
+          Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'update' })
+          Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
+        }, 60000)
+        Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
+        // BMapLib.EventWrapper.trigger(marker, "click")
+      })
+    },
+    trajectoryEvent(map, source, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data(),
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          timeData
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+        // update fixingid
+        fixing.fixingId = entity_name
+        utils.SetUrlParams(fixing)
+
+        map.clearOverlays()
+        timeData = $('#datepicker').datepicker('getDate')
+        $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
+        params = utils.GetUrlParams()
+        if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
+        utils.SetUrlParams(params)
+        FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: params.fixingId, time: utils.handleTimestampToDate(params.time) }).then(res => {
+          if (res.data.ret === 1001) {
+            Event.create('map').trigger('GetTrackList', map, res.data.data, params)
+            Event.create('fixing').trigger('GetTrackList', map, res.data.data, params)
+          }
+          if (res.data.ret === 1002) {
+            Event.create('map').trigger('GetTrackList', map, null, params)
+            Event.create('fixing').trigger('GetTrackList', map, null, params)
+            window.alert(res.data.code)
+          }
+        })
+        // BMapLib.EventWrapper.trigger(marker, "click")
+      })
+    },
+    sportdataEvent(map, source, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data(),
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          timeData
+        // update fixingid
+        fixing.fixingId = entity_name
+        utils.SetUrlParams(fixing)
+
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+
+
+        timeData = $('#datepicker').datepicker('getDate')
+        params = utils.GetUrlParams()
+        if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
+        $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
+        utils.SetUrlParams(params)
+        FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: params.fixingId, times: params.time }).then(res => {
+          if (res.data.ret === 1001) {
+            Event.create('sportData').trigger('GetFixingSportData', null, res.data, params)
+          }
+          if (res.data.ret === 1002) {
+            Event.create('sportData').trigger('GetFixingSportData', null, null, params)
+            window.alert(res.data.code)
+          }
+        })
+        // BMapLib.EventWrapper.trigger(marker, "click")
+      })
+    },
     refresh(map, source, fixing) {
       let cache = [],
-        allArrays = Object.assign([], source),
-        onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
-        offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
-        pageName = utils.GetUrlPageName(),
         params = utils.GetUrlParams(),
         currentPage = Number.parseInt(params.currentPage),
-        pageSize = Number.parseInt(params.pageSize)
+        pageSize = Number.parseInt(params.pageSize),
+        fixingListsTabIndex = Number.parseInt(params.fixingListsTabIndex)
 
-      // url 无参数 默认 tabIndex 0
-      if (!params.fixingListsTabIndex) {
-        params.fixingListsTabIndex = 0
-      }
       // 仅处理展示前10/6条数据
       let handleToCaches = source => {
         if ((source.length / pageSize) < currentPage) {
@@ -180,36 +240,27 @@ var fixingLists = (function ($el) {
           if (source[index]) cache.push(source[index])
         }
       }
-      switch (Number.parseInt(params.fixingListsTabIndex)) {
+      switch (fixingListsTabIndex) {
         case 0:
-          handleToCaches(allArrays)
+          handleToCaches(source)
           break;
         case 1:
-          handleToCaches(onlineArrays)
+          handleToCaches(onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'))
           break;
         case 2:
-          handleToCaches(offlineArrays)
+          handleToCaches(offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'))
           break;
         default:
-          handleToCaches(allArrays)
+          handleToCaches(source)
           break;
       }
       // 处理 cache 数据
-      cache = cache.map((item, index) => {
+      $el.html(cache.map((item, index) => {
         let img, activeTextColor = 'text-muted'
-        // url fixingid 存在设置对应id样式
+        // url fixingid css acitve
         if (params.fixingId) {
-          // 鞋垫id对比
           if (params.fixingId === item.entity_name) {
             activeTextColor = 'text-white'
-          }
-        } else {
-          // 没有鞋垫id ，默认取数组下标0
-          if (index === 0) {
-            activeTextColor = 'text-white'
-            // 并设置 url fixingId 参数
-            params.fixingId = item.entity_name
-            utils.SetUrlParams(params)
           }
         }
         if (item.entity_desc === '在线') img = '/assets/porint_online.png'
@@ -222,81 +273,17 @@ var fixingLists = (function ($el) {
               </li>
             `).data(item)
         return $tmp
-      })
-      $el.html(cache).off('click').on('click', 'li', function (e) {
-        let { entity_name, latest_location } = $(e.currentTarget).data(),
-          { longitude, latitude } = latest_location,
-          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
-          timeData
-        params.fixingId = entity_name // update fixingid
-        utils.SetUrlParams(params)
+      }))
 
-        // 设置 css样式
-        $(e.currentTarget)
-          .removeClass('text-muted')
-          .addClass('text-white')
-          .siblings()
-          .removeClass('text-white')
-          .addClass('text-muted')
-
-        // 覆盖物单个once
-        switch (pageName) {
-          case 'control.html':
-            clearInterval(window.setIntervaler)
-            let fixingOnce = utils.FilterFxingListUrl(source)
-            Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: longitude, lat: latitude })
-            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
-            Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
-            window.setIntervaler = setInterval(function () {
-              Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'update' })
-              Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
-            }, 60000)
-            Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
-            break;
-          case 'trajectory.html':
-            map.clearOverlays()
-            timeData = $('#datepicker').datepicker('getDate')
-            $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
-            params = utils.GetUrlParams()
-            if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
-            utils.SetUrlParams(params)
-            FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: params.fixingId, time: utils.handleTimestampToDate(params.time) }).then(res => {
-              if (res.data.ret === 1001) {
-                Event.create('map').trigger('GetTrackList', map, res.data.data, params)
-                Event.create('fixing').trigger('GetTrackList', map, res.data.data, params)
-              }
-              if (res.data.ret === 1002) {
-                Event.create('map').trigger('GetTrackList', map, null, params)
-                Event.create('fixing').trigger('GetTrackList', map, null, params)
-                window.alert(res.data.code)
-              }
-            })
-            break;
-          case 'sportdata.html':
-            timeData = $('#datepicker').datepicker('getDate')
-            params = utils.GetUrlParams()
-            if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
-            $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
-            utils.SetUrlParams(params)
-            FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: params.fixingId, times: params.time }).then(res => {
-              if (res.data.ret === 1001) {
-                Event.create('sportData').trigger('GetFixingSportData', null, res.data, params)
-              }
-              if (res.data.ret === 1002) {
-                Event.create('sportData').trigger('GetFixingSportData', null, null, params)
-                window.alert(res.data.code)
-              }
-            })
-            break;
-        }
-        // BMapLib.EventWrapper.trigger(marker, "click")
-      })
     }
   }
 })($('.fixing-container'))
 
 // 鞋垫列表分页模块
 var fixingListsPagination = (function ($el) {
+  Event.create('fixing').listen('index', function (map, source, fixing) {
+    fixingListsPagination.refresh(map, source, fixing)
+  })
   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
     fixingListsPagination.refresh(map, source, fixing)
   })
