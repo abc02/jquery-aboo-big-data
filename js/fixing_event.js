@@ -1,5 +1,5 @@
 
-// // 鞋垫搜索模块
+// 鞋垫搜索模块
 // var fixingSearch = (function ($el) {
 //   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
 //     fixingSearch.refresh(map, source, fixing)
@@ -36,6 +36,36 @@
 //     }
 //   }
 // })($('.nav-search'))
+
+// 搜索模块
+var fixingSearch = (function ($el) {
+  Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
+    fixingSearch.refresh(map, source, fixing)
+  })
+  return {
+    refresh(map, source, fixing) {
+      $el.off('click').on('click', 'button', function (e) {
+        let value = $el.find('.nav-search').val(),
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          params = utils.GetUrlParams()
+        if (!value) {
+          FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
+            Event.create('map').trigger('GetFixingList', map, res.data.data, params)
+            Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+          })
+          return
+        }
+
+        FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
+          console.log(res)
+          Event.create('map').trigger('GetFixingList', map, res.data.data, params)
+          Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+        })
+      })
+    }
+  }
+})($('.search-container'))
+
 
 // 鞋垫列表Tab模块 
 var fixingListsTab = (function ($el) {

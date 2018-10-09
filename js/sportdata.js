@@ -17,7 +17,7 @@ var sportdata = (function (pageName) {
     if (!params.time) params.time = Math.round(new Date() / 1000) //当天
     $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
     utils.SetUrlParams(params)
-    Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+    Event.create('fixing').trigger('GetFixingList', null, res.data.data, params)
     FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: params.fixingId, times: params.time }).then(res => {
       if (res.data.ret === 1001) {
         Event.create('sportData').trigger('GetFixingSportData', null, res.data, params)
