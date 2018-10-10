@@ -1,12 +1,8 @@
 // 控制中心模块
 var control = (function (pageName) {
-  if (!(utils.GetUrlPageName().search(pageName) > -1)) {
-    return
-  }
   let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-  if (!userInfo) {
-    login.redirect('login')
-  }
+  if (!userInfo) login.redirect('login')
+
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
 
@@ -65,23 +61,13 @@ var control = (function (pageName) {
       alert(res.data.code)
     })
   })
+  let params = utils.GetUrlParams()
+  // init url params page, pageSize, tabindex1
+  params.currentPage = 0
+  params.pageSize = 7
+  params.fixingListsTabIndex = 0
+  utils.SetUrlParams(params)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-    let fixingOnce = utils.FilterFxingListUrl(res.data.data),
-      { latest_location } = fixingOnce[0],
-      { longitude, latitude } = latest_location,
-      params = utils.GetUrlParams()
-    if (!params.currentPage) params.currentPage = 0
-    if (!params.pageSize) params.pageSize = 6
-    utils.SetUrlParams(params)
-    Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: longitude, lat: latitude })
-
-    // Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
-    Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
-    Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
-    window.setIntervaler = setInterval(function () {
-      Event.create('map').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
-      Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
-    }, 60000)
-    Event.create('fixing').trigger('GetFixingList', map, res.data.data, params)
+    Event.create('fixing').trigger('control', map, res.data.data, params)
   })
 })('control')

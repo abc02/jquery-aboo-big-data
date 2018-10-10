@@ -1,28 +1,45 @@
 // 搜索
 var fixingSearch = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, fixing) {
-    fixingSearch.refresh(map, source, fixing)
+  Event.create('fixing').listen('index', function (map, source, params) {
+    fixingSearch.unBindEvent()
+    fixingSearch.bindIndexEvent(map, source, params)
   })
-  Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
-    fixingSearch.refresh(map, source, fixing)
+  Event.create('fixing').listen('control', function (map, source, params) {
+    fixingSearch.bindControlEvent(map, source, params)
   })
-  return {
-    refresh(map, source, fixing) {
-      $el.off('click').on('click', 'button', function (e) {
-        let value = $el.find('.nav-search').val(),
-          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
-          params = utils.GetUrlParams()
-        if (!value) {
-          FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-            Event.create('map').trigger('GetFixingList', map, res.data.data, params)
-            Event.create('fixing').trigger('GetFixingListSuccess', map, res.data.data, params)
-          })
-          return
-        }
 
+  return {
+    unBindEvent() {
+      $el.off('click')
+    },
+    bindIndexEvent(map, source, params) {
+      $el.on('click', 'button', function (e) {
+        let value = $el.find('.nav-search').val(),
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
-          Event.create('map').trigger('GetFixingList', map, res.data.data, params)
-          Event.create('fixing').trigger('GetFixingListSuccess', map, res.data.data, params)
+          if (res.data.ret === 1001) {
+            Event.create('map').trigger('index', map, res.data.data, params)
+            Event.create('fixing').trigger('index', map, res.data.data, params)
+          }
+          if (res.data.ret === 1002) {
+            alert(res.data.code)
+          }
+
+        })
+      })
+    },
+    bindControlEvent(map, source, params) {
+      $el.on('click', 'button', function (e) {
+        let value = $el.find('.nav-search').val(),
+          userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
+          if (res.data.ret === 1001) {
+            Event.create('fixing').trigger('control', map, res.data.data, params)
+          }
+          if (res.data.ret === 1002) {
+            alert(res.data.code)
+          }
+
         })
       })
     }
@@ -32,45 +49,110 @@ var fixingSearch = (function ($el) {
 
 // 列表Tab
 var fixingListsTab = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, fixing) {
-    fixingListsTab.refresh(map, source, fixing)
+  Event.create('fixing').listen('common', function (map, source, params) {
+    fixingListsTab.refresh(map, source, params)
+    fixingListsTab.unBindEvent(map, source, params)
+    fixingListsTab.bindCommonEvent(map, source, params)
+  })
+  Event.create('fixing').listen('index', function (map, source, params) {
+    fixingListsTab.refresh(map, source, params)
+    fixingListsTab.unBindEvent(map, source, params)
+    fixingListsTab.bindIndexEvent(map, source, params)
+  })
+  Event.create('fixing').listen('control', function (map, source, params) {
+    fixingListsTab.refresh(map, source, params)
+    fixingListsTab.unBindEvent(map, source, params)
+    fixingListsTab.bindControlEvent(map, source, params)
+  })
+  Event.create('fixing').listen('trajectory', function (map, source, params) {
+    fixingListsTab.refresh(map, source, params)
+    fixingListsTab.unBindEvent(map, source, params)
+    fixingListsTab.bindTrajectoryEvent(map, source, params)
+  })
+  Event.create('fixing').listen('sportdata', function (map, source, params) {
+    fixingListsTab.refresh(map, source, params)
+    fixingListsTab.unBindEvent(map, source, params)
+    fixingListsTab.bindSportDataEvent(map, source, params)
   })
   Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
     fixingListsTab.refresh(map, source, fixing)
   })
   return {
-    refresh(map, source, fixing) {
-      let pageName = utils.GetUrlPageName(),
-        params = utils.GetUrlParams()
+    unBindEvent(map, source, params) {
+      $el.off('click')
+    },
+    bindCommonEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('map').trigger('index', map, source, params)
+        Event.create('fixing').trigger('index', map, source, params)
+      })
+    },
+    bindIndexEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('map').trigger('index', map, source, params)
+        Event.create('fixing').trigger('index', map, source, params)
+      })
+    },
+    bindControlEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('fixing').trigger('control', map, source, params)
+      })
+    },
+    bindTrajectoryEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('fixing').trigger('index', map, source, params)
+      })
+    },
+    bindSportDataEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('fixing').trigger('index', map, source, params)
+      })
+    },
+    refresh(map, source, params) {
+      if (!source) source = []
       $el.html(`<li class="nav-item fixing-all"><a class="nav-link " href="#">全部（${source.length}）</a></li>
           <li class="nav-item fixing-online"><a class="nav-link " href="#" >在线（${utils.FilterFixingLists(source, 'entity_desc', '在线').length}）</a></li>
           <li class="nav-item fixing-offline"><a class="nav-link" href="#">离线（${utils.FilterFixingLists(source, 'entity_desc', '离线').length}）</a></li>`)
-        .off('click')
-        .on('click', 'li', function (e) {
-          // update tabindex css
-          $(e.currentTarget)
-            .siblings()
-            .removeClass('text-muted')
-            .addClass('border-bottom text-white')
-
-          // // update map fixing
-          // switch (pageName) {
-          //   case '':
-          //     Event.create('map').trigger('GetFixingList', map, source, fixing)
-          //     break;
-          //   case 'index.html':
-          //     Event.create('map').trigger('GetFixingList', map, source, fixing)
-          //     break;
-          //   case 'control.html':
-          //     Event.create('map').trigger('GetFixingListOnce', map, utils.FilterFxingListUrl(source), fixing)
-          //     break;
-          // }
-          params.fixingListsTabIndex = $(e.currentTarget).index()
-          console.log(params)
-          utils.SetUrlParams(params)
-          Event.create('map').trigger('GetFixingList', map, source, params)
-          Event.create('fixing').trigger('index', map, source, params)
-        })
         // int tabIndex css
         .find('li')
         .addClass('text-muted')
@@ -84,28 +166,30 @@ var fixingListsTab = (function ($el) {
 
 // 鞋垫列表模块
 var fixingLists = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, fixing) {
-    fixingLists.refresh(map, source, fixing)
-    fixingLists.indexEvent(map, source, fixing)
+  Event.create('fixing').listen('index', function (map, source, params) {
+    fixingLists.refresh(map, source, params)
+    fixingLists.unBindEvent()
+    fixingLists.bindIndexEvent(map, source, params)
   })
-  Event.create('fixing').listen('control', function (map, source, fixing) {
-    fixingLists.refresh(map, source, fixing)
-    fxingLists.controlEvent(map, source, fixing)
+  Event.create('fixing').listen('control', function (map, source, params) {
+    fixingLists.refresh(map, source, params)
+    fixingLists.unBindEvent()
+    fixingLists.bindControlEvent(map, source, params)
   })
-  Event.create('fixing').listen('trajectory', function (map, source, fixing) {
-    fixingLists.refresh(map, source, fixing)
-    fxingLists.trajectoryEvent(map, source, fixing)
+  Event.create('fixing').listen('trajectory', function (map, source, params) {
+    fixingLists.refresh(map, source, params)
+    fxingLists.bindTrajectoryEvent(map, source, params)
   })
-  Event.create('fixing').listen('sportdata', function (map, source, fixing) {
-    fixingLists.refresh(map, source, fixing)
-    fxingLists.sportdataEvent(map, source, fixing)
-  })
-  Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
-    fixingLists.refresh(map, source, fixing)
+  Event.create('fixing').listen('sportdata', function (map, source, params) {
+    fixingLists.refresh(map, source, params)
+    fxingLists.bindSportdataEvent(map, source, params)
   })
   return {
-    indexEvent(map, source, fixing) {
-      $el.off('click').on('click', 'li', function (e) {
+    unBindEvent(map, source, params) {
+      $el.off('click')
+    },
+    bindIndexEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
         let item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
@@ -115,15 +199,19 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-        // update fixingid
-        fixing.fixingId = item.entity_name
-        utils.SetUrlParams(fixing)
-        Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: item.latest_location.longitude, lat: item.latest_location.latitude })
+        let { longitude, latitude } = item.latest_location, iconPath, marker,
+          point = new BMap.Point(longitude, latitude)
+        if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
+        if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
+        marker = new BMap.Marker(point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
+        map.addOverlay(marker)
+        Event.create('map').trigger('mapPanToMarkerPoint', map, point)
+        Event.create('map').trigger('initMarkerInfoWindow', map, source, params, { fixingId: item.entity_name, point, isTrigger: true }, marker)
       })
 
     },
-    controlEvent(map, source, fixing) {
-      $el.off('click').on('click', 'li', function (e) {
+    bindControlEvent(map, source, params) {
+      $el.on('click', 'li', function (e) {
         let item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
@@ -133,25 +221,21 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-        // update fixingid
-        fixing.fixingId = entity_name
-        utils.SetUrlParams(fixing)
-
-        // 覆盖物单个once
-        clearInterval(window.setIntervaler)
-        let fixingOnce = utils.FilterFxingListUrl(source)
-        Event.create('map').trigger('mapPanToMarkerPoint', map, { lng: item.latest_location.longitude, lat: item.latest_location.latitude })
-        Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
-        Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'init' })
-        window.setIntervaler = setInterval(function () {
-          Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'update' })
-          Event.create('fixing').trigger('GetLastPosition', map, fixingOnce, { ...params, type: 'update' })
+        if (window.setIntervaler) {
+          map.clearOverlays()
+          clearInterval(window.setIntervaler)
+        }
+        let { longitude, latitude } = item.latest_location,
+          point = new BMap.Point(longitude, latitude)
+        Event.create('map').trigger('mapPanToMarkerPoint', map, point)
+        Event.create('fixing').trigger('GetLastPosition', map, item, params, { type: 'init' })
+        window.setIntervaler = setInterval(() => {
+          Event.create('fixing').trigger('GetLastPosition', map, item, params, { type: 'update' })
         }, 60000)
-        Event.create('map').trigger('GetFixingListOnce', map, fixingOnce, { ...params, type: 'init' })
         // BMapLib.EventWrapper.trigger(marker, "click")
       })
     },
-    trajectoryEvent(map, source, fixing) {
+    bindTrajectoryEvent(map, source, fixing) {
       $el.off('click').on('click', 'li', function (e) {
         let item = $(e.currentTarget).data(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
@@ -187,7 +271,7 @@ var fixingLists = (function ($el) {
         // BMapLib.EventWrapper.trigger(marker, "click")
       })
     },
-    sportdataEvent(map, source, fixing) {
+    bindSportdataEvent(map, source, fixing) {
       $el.off('click').on('click', 'li', function (e) {
         let item = $(e.currentTarget).data(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
@@ -281,48 +365,30 @@ var fixingLists = (function ($el) {
 
 // 鞋垫列表分页模块
 var fixingListsPagination = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, fixing) {
-    fixingListsPagination.refresh(map, source, fixing)
+  Event.create('fixing').listen('index', function (map, source, params) {
+    fixingListsPagination.refresh(map, source, params)
   })
-  Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
-    fixingListsPagination.refresh(map, source, fixing)
+  Event.create('fixing').listen('control', function (map, source, params) {
+    fixingListsPagination.refresh(map, source, params)
   })
   return {
-    refresh(map, source, fixing) {
-      let cache = null,
-        allArrays = Object.assign([], source),
-        onlineArrays = utils.FilterFixingLists(source, 'entity_desc', '在线'),
-        offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'),
-        params = utils.GetUrlParams(),
-        fixingListsTabIndex = Number.parseInt(params.fixingListsTabIndex),
-        pageSize = Number.parseInt(fixing.pageSize),
-        currentPage = Number.parseInt(fixing.currentPage) + 1
+    refresh(map, source, params) {
+      let cache = null
       // 根据 tabIndex 选择分组
       let hadnleToCache = source => {
-        cache = source
-        if ((source.length / pageSize) + 1 < currentPage) {
-          currentPage = 1
+        cache = Object.assign([], source)
+        if ((source.length / params.pageSize) + 1 < params.currentPage) {
+          params.currentPage = 0
         }
       }
-      switch (fixingListsTabIndex) {
-        case 0:
-          hadnleToCache(allArrays)
-          break;
-        case 1:
-          hadnleToCache(onlineArrays)
-          break;
-        case 2:
-          hadnleToCache(offlineArrays)
-          break;
-        default:
-          hadnleToCache(allArrays)
-          break;
-      }
+      if (params.fixingListsTabIndex === 0) hadnleToCache(source)
+      if (params.fixingListsTabIndex === 1) hadnleToCache(utils.FilterFixingLists(source, 'entity_desc', '在线'))
+      if (params.fixingListsTabIndex === 2) hadnleToCache(utils.FilterFixingLists(source, 'entity_desc', '离线'))
       $el.jqPaginator({
         totalCounts: cache.length ? cache.length : 1,
-        pageSize,
+        pageSize: params.pageSize,
         visiblePages: 5,
-        currentPage,
+        currentPage: params.currentPage + 1,
         prev: '<li class="prev pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">&lt;</a></li>',
         next: '<li class="next pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">	&gt;</a></li>',
         page: '<li class="page pt-1 pb-1 pl-2 pr-2 bg-33385e ml-1 mr-1 text-white"><a href="javascript:;">{{page}}</a></li>',
@@ -330,7 +396,7 @@ var fixingListsPagination = (function ($el) {
           if (type === 'init') return
           params.currentPage = num - 1
           utils.SetUrlParams(params)
-          Event.create('fixing').trigger('GetFixingList', map, source, params)
+          Event.create('fixing').trigger('index', map, source, params)
         }
       })
     }
@@ -498,39 +564,64 @@ var fixingQRCode = (function ($el) {
 
 // 鞋垫信息实时模块
 var fixingInfoLive = (function ($el) {
-  Event.create('fixing').listen('GetLastPosition', function (map, source, fixing) {
-    fixingInfoLive.refresh(map, source, fixing)
+  Event.create('fixing').listen('GetLastPosition', function (map, item, params, fixing) {
+    fixingInfoLive.refresh(map, item, params, fixing)
   })
 
   return {
-    refresh(map, source, fixing) {
+    refresh(map, item, params, fixing) {
       if (fixing.type === 'init') $el.empty()
+
       // loacl 获取数据
-      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       // 请求最后位置信息接口
-      FIXING_API.GetLastPosition({ adminId: AdminId, fixingId: fixing.fixingId }).then(res => {
-        let positions = res.data.positions.split(','),
-          shutdown = res.data.shutdown === '0' ? '关机' : '开机',
-          lng = utils.handleToCut(positions[0]),
-          lat = utils.handleToCut(positions[1]),
-          createTime = utils.handleTimestampToDateTime(res.data.createTime),
-          charge = res.data.charge === '1' ? '充电中' : '未充电',
-          modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
-          status = res.data.status === '1' ? '运动' : '静止'
-        $el.append(`
-        <tr>
-          <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-          <td class="normal pt-4 pb-4 text-center">${res.data.mode}</td>
-          <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
-          <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-          <td class="normal pt-4 pb-4 text-center">${res.data.address}</td>
-          <td class="normal pt-4 pb-4 text-center">${res.data.code}</td>
-        </tr>
-        `)
-        $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
-          $(e.currentTarget).addClass('active').siblings().removeClass('active')
-          // Event.create('map').trigger('GetFixingListOnce', map, source, { ...res.data, ...fixing })
-        })
+      FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
+        if (res.data.ret === 1001) {
+
+          let address = res.data.address,
+            charge = res.data.charge === '1' ? '充电中' : '未充电',
+            createTime = utils.handleTimestampToDateTime(res.data.createTime),
+            electricity = res.data.electricity, // 电量
+            mode = res.data.mode,
+            modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
+            positions = res.data.positions.split(','),
+            lng = utils.handleToCut(positions[0], 4),
+            lat = utils.handleToCut(positions[1], 4),
+            shutdown = res.data.shutdown === '0' ? '关机' : '开机',
+            status = res.data.status === '1' ? '运动' : '静止',
+            point = new BMap.Point(lng, lat),
+            iconPath, marker
+
+
+          if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
+          if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
+          marker = new BMap.Marker(point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
+          map.addOverlay(marker)
+          // Event.create('map').trigger('mapPanToMarkerPoint', map, point)
+          $el.append(`
+          <tr>
+            <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
+            <td class="normal pt-4 pb-4 text-center">${mode}</td>
+            <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
+            <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+            <td class="normal pt-4 pb-4 text-center">${charge}</td>
+            <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
+            <td class="normal pt-4 pb-4 text-center">${status}</td>
+            <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+            <td class="normal pt-4 pb-4 text-center">${lng}, ${lat}</td>
+            <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
+            <td class="normal pt-4 pb-4 text-center">${address}</td>
+            <td class="normal pt-4 pb-4 text-center">${res.data.code}</td>
+          </tr>
+          `)
+
+          $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
+            $(e.currentTarget).addClass('active').siblings().removeClass('active')
+          })
+        }
+        if (res.data.ret === 1003) {
+          aler(res.data.code)
+        }
       })
     }
   }
