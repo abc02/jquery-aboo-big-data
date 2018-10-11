@@ -55,9 +55,3 @@ $('.bottom-close').click(function () {
   $('.bottom-dialog').hide()
   $('.bottom-doork').show()
 })
-
-// el
-const $STEPS = $('#steps'),
-  $CALORIE = $('#calorie'),
-  $WEIGHT = $('#weight'),
-  $DISTANCE = $('#distance')

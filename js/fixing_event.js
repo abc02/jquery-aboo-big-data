@@ -5,9 +5,14 @@ var fixingSearch = (function ($el) {
     fixingSearch.bindIndexEvent(map, source, params)
   })
   Event.create('fixing').listen('control', function (map, source, params) {
-    fixingSearch.bindControlEvent(map, source, params)
+    fixingSearch.bindEvent(map, source, params)
   })
-
+  Event.create('fixing').listen('trajectory', function (map, source, params) {
+    fixingSearch.bindEvent(map, source, params)
+  })
+  Event.create('fixing').listen('sportdata', function (map, source, params) {
+    fixingSearch.bindEvent(map, source, params)
+  })
   return {
     unBindEvent() {
       $el.off('click')
@@ -28,13 +33,13 @@ var fixingSearch = (function ($el) {
         })
       })
     },
-    bindControlEvent(map, source, params) {
+    bindEvent(map, source, params) {
       $el.on('click', 'button', function (e) {
         let value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
-            Event.create('fixing').trigger('control', map, res.data.data, params)
+            Event.create('fixing').trigger(utils.GetUrlParams(), map, res.data.data, params)
           }
           if (res.data.ret === 1002) {
             alert(res.data.code)
@@ -69,14 +74,12 @@ var fixingListsTab = (function ($el) {
     fixingListsTab.unBindEvent()
     fixingListsTab.bindTrajectoryEvent(map, source, params, fixing)
   })
-  Event.create('fixing').listen('sportdata', function (map, source, params) {
-    fixingListsTab.refresh(map, source, params)
+  Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
+    fixingListsTab.refresh(map, source, params, fixing)
     fixingListsTab.unBindEvent()
-    fixingListsTab.bindSportDataEvent(map, source, params)
+    fixingListsTab.bindSportDataEvent(map, source, params, fixing)
   })
-  Event.create('fixing').listen('GetFixingList', function (map, source, fixing) {
-    fixingListsTab.refresh(map, source, fixing)
-  })
+
   return {
     unBindEvent() {
       $el.off('click')
@@ -135,7 +138,7 @@ var fixingListsTab = (function ($el) {
         Event.create('fixing').trigger('trajectory', map, source, params, fixing)
       })
     },
-    bindSportDataEvent(map, source, params) {
+    bindSportDataEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
         // update tabindex css
         $(e.currentTarget)
@@ -145,7 +148,7 @@ var fixingListsTab = (function ($el) {
           .removeClass('border-bottom text-white')
         params.fixingListsTabIndex = $(e.currentTarget).index()
         utils.SetUrlParams(params)
-        Event.create('fixing').trigger('index', map, source, params)
+        Event.create('fixing').trigger('sportdata', map, source, params, fixing)
       })
     },
     refresh(map, source, params) {
@@ -186,6 +189,7 @@ var fixingLists = (function ($el) {
     fixingLists.unBindEvent()
     fixingLists.bindSportdataEvent(map, source, params, fixing)
   })
+
   return {
     unBindEvent() {
       $el.off('click')
@@ -253,18 +257,13 @@ var fixingLists = (function ($el) {
           .siblings()
           .removeClass('text-white')
           .addClass('text-muted')
+
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
       })
     },
-    bindSportdataEvent(map, source, fixing) {
+    bindSportdataEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data(),
-          userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
-          timeData
-        // update fixingid
-        fixing.fixingId = entity_name
-        utils.SetUrlParams(fixing)
-
+        let item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -273,22 +272,7 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-
-        timeData = $('#datepicker').datepicker('getDate')
-        params = utils.GetUrlParams()
-        if (!params.time) params.time = Math.round(new Date(data) / 1000) // update 日期
-        $('#datepicker').attr('value', utils.handleTimestampToDate(params.time))
-        utils.SetUrlParams(params)
-        FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: params.fixingId, times: params.time }).then(res => {
-          if (res.data.ret === 1001) {
-            Event.create('sportData').trigger('GetFixingSportData', null, res.data, params)
-          }
-          if (res.data.ret === 1002) {
-            Event.create('sportData').trigger('GetFixingSportData', null, null, params)
-            window.alert(res.data.code)
-          }
-        })
-        // BMapLib.EventWrapper.trigger(marker, "click")
+        Event.create('fixing').trigger('GetFixingSportData', map, item, params, fixing)
       })
     },
     refresh(map, source, params, fixing) {
@@ -332,20 +316,12 @@ var fixingLists = (function ($el) {
   }
 })($('.fixing-container'))
 
-// 鞋垫列表分页模块
+// 鞋垫列表分页
 var fixingListsPagination = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, params, fixing) {
+  Event.create('fixing').listen(utils.GetUrlPageName(), function (map, source, params, fixing) {
     fixingListsPagination.refresh(map, source, params, fixing)
   })
-  Event.create('fixing').listen('control', function (map, source, params, fixing) {
-    fixingListsPagination.refresh(map, source, params, fixing)
-  })
-  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
-    fixingListsPagination.refresh(map, source, params, fixing)
-  })
-  Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
-    fixingListsPagination.refresh(map, source, params, fixing)
-  })
+
   return {
     refresh(map, source, params, fixing) {
       let cache = null
@@ -537,7 +513,7 @@ var fixingQRCode = (function ($el) {
   }
 })()
 
-// 鞋垫信息实时模块
+// 鞋垫信息实时
 var fixingInfoLive = (function ($el) {
   Event.create('fixing').listen('GetLastPosition', function (map, item, params, fixing) {
     fixingInfoLive.refresh(map, item, params, fixing)
@@ -601,7 +577,7 @@ var fixingInfoLive = (function ($el) {
   }
 })($('.live-info-tbody'))
 
-// 鞋垫历史轨迹信息模块
+// 轨迹信息
 var fixinTrajectory = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, item, params, fixing) {
     fixinTrajectory.refresh(map, item, params, fixing)
@@ -624,7 +600,7 @@ var fixinTrajectory = (function ($el) {
               modestatus = innerItem.modestatus === '1' ? '正常模式' : '追踪模式',
               shutdown = innerItem.shutdown === '0' ? '关机' : '开机',
               status = innerItem.status === '1' ? '运动' : '静止'
-     
+
             return $(`
             <tr>
                 <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
@@ -665,6 +641,208 @@ var fixingDatepicker = (function ($el) {
       $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
+      })
+    }
+  }
+})($('#datepicker'))
+
+var sportData = (function ($el) {
+  let
+    stepsOption = {
+      title: {
+        top: 5,
+        left: 'center',
+        text: '计步数据',
+        subtext: 'steps'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'none'
+        }
+      },
+      xAxis: { data: [] },
+      yAxis: {},
+      series: [{
+        type: 'line',
+        data: []
+      }]
+    },
+    caloriesOption = {
+      title: {
+        top: 5,
+        left: 'center',
+        text: '卡路里数据',
+        subtext: 'calories'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'none'
+        }
+      },
+      xAxis: {
+        data: []
+      },
+      yAxis: {},
+      series: [{
+        type: 'bar',
+        data: []
+      }]
+    },
+    weightOption = {
+      title: {
+        top: 5,
+        left: 'center',
+        text: '体重数据',
+        subtext: 'weight'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'none'
+        }
+      },
+      xAxis: {
+        data: []
+      },
+      yAxis: {},
+      series: [{
+        type: 'bar',
+        data: []
+      }]
+    },
+    distanceOption = {
+      title: {
+        top: 5,
+        left: 'center',
+        text: '距离数据',
+        subtext: 'distance'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'none'
+        }
+      },
+      xAxis: {
+        data: []
+      },
+      yAxis: {},
+      series: [{
+        type: 'line',
+        data: []
+      }]
+    };
+  Event.create('fixing').listen('GetFixingSportData', function (map, item, params, fixing) {
+    sportData.refresh(map, item, params, fixing)
+  })
+
+  Event.create('fixing').listen('initFixingSportData', function (map, item, params, fixing) {
+    sportData.initFixingSportData(map, item, params, fixing)
+  })
+  return {
+    refresh(map, item, params, fixing) {
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: item.entity_name, times: utils.handleTimeToUnix(fixing.currentTime) }).then(res => {
+        console.log(item)
+        if (res.data.ret === 1001) {
+          let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
+
+          res.data.sportList.forEach(item => {
+            let xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD}日`
+            xAxisArrays.push(xAxis)
+            stepsArrays.push({
+              name: item.steps,
+              value: item.steps
+            })
+            caloriesArrays.push({
+              name: item.calorie,
+              value: item.calorie
+            })
+            weightArrays.push({
+              name: item.weight,
+              value: item.weight
+            })
+            distanceArrays.push({
+              name: item.distance,
+              value: item.distance
+            })
+          })
+          stepsOption.xAxis.data = caloriesOption.xAxis.data = weightOption.xAxis.data = distanceOption.xAxis.data = xAxisArrays
+          stepsOption.series[0].data = stepsArrays
+          caloriesOption.series[0].data = caloriesArrays
+          weightOption.series[0].data = weightArrays
+          distanceOption.series[0].data = distanceArrays
+          // update
+          fixing.steps.setOption(stepsOption)
+          fixing.calorie.setOption(caloriesOption)
+          fixing.weight.setOption(weightOption)
+          fixing.distance.setOption(distanceOption)
+        }
+        if (res.data.ret === 1002) {
+          alert(res.data.code)
+        }
+      })
+    },
+    initFixingSportData(map, source, params, fixing) {
+      let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = [];
+
+
+      [
+        utils.handleToCut(Math.random() * 100, 0),
+        utils.handleToCut(Math.random() * 100, 0),
+        utils.handleToCut(Math.random() * 100, 0),
+        utils.handleToCut(Math.random() * 100, 0),
+        utils.handleToCut(Math.random() * 100, 0)
+      ].forEach(item => {
+        let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD}日`
+        xAxisArrays.push(xAxis)
+        stepsArrays.push({
+          name: item,
+          value: item
+        })
+        caloriesArrays.push({
+          name: item,
+          value: item
+        })
+        weightArrays.push({
+          name: item,
+          value: item
+        })
+        distanceArrays.push({
+          name: item,
+          value: item
+        })
+      })
+      stepsOption.xAxis.data = caloriesOption.xAxis.data = weightOption.xAxis.data = distanceOption.xAxis.data = xAxisArrays
+      stepsOption.series[0].data = stepsArrays
+      caloriesOption.series[0].data = caloriesArrays
+      weightOption.series[0].data = weightArrays
+      distanceOption.series[0].data = distanceArrays
+      fixing.steps = echarts.init(document.getElementById('steps'), 'bigdata')
+      fixing.calorie = echarts.init(document.getElementById('calorie'), 'bigdata')
+      fixing.weight = echarts.init(document.getElementById('weight'), 'bigdata')
+      fixing.distance = echarts.init(document.getElementById('distance'), 'bigdata')
+      fixing.steps.setOption(stepsOption)
+      fixing.calorie.setOption(caloriesOption)
+      fixing.weight.setOption(weightOption)
+      fixing.distance.setOption(distanceOption)
+    }
+  }
+})()
+
+
+
+var sportDataDatepicker = (function ($el) {
+  Event.create('fixing').listen('GetFixingSportData', function (map, item, params, fixing) {
+    sportDataDatepicker.refresh(map, item, params, fixing)
+  })
+  return {
+    refresh(map, item, params, fixing) {
+      $el.off('changeDate').one('changeDate', function (e) {
+        fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        Event.create('fixing').trigger('GetFixingSportData', map, item, params, fixing)
       })
     }
   }
