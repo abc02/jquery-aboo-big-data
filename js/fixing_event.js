@@ -132,7 +132,7 @@ var fixingListsTab = (function ($el) {
           .removeClass('border-bottom text-white')
         params.fixingListsTabIndex = $(e.currentTarget).index()
         utils.SetUrlParams(params)
-        Event.create('fixing').trigger('index', map, source, params)
+        // Event.create('fixing').trigger('index', map, source, params)
       })
     },
     bindSportDataEvent(map, source, params) {
@@ -185,7 +185,7 @@ var fixingLists = (function ($el) {
     fxingLists.bindSportdataEvent(map, source, params)
   })
   return {
-    unBindEvent(map, source, params) {
+    unBindEvent() {
       $el.off('click')
     },
     bindIndexEvent(map, source, params) {
@@ -225,14 +225,20 @@ var fixingLists = (function ($el) {
           map.clearOverlays()
           clearInterval(window.setIntervaler)
         }
-        let { longitude, latitude } = item.latest_location,
-          point = new BMap.Point(longitude, latitude)
-        Event.create('map').trigger('mapPanToMarkerPoint', map, point)
-        Event.create('fixing').trigger('GetLastPosition', map, item, params, { type: 'init' })
+        let fixing = {
+          point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
+          fixingId: item.entity_name,
+          type: 'init',
+          isTrigger: true
+        }
+
+        Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
+        Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
         window.setIntervaler = setInterval(() => {
-          Event.create('fixing').trigger('GetLastPosition', map, item, params, { type: 'update' })
-        }, 60000)
-        // BMapLib.EventWrapper.trigger(marker, "click")
+          fixing.type = 'update'
+          fixing.isTrigger = false
+          Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
+        }, 5000)
       })
     },
     bindTrajectoryEvent(map, source, fixing) {
@@ -589,15 +595,15 @@ var fixingInfoLive = (function ($el) {
             lat = utils.handleToCut(positions[1], 4),
             shutdown = res.data.shutdown === '0' ? '关机' : '开机',
             status = res.data.status === '1' ? '运动' : '静止',
-            point = new BMap.Point(lng, lat),
             iconPath, marker
 
 
           if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
           if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
-          marker = new BMap.Marker(point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
+          fixing.point = new BMap.Point(lng, lat)
+          marker = new BMap.Marker(fixing.point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
           map.addOverlay(marker)
-          // Event.create('map').trigger('mapPanToMarkerPoint', map, point)
+
           $el.append(`
           <tr>
             <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
@@ -605,11 +611,10 @@ var fixingInfoLive = (function ($el) {
             <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
             <td class="normal pt-4 pb-4 text-center">${createTime}</td>
             <td class="normal pt-4 pb-4 text-center">${charge}</td>
+            <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
             <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
             <td class="normal pt-4 pb-4 text-center">${status}</td>
-            <td class="normal pt-4 pb-4 text-center">${createTime}</td>
             <td class="normal pt-4 pb-4 text-center">${lng}, ${lat}</td>
-            <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
             <td class="normal pt-4 pb-4 text-center">${address}</td>
             <td class="normal pt-4 pb-4 text-center">${res.data.code}</td>
           </tr>
@@ -618,9 +623,10 @@ var fixingInfoLive = (function ($el) {
           $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
             $(e.currentTarget).addClass('active').siblings().removeClass('active')
           })
+          Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
         }
         if (res.data.ret === 1003) {
-          aler(res.data.code)
+          alert(res.data.code)
         }
       })
     }

@@ -55,6 +55,9 @@ var mapInfoWindow = (function ($el) {
   Event.create('map').listen('initMarkerInfoWindow', function (map, source, params, fixing, marker) {
     mapInfoWindow.initMarkerInfoWindow(map, source, params, fixing, marker)
   })
+  Event.create('map').listen('controlMarkerInfoWindow', function (map, item, params, fixing, marker) {
+    mapInfoWindow.controlMarkerInfoWindow(map, item, params, fixing, marker)
+  })
 
   return {
     initMarkerInfoWindow(map, source, params, fixing, marker) {
@@ -114,6 +117,85 @@ var mapInfoWindow = (function ($el) {
       if (fixing.isTrigger) {
         BMapLib.EventWrapper.trigger(marker, 'click')
       }
+    },
+    controlMarkerInfoWindow(map, item, params, fixing, marker) {
+      let markerInfoWindow
+
+      if (fixing.type === 'init') {
+        map.closeInfoWindow()
+        // 默认创建窗口对象
+        markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458 })
+        // 监听覆盖物 click 事件
+        BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
+          map.openInfoWindow(markerInfoWindow, fixing.point)
+        })
+        BMapLib.EventWrapper.addListener(markerInfoWindow, 'open', function (e) {
+          if (item.ret === 1001) {
+            let address = item.address,
+              charge = item.charge === '1' ? '充电中' : '未充电',
+              createTime = utils.handleTimestampToDateTime(item.createTime),
+              electricity = item.electricity, // 电量
+              mode = item.mode,
+              modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+              positions = item.positions.split(','),
+              lng = utils.handleToCut(positions[0], 4),
+              lat = utils.handleToCut(positions[1], 4),
+              shutdown = item.shutdown === '0' ? '关机' : '开机',
+              status = item.status === '1' ? '运动' : '静止'
+
+            $el.find('.fixingid').text(fixing.fixingId)
+            $el.find('.shutdown').text(shutdown)
+            $el.find('.mode').text(mode)
+            $el.find('.charge').text(charge)
+            $el.find('.modestatus').text(modestatus)
+            $el.find('.createTime').text(createTime)
+            $el.find('.status').text(status)
+            $el.find('.positions').text(`${lng}, ${lat}`)
+            $el.find('.electricity').text(`${electricity}%`)
+            $el.find('.address').text(address)
+            markerInfoWindow.setContent($el.html())
+          }
+          if (item.ret === 1003) {
+            markerInfoWindow.setContent(item.code)
+          }
+        })
+        if (fixing.isTrigger) {
+          BMapLib.EventWrapper.trigger(marker, 'click')
+        }
+      }
+
+      if (fixing.type === 'update') {
+        markerInfoWindow = map.getInfoWindow()
+        if (item.ret === 1001) {
+          let address = item.address,
+            charge = item.charge === '1' ? '充电中' : '未充电',
+            createTime = utils.handleTimestampToDateTime(item.createTime),
+            electricity = item.electricity, // 电量
+            mode = item.mode,
+            modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+            positions = item.positions.split(','),
+            lng = utils.handleToCut(positions[0], 4),
+            lat = utils.handleToCut(positions[1], 4),
+            shutdown = item.shutdown === '0' ? '关机' : '开机',
+            status = item.status === '1' ? '运动' : '静止'
+
+          $el.find('.fixingid').text(fixing.fixingId)
+          $el.find('.shutdown').text(shutdown)
+          $el.find('.mode').text(mode)
+          $el.find('.charge').text(charge)
+          $el.find('.modestatus').text(modestatus)
+          $el.find('.createTime').text(createTime)
+          $el.find('.status').text(status)
+          $el.find('.positions').text(`${lng}, ${lat}`)
+          $el.find('.electricity').text(`${electricity}%`)
+          $el.find('.address').text(address)
+          markerInfoWindow.setContent($el.html())
+        }
+        if (item.ret === 1003) {
+          markerInfoWindow.setContent(item.code)
+        }
+      }
+
     }
 
   }
