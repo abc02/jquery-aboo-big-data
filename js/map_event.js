@@ -71,7 +71,7 @@ var mapInfoWindow = (function ($el) {
       BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
         map.openInfoWindow(markerInfoWindow, fixing.point)
       })
-
+      
       /*  监听窗口 open 事件
           移除地图 移动 放大 事件跟 open 地图窗口有冲突 bug 无限关闪
       */
@@ -107,12 +107,17 @@ var mapInfoWindow = (function ($el) {
             $el.find('.electricity').text(`${electricity}%`)
             $el.find('.address').text(address)
             markerInfoWindow.setContent($el.html())
+            return markerInfoWindow
           }
           if (res.data.ret === 1003) {
             markerInfoWindow.setContent(res.data.code)
           }
+          return res
+        }).then(_ => {
+          
         })
       })
+   
       // 重新监听地图移动、放大事件
       BMapLib.EventWrapper.addListener(markerInfoWindow, 'close', function () {
         Event.create('map').trigger('index', map, source, params)
@@ -202,7 +207,7 @@ var mapInfoWindow = (function ($el) {
     },
     trajectoryMarkerInfoWindow(map, item, params, fixing, marker) {
       let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458 })
-      
+
       // 监听覆盖物 click 事件
       let address = item.address,
         charge = item.charge === '1' ? '充电中' : '未充电',
@@ -226,10 +231,10 @@ var mapInfoWindow = (function ($el) {
       $el.find('.electricity').text(`${electricity}%`)
       $el.find('.address').text(address)
       markerInfoWindow.setContent($el.html())
-      
+
       fixing.point = new BMap.Point(item.longitude, item.latitude)
       map.openInfoWindow(markerInfoWindow, fixing.point)
-      
+
     }
 
   }
