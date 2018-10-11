@@ -1,6 +1,7 @@
 var utils = (function () {
   function GetUrlPageName() {
-    return location.pathname.substr(1)
+    let pageName = location.pathname.substr(1).replace('.html', '')
+    return pageName ? pageName : 'index'
   }
   function GetUrlParams() {
     return Qs.parse(location.search.substr(1))
@@ -10,6 +11,9 @@ var utils = (function () {
       url = `${location.pathname}?${paramsStringify}`
     history.pushState({ url: url, title: document.title }, document.title, url)
     return Qs.parse(paramsStringify)
+  }
+  function handleTimeToUnix(data) {
+    return Math.round(new Date(data) / 1000)
   }
   function handleToCut(num, n = 2) {
     return Number.parseFloat(num).toFixed(n);
@@ -112,6 +116,7 @@ var utils = (function () {
     GetUrlPageName,
     GetUrlParams,
     SetUrlParams,
+    handleTimeToUnix,
     handleToPad,
     handleToCut,
     handleToYYYYMMDD,

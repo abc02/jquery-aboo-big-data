@@ -68,6 +68,6 @@ var control = (function (pageName) {
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-    Event.create('fixing').trigger('control', map, res.data.data, params)
+    Event.create('fixing').trigger('control', map, res.data.data, params, null)
   })
 })('control')

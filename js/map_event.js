@@ -58,6 +58,9 @@ var mapInfoWindow = (function ($el) {
   Event.create('map').listen('controlMarkerInfoWindow', function (map, item, params, fixing, marker) {
     mapInfoWindow.controlMarkerInfoWindow(map, item, params, fixing, marker)
   })
+  Event.create('map').listen('trajectoryMarkerInfoWindow', function (map, item, params, fixing, marker) {
+    mapInfoWindow.trajectoryMarkerInfoWindow(map, item, params, fixing, marker)
+  })
 
   return {
     initMarkerInfoWindow(map, source, params, fixing, marker) {
@@ -196,6 +199,37 @@ var mapInfoWindow = (function ($el) {
         }
       }
 
+    },
+    trajectoryMarkerInfoWindow(map, item, params, fixing, marker) {
+      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458 })
+      
+      // 监听覆盖物 click 事件
+      let address = item.address,
+        charge = item.charge === '1' ? '充电中' : '未充电',
+        createTime = item.create_time,
+        electricity = item.electricity, // 电量
+        longitude = utils.handleToCut(item.latitude, 4),
+        latitude = utils.handleToCut(item.longitude, 4),
+        mode = item.mode,
+        modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+        shutdown = item.shutdown === '0' ? '关机' : '开机',
+        status = item.status === '1' ? '运动' : '静止'
+
+      $el.find('.fixingid').text(fixing.fixingId)
+      $el.find('.shutdown').text(shutdown)
+      $el.find('.mode').text(mode)
+      $el.find('.charge').text(charge)
+      $el.find('.modestatus').text(modestatus)
+      $el.find('.createTime').text(createTime)
+      $el.find('.status').text(status)
+      $el.find('.positions').text(`${longitude}, ${latitude}`)
+      $el.find('.electricity').text(`${electricity}%`)
+      $el.find('.address').text(address)
+      markerInfoWindow.setContent($el.html())
+      
+      fixing.point = new BMap.Point(item.longitude, item.latitude)
+      map.openInfoWindow(markerInfoWindow, fixing.point)
+      
     }
 
   }
@@ -244,15 +278,15 @@ var mapPanToMarkerPoint = (function () {
   }
 })()
 
-// 地图轨迹模式
+// 轨迹历史
 var mapTrajectory = (function () {
-  Event.create('map').listen('GetTrackList', function (map, source, fixing) {
-    mapTrajectory.refresh(map, source, fixing)
+  Event.create('map').listen('GetTrackList', function (map, source, params, fixing) {
+    mapTrajectory.refresh(map, source, params, fixing)
   })
 
   return {
-    refresh(map, source, fixing) {
-      if (!source) return
+    refresh(map, source, params, fixing) {
+      map.clearOverlays()
       let startItem = source[0],
         endItem = source[source.length - 1],
         startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),

@@ -57,10 +57,7 @@ $('.bottom-close').click(function () {
 })
 
 // el
-const $LOGIN_FORM = $('.login-form'),
-  $LOGIN_MODAL = $('#loginModal'),
-  $DATEPICKER = $('#datepicker'),
-  $STEPS = $('#steps'),
+const $STEPS = $('#steps'),
   $CALORIE = $('#calorie'),
   $WEIGHT = $('#weight'),
   $DISTANCE = $('#distance')

@@ -74,7 +74,7 @@
       <div id="baidumap" class="d-flex relative" style="flex: 1;"></div>
     </div>
   </main>
-  <div class='bg-dark' id='marker-info-window' style="display: none;">
+  <!-- <div class='' id='marker-info-window' style="display: none;">
     <h5 class='d-flex justify-content-between text-white mb-2'>
       <p>鞋垫ID：<span class="fixingid">${fixingId}</span></p>
     </h5>
@@ -88,7 +88,7 @@
     </div>
     <div class='d-flex flex-row color-drak mb-2'>
       <p style='flex: 1;'><span class='mr-2'>定位时间 </span><span class='text-white createTime'>${createTime}</span></p>
-      <p style='flex: 1;'><span class='mr-2'>状态 </span><span class='color-white status'>${status}</span></p>
+      <p style='flex: 1;'><span class='mr-2'>设备状态 </span><span class='color-white status'>${status}</span></p>
     </div>
     <div class='d-flex flex-row color-drak mb-2'>
       <p style='flex: 1;'><span class='mr-2'>经纬度 </span><span class='text-white positions'>${lng}, ${lat}</span></p>
@@ -111,7 +111,45 @@
       <button type='button' class='fixing-qrcode ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
           width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
     </div>
-  </div>
+  </div> -->
+  <div class='' id='marker-info-window' style="display: none;">
+      <h5 class='d-flex justify-content-between mb-2'>
+        <p class="flex-fill"><span class="text-primary bold mr-2">鞋垫ID：</span><span class="fixingid">${fixingId}</span></p>
+      </h5>
+      <div class='d-flex flex-row mb-2 d-flex bd-highlight'>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>开关机 </span><span class='shutdown'>${shutdown}<span></p>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>定位类型 </span><span class='mode'>${mode}</span></p>
+      </div>
+      <div class='d-flex flex-row mb-2'>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>充电状态 </span><span class='charge'>${charge}<span></p>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>当前模式 </span><span class='modestatus'>${modestatus}</span></p>
+      </div>
+      <div class='d-flex flex-row mb-2'>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>定位时间 </span><span class='createTime'>${createTime}</span></p>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>设备状态 </span><span class='status'>${status}</span></p>
+      </div>
+      <div class='d-flex flex-row mb-2'>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>经纬度 </span><span class='positions'>${lng}, ${lat}</span></p>
+        <p class="flex-fill"><span class='text-primary bold mr-2'>电量 </span><span class='electricity'>${electricity}</span></p>
+      </div>
+      <div class='d-flex flex-row mb-4'>
+        <p class="flex-fill">
+          <span class='text-primary bold mr-2'>位置 </span><span class='address'>${address}</span>
+        </p>
+      </div>
+      <div class='d-flex justify-content-center info-window-buttons'>
+        <button type='button' class='control ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
+        <button type='button' class='trajectory ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
+        <button type='button' class='fixing-info  ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            width='14' height='17' src='/assets/contro_data.png' />资料</button>
+        <button type='button' class='instruction ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
+        <button type='button' class='fixing-qrcode ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
+            width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
+      </div>
+    </div>
   <script type="text/javascript" src="//api.map.baidu.com/library/EventWrapper/1.2/src/EventWrapper.js"></script>
   <script type="text/javascript" src="//api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>

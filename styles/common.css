@@ -96,6 +96,9 @@
   justify-content: space-between;
 }
 
+.flex-fill {
+  flex: 1;
+}
 .text-center {
   text-align: center;
 }

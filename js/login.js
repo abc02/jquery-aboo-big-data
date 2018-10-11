@@ -28,4 +28,4 @@ var login = (function ($el) {
       return location.assign(`${url}.html`)
     }
   }
-})($LOGIN_FORM)
+})($('.login-form'))
