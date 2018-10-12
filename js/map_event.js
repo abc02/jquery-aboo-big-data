@@ -3,6 +3,7 @@
 // 地图遮罩物
 var mapMarkerPoint = (function () {
   Event.create('map').listen('index', (map, source, params) => {
+    console.log('addMarkerPoint')
     mapMarkerPoint.addMarkerPoint(map, source, params)
   })
   Event.create('map').listen('control', (map, source, params) => {

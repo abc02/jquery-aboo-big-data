@@ -4,14 +4,14 @@ var fixingSearch = (function ($el) {
     fixingSearch.unBindEvent()
     fixingSearch.bindIndexEvent(map, source, params)
   })
-  Event.create('fixing').listen('control', function (map, source, params) {
-    fixingSearch.bindEvent(map, source, params)
+  Event.create('fixing').listen('control', function (map, source, params, fixing) {
+    fixingSearch.bindEvent(map, source, params, fixing)
   })
-  Event.create('fixing').listen('trajectory', function (map, source, params) {
-    fixingSearch.bindEvent(map, source, params)
+  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
+    fixingSearch.bindEvent(map, source, params, fixing)
   })
-  Event.create('fixing').listen('sportdata', function (map, source, params) {
-    fixingSearch.bindEvent(map, source, params)
+  Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
+    fixingSearch.bindEvent(map, source, params, fixing)
   })
   return {
     unBindEvent() {
@@ -33,13 +33,13 @@ var fixingSearch = (function ($el) {
         })
       })
     },
-    bindEvent(map, source, params) {
+    bindEvent(map, source, params, fixing) {
       $el.on('click', 'button', function (e) {
         let value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
-            Event.create('fixing').trigger(utils.GetUrlPageName(), map, res.data.data, params)
+            Event.create('fixing').trigger(utils.GetUrlPageName(), map, res.data.data, params, fixing)
           }
           if (res.data.ret === 1002) {
             alert(res.data.code)
@@ -584,7 +584,9 @@ var fixingInfoLive = (function ($el) {
           Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
         }
         if (res.data.ret === 1003) {
-          alert(res.data.code)
+          map.clearOverlays()
+          $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+          $('#no-data-ModalCenter').modal('show')
         }
       })
     }
@@ -676,7 +678,9 @@ var fixinTrajectory = (function ($el) {
           Event.create('map').trigger('GetTrackList', map, res.data.data, params, fixing)
         }
         if (res.data.ret === 1002) {
-          alert(res.data.code)
+          map.clearOverlays()
+          $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+          $('#no-data-ModalCenter').modal('show')
         }
       })
     }
@@ -702,6 +706,15 @@ var fixingTrajectoryDatepicker = (function ($el) {
 var sportData = (function ($el) {
   let
     stepsOption = {
+      noDataLoadingOption: {
+        text: '暂无数据',
+        effect: 'bubble',
+        effectOption: {
+          effect: {
+            n: 0
+          }
+        }
+      },
       title: {
         top: 5,
         left: 'center',
@@ -842,13 +855,7 @@ var sportData = (function ($el) {
       let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = [];
 
 
-      [
-        utils.handleToCut(Math.random() * 100, 0),
-        utils.handleToCut(Math.random() * 100, 0),
-        utils.handleToCut(Math.random() * 100, 0),
-        utils.handleToCut(Math.random() * 100, 0),
-        utils.handleToCut(Math.random() * 100, 0)
-      ].forEach(item => {
+      [0, 0, 0, 0, 0, 0, 0].forEach(item => {
         let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
         xAxisArrays.push(xAxis)
         stepsArrays.push({
