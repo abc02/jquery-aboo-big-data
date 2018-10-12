@@ -39,7 +39,7 @@ var fixingSearch = (function ($el) {
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
-            Event.create('fixing').trigger(utils.GetUrlParams(), map, res.data.data, params)
+            Event.create('fixing').trigger(utils.GetUrlPageName(), map, res.data.data, params)
           }
           if (res.data.ret === 1002) {
             alert(res.data.code)
@@ -637,6 +637,41 @@ var fixinTrajectory = (function ($el) {
                 Event.create('map').trigger('trajectoryMarkerInfoWindow', map, innerItem, params, fixing)
               })
           }))
+
+
+          // // 简单的节流函数
+          // function throttle(func, wait, mustRun) {
+          //   var timeout,
+          //     startTime = new Date();
+
+          //   return function () {
+          //     var context = this,
+          //       args = arguments,
+          //       curTime = new Date();
+
+          //     clearTimeout(timeout);
+          //     // 如果达到了规定的触发时间间隔，触发 handler
+          //     if (curTime - startTime >= mustRun) {
+          //       func.apply(context, args);
+          //       startTime = curTime;
+          //       // 没达到触发间隔，重新设定定时器
+          //     } else {
+          //       timeout = setTimeout(func, wait);
+          //     }
+          //   };
+          // };
+          // $('.bottom-info-container ').off('scroll').on('scroll', throttle(e => {
+          //   if (!e) return
+          //   let srcollTop = $(e.currentTarget).scrollTop()
+          //   if (srcollTop < 50) return
+          //   console.log($(e.currentTarget).find('.bottom-info-table > thead').css({
+          //     position: 'fixed',
+          //     zIndex: '2',
+          //     left: '5%',
+          //     right: '0'
+          //   }))
+
+          // }, 500, 1000))
 
           Event.create('map').trigger('GetTrackList', map, res.data.data, params, fixing)
         }

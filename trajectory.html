@@ -77,10 +77,24 @@
             </button>
           </div>
         </div>
-        <div class="relative liveinfo-container bg-dark border-top text-white" style="height: 230px; overflow-y: auto;">
+        <div class="relative bottom-info-container liveinfo-container bg-dark border-top text-white" style="height: 230px; overflow-y: auto;">
           <button class="bottom-doork-live absolute-top-center pointer" style="top: -45px; z-index: 9; transform: rotate(90deg);">
             <img src="/assets/extension.png" alt="extension">
           </button>
+          <!-- <div class="bg-dark pt-4" style="position: fixed; z-index: 2; left: 5%;right: 0 ;">
+            <div class="d-flex flex-row">
+              <span class="normal text-muted p-2 text-center" style="">开关机</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">定位类型</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">设备昵称</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 2;">定位时间</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">充电状态</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">电量</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">当前模式</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 1;">设备状态</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 2;">经纬度</span>
+              <span class="normal text-muted p-2 text-center" style="flex: 3;">地址</span>
+            </div>
+          </div> -->
           <div class="d-flex flex-column">
             <div class="p-4 d-flex flex-row align-items-center">
               <h5 class="normal mr-4">轨迹信息</h5>
@@ -93,7 +107,7 @@
                 </div>
               </div>
             </div>
-            <table class="live-info-table width-100">
+            <table class="bottom-info-table live-info-table width-100">
               <thead>
                 <tr>
                   <th scope="col" class="normal text-muted p-2 text-center">开关机</th>
@@ -142,7 +156,7 @@
         <span class='text-primary bold mr-2'>位置 </span><span class='address'>${address}</span>
       </p>
     </div>
-    <div class='d-flex justify-content-center info-window-buttons'>
+    <!-- <div class='d-flex justify-content-center info-window-buttons'>
       <button onclick="utils.setFixingIdRedirectUrl(map, 'control')" type='button' class='control ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
       <button onclick="utils.setFixingIdRedirectUrl(map, 'trajectory')" type='button' class='trajectory ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
@@ -154,7 +168,7 @@
         <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
       <button onclick="Event.create('fixing').trigger('GetFixingQRCode', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
-    </div>
+    </div> -->
   </div>
 
   <!-- fixing-info Modal -->
