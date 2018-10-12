@@ -453,7 +453,6 @@ var fixingInstructions = (function ($el) {
         fixing.currentTime = utils.handleTimestampToDate(fixing.currentTime)
         $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime );
       }
-      console.log(fixing)
 
       // loacl 获取数据
       userInfo = utils.GetLoaclStorageUserInfo('userinfo')
@@ -591,6 +590,9 @@ var fixinTrajectory = (function ($el) {
   return {
     refresh(map, item, params, fixing) {
       $el.empty()
+      if (fixing.type === 'init') {
+        $('.trajectory-datepicker').datepicker('update', fixing.currentTime);
+      }
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
@@ -637,19 +639,20 @@ var fixinTrajectory = (function ($el) {
 })($('.track-list-tbody'))
 
 
-var fixingDatepicker = (function ($el) {
+var fixingTrajectoryDatepicker = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, item, params, fixing) {
-    fixingDatepicker.refresh(map, item, params, fixing)
+    fixingTrajectoryDatepicker.refresh(map, item, params, fixing)
   })
   return {
     refresh(map, item, params, fixing) {
       $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        $el.datepicker('update', fixing.currentTime)
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
       })
     }
   }
-})($('#datepicker'))
+})($('.trajectory-datepicker'))
 
 var sportData = (function ($el) {
   let
@@ -847,8 +850,10 @@ var sportDataDatepicker = (function ($el) {
     refresh(map, item, params, fixing) {
       $el.off('changeDate').one('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        $el.datepicker('update', fixing.currentTime)
+        fixing.type = 'update'
         Event.create('fixing').trigger('GetFixingSportData', map, item, params, fixing)
       })
     }
   }
-})($('#datepicker'))
+})($('.sportdata-datepicker '))

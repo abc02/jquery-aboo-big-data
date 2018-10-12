@@ -152,7 +152,7 @@ var mapInfoWindow = (function ($el) {
               shutdown = item.shutdown === '0' ? '关机' : '开机',
               status = item.status === '1' ? '运动' : '静止'
 
-            $el.find('.fixingid').text(fixing.fixingId)
+            // $el.find('.fixingid').text(fixing.fixingId)
             $el.find('.shutdown').text(shutdown)
             $el.find('.mode').text(mode)
             $el.find('.charge').text(charge)
@@ -162,6 +162,7 @@ var mapInfoWindow = (function ($el) {
             $el.find('.positions').text(`${lng}, ${lat}`)
             $el.find('.electricity').text(`${electricity}%`)
             $el.find('.address').text(address)
+            markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
             markerInfoWindow.setContent($el.html())
           }
           if (item.ret === 1003) {
@@ -188,7 +189,7 @@ var mapInfoWindow = (function ($el) {
             shutdown = item.shutdown === '0' ? '关机' : '开机',
             status = item.status === '1' ? '运动' : '静止'
 
-          $el.find('.fixingid').text(fixing.fixingId)
+          // $el.find('.fixingid').text(fixing.fixingId)
           $el.find('.shutdown').text(shutdown)
           $el.find('.mode').text(mode)
           $el.find('.charge').text(charge)
@@ -198,6 +199,7 @@ var mapInfoWindow = (function ($el) {
           $el.find('.positions').text(`${lng}, ${lat}`)
           $el.find('.electricity').text(`${electricity}%`)
           $el.find('.address').text(address)
+          markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
           markerInfoWindow.setContent($el.html())
         }
         if (item.ret === 1003) {
@@ -221,7 +223,7 @@ var mapInfoWindow = (function ($el) {
         shutdown = item.shutdown === '0' ? '关机' : '开机',
         status = item.status === '1' ? '运动' : '静止'
 
-      $el.find('.fixingid').text(fixing.fixingId)
+      // $el.find('.fixingid').text(fixing.fixingId)
       $el.find('.shutdown').text(shutdown)
       $el.find('.mode').text(mode)
       $el.find('.charge').text(charge)
@@ -231,6 +233,7 @@ var mapInfoWindow = (function ($el) {
       $el.find('.positions').text(`${longitude}, ${latitude}`)
       $el.find('.electricity').text(`${electricity}%`)
       $el.find('.address').text(address)
+      markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
       markerInfoWindow.setContent($el.html())
 
       fixing.point = new BMap.Point(item.longitude, item.latitude)

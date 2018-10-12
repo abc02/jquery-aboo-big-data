@@ -13,9 +13,10 @@ var trajectory = (function () {
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   let fixing = {
-    currentTime: utils.handleTimestampToDate(new Date())//当天
+    currentTime: utils.handleTimestampToDate(new Date()),//当天
+    type: 'init'
   }
-  $('#datepicker').attr('value', fixing.currentTime)
+  $('.trajectory-datepicker').datepicker('update', fixing.currentTime)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
     Event.create('fixing').trigger('trajectory', map, res.data.data, params, fixing)
     if (params && params.fixingId) {
