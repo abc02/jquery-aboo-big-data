@@ -459,17 +459,19 @@ var fixingInstructions = (function ($el) {
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret == 1001) {
           let instructionsContent = res.data.data.reverse().map(item => {
-            return `<li class="mb-3 d-flex flex-row">
-            <p class="" style="width: 100px;">${item.shijian}</p>
-            <p class="ml-4 breakAll" style="flex: 1;">${item.content}</p>
-            </li>`
+            return `<tr class="">
+                <td class="border">${item.shijian}</td>
+                <td class="border text-center">${item.leixing}</td>
+                <td class="border breakAll">${item.content}</td>
+              </tr>`
           }).join('')
-          $el.find('.instructions-container').html(instructionsContent)
+          $el.find('.instructions-container > .instructions-table > tbody').html(instructionsContent)
+          $el.modal('show')
         }
         if (res.data.ret === 1002) {
           $el.find('.instructions-container').text(res.data.code)
+          $el.modal('show')
         }
-        $el.modal('show')
       })
     }
   }
@@ -706,19 +708,10 @@ var fixingTrajectoryDatepicker = (function ($el) {
 var sportData = (function ($el) {
   let
     stepsOption = {
-      noDataLoadingOption: {
-        text: '暂无数据',
-        effect: 'bubble',
-        effectOption: {
-          effect: {
-            n: 0
-          }
-        }
-      },
       title: {
         top: 5,
         left: 'center',
-        text: '计步数据',
+        text: '计步数据（单位：步）',
         subtext: 'steps'
       },
       tooltip: {
@@ -726,6 +719,12 @@ var sportData = (function ($el) {
         axisPointer: {
           type: 'none'
         }
+        // position: function (pos, params, el, elRect, size) {
+        //   console.log(arguments)
+        //   var obj = { top: 10 };
+        //   obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+        //   return obj;
+        // },
       },
       xAxis: { data: [] },
       yAxis: {},
@@ -738,7 +737,7 @@ var sportData = (function ($el) {
       title: {
         top: 5,
         left: 'center',
-        text: '卡路里数据',
+        text: '卡路里数据（单位：卡路里）',
         subtext: 'calories'
       },
       tooltip: {
@@ -760,7 +759,7 @@ var sportData = (function ($el) {
       title: {
         top: 5,
         left: 'center',
-        text: '体重数据',
+        text: '体重数据（单位：千克）',
         subtext: 'weight'
       },
       tooltip: {
@@ -782,7 +781,7 @@ var sportData = (function ($el) {
       title: {
         top: 5,
         left: 'center',
-        text: '距离数据',
+        text: '距离数据（单位：米）',
         subtext: 'distance'
       },
       tooltip: {
@@ -847,7 +846,8 @@ var sportData = (function ($el) {
           fixing.distance.setOption(distanceOption)
         }
         if (res.data.ret === 1002) {
-          alert(res.data.code)
+          $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+          $('#no-data-ModalCenter').modal('show')
         }
       })
     },

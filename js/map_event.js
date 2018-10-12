@@ -67,12 +67,12 @@ var mapInfoWindow = (function ($el) {
     initMarkerInfoWindow(map, source, params, fixing, marker) {
       map.closeInfoWindow()
       // 默认创建窗口对象
-      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458 , offset: new BMap.Size(0, -20)})
+      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, offset: new BMap.Size(0, -20) })
       // 监听覆盖物 click 事件
       BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
         map.openInfoWindow(markerInfoWindow, fixing.point)
       })
-      
+
       /*  监听窗口 open 事件
           移除地图 移动 放大 事件跟 open 地图窗口有冲突 bug 无限关闪
       */
@@ -111,15 +111,26 @@ var mapInfoWindow = (function ($el) {
             markerInfoWindow.setContent($el.html())
             return markerInfoWindow
           }
-          if (res.data.ret === 1003) {
+          if (res.data.ret === 1002) {
             markerInfoWindow.setContent(res.data.code)
           }
-          return res
-        }).then(_ => {
-          
+
+          if (res.data.ret === 1003) {
+            $el.find('.shutdown').text('初始化')
+            $el.find('.mode').text('初始化')
+            $el.find('.charge').text('初始化')
+            $el.find('.modestatus').text('初始化')
+            $el.find('.createTime').text('初始化')
+            $el.find('.status').text('初始化')
+            $el.find('.positions').text('初始化')
+            $el.find('.electricity').text('初始化')
+            $el.find('.address').text('初始化')
+            markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
+            markerInfoWindow.setContent($el.html())
+          }
         })
       })
-   
+
       // 重新监听地图移动、放大事件
       BMapLib.EventWrapper.addListener(markerInfoWindow, 'close', function () {
         Event.create('map').trigger('index', map, source, params)
@@ -166,8 +177,23 @@ var mapInfoWindow = (function ($el) {
             markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
             markerInfoWindow.setContent($el.html())
           }
-          if (item.ret === 1003) {
-            markerInfoWindow.setContent(item.code)
+
+          if (res.data.ret === 1002) {
+            markerInfoWindow.setContent(res.data.code)
+          }
+
+          if (res.data.ret === 1003) {
+            $el.find('.shutdown').text('初始化')
+            $el.find('.mode').text('初始化')
+            $el.find('.charge').text('初始化')
+            $el.find('.modestatus').text('初始化')
+            $el.find('.createTime').text('初始化')
+            $el.find('.status').text('初始化')
+            $el.find('.positions').text('初始化')
+            $el.find('.electricity').text('初始化')
+            $el.find('.address').text('初始化')
+            markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
+            markerInfoWindow.setContent($el.html())
           }
         })
         if (fixing.isTrigger) {
@@ -203,8 +229,22 @@ var mapInfoWindow = (function ($el) {
           markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
           markerInfoWindow.setContent($el.html())
         }
-        if (item.ret === 1003) {
-          markerInfoWindow.setContent(item.code)
+        if (res.data.ret === 1002) {
+          markerInfoWindow.setContent(res.data.code)
+        }
+
+        if (res.data.ret === 1003) {
+          $el.find('.shutdown').text('初始化')
+          $el.find('.mode').text('初始化')
+          $el.find('.charge').text('初始化')
+          $el.find('.modestatus').text('初始化')
+          $el.find('.createTime').text('初始化')
+          $el.find('.status').text('初始化')
+          $el.find('.positions').text('初始化')
+          $el.find('.electricity').text('初始化')
+          $el.find('.address').text('初始化')
+          markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
+          markerInfoWindow.setContent($el.html())
         }
       }
 
