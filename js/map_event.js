@@ -96,7 +96,7 @@ var mapInfoWindow = (function ($el) {
               shutdown = res.data.shutdown === '0' ? '关机' : '开机',
               status = res.data.status === '1' ? '运动' : '静止'
 
-            $el.find('.fixingid').text(fixing.fixingId)
+            // $el.find('.fixingid').text(fixing.fixingId)
             $el.find('.shutdown').text(shutdown)
             $el.find('.mode').text(mode)
             $el.find('.charge').text(charge)
@@ -106,6 +106,7 @@ var mapInfoWindow = (function ($el) {
             $el.find('.positions').text(`${lng}, ${lat}`)
             $el.find('.electricity').text(`${electricity}%`)
             $el.find('.address').text(address)
+            markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
             markerInfoWindow.setContent($el.html())
             return markerInfoWindow
           }

@@ -1,4 +1,13 @@
 var utils = (function () {
+  function setFixingIdRedirectUrl (map, url) {
+    let titleHHTML = map.getInfoWindow().getTitle(),
+      titleNode = document.createRange().createContextualFragment(titleHHTML),
+      fixingId = titleNode.textContent,
+      params = utils.GetUrlParams()
+
+      params.fixingId = fixingId
+    return location.assign(`${url}.html?${Qs.stringify(params)}`)
+  }
   function GetUrlPageName() {
     let pageName = location.pathname.substr(1).replace('.html', '')
     return pageName ? pageName : 'index'
@@ -113,6 +122,7 @@ var utils = (function () {
     }
   }
   return {
+    setFixingIdRedirectUrl,
     GetUrlPageName,
     GetUrlParams,
     SetUrlParams,

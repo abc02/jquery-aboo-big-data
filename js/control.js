@@ -69,5 +69,26 @@ var control = (function (pageName) {
   utils.SetUrlParams(params)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
     Event.create('fixing').trigger('control', map, res.data.data, params, null)
+    if (params && params.fixingId) {
+      if (window.setIntervaler) {
+        map.clearOverlays()
+        clearInterval(window.setIntervaler)
+      }
+      let item = utils.FilterFxingListUrl(res.data.data)[0]
+      let fixing = {
+        point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
+        fixingId: item.entity_name,
+        type: 'init',
+        isTrigger: true
+      }
+
+      Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
+      Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
+      window.setIntervaler = setInterval(() => {
+        fixing.type = 'update'
+        fixing.isTrigger = false
+        Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
+      }, 60000)
+    }
   })
 })('control')

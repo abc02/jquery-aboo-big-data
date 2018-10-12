@@ -18,5 +18,9 @@ var trajectory = (function () {
   $('#datepicker').attr('value', fixing.currentTime)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
     Event.create('fixing').trigger('trajectory', map, res.data.data, params, fixing)
+    if (params && params.fixingId) {
+      let item = utils.FilterFxingListUrl(res.data.data)[0]
+      Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
+    }
   })
 })() 

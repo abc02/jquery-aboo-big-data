@@ -7,6 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
 </head>
@@ -113,9 +114,9 @@
     </div>
   </div> -->
   <div class='' id='marker-info-window' style="display: none;">
-    <h5 class='d-flex justify-content-between mb-2'>
+    <!-- <h5 class='d-flex justify-content-between mb-2'>
       <p class="flex-fill"><span class="text-primary bold mr-2">鞋垫ID：</span><span class="fixingid">${fixingId}</span></p>
-    </h5>
+    </h5> -->
     <div class='d-flex flex-row mb-2 d-flex bd-highlight'>
       <p class="flex-fill"><span class='text-primary bold mr-2'>开关机 </span><span class='shutdown'>${shutdown}<span></p>
       <p class="flex-fill"><span class='text-primary bold mr-2'>定位类型 </span><span class='mode'>${mode}</span></p>
@@ -138,35 +139,116 @@
       </p>
     </div>
     <div class='d-flex justify-content-center info-window-buttons'>
-      <button type='button' class='control ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
-          width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
-      <button type='button' class='trajectory ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
-          width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
-      <button type='button' class='fixing-info  ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
-          width='14' height='17' src='/assets/contro_data.png' />资料</button>
-      <button type='button' class='instruction ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
-          width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
-      <button type='button' class='fixing-qrcode ml-2 mr-2 pl-1 pr-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'><img
-          width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
+      <button onclick="utils.setFixingIdRedirectUrl(map, 'control')" type='button' class='control ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+        <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button>
+      <button onclick="utils.setFixingIdRedirectUrl(map, 'trajectory')" type='button' class='trajectory ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+        <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
+      <button onclick="Event.create('fixing').trigger('GetFixingInfo', map)" type='button' class='fixing-info  ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+        <img class='ml-1 mr-1' width='14' height='17' src='/assets/contro_data.png' />资料</button>
+      <button onclick="Event.create('fixing').trigger('AdminGetInstructionsList', map, { type: 'init', currentTime: new Date()})" type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+        <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
+      <button type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+        <img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
     </div>
   </div>
 
 
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  <!-- fixing-info Modal -->
+  <div class="modal fade" id="fixing-info-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="fixing-info-ModalCenterTitle"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: none !important; width: 80%;">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header border-dark">
+          <h5 class="modal-title" id="fixing-info-ModalCenterTitle">资料</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body d-flex">
+          <div class="base-container mr-2" style="flex: 2">
+            <h5 class="normal mb-3">基本信息</h5>
+            <div style="background-color: #151934;" class="p-3">
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">
+                  <span class="fixingid">${fixingId}</span>
+                  <span class="mode">${mode}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">
+                  <span>鞋垫ID</span>
+                  <span>鞋垫状态</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">
+                  <span class="batchId">${batchId}</span>
+                  <span class="emergencyContact">${emergencyContact}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">
+                  <span>产品批次</span>
+                  <span>紧急联系人</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">
+                  <span class="createTime">${createTime}</span>
+                  <span class="expireTime">${expireTime}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">
+                  <span>创建时间</span>
+                  <span>月卡时间</span>
+                </p>
+              </div>
+              <div class="pt-3 pb-3">
+                <h6 class="normal d-flex justify-content-between">
+                  <span class="activatedTime">${activatedTime}</span>
+                  <span class="sms">${sms}</span>
+                </h6>
+                <p class="p text-muted d-flex justify-content-between">
+                  <span>激活时间</span>
+                  <span>服务手机号</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="bing-container d-flex flex-column" style="flex: 3;">
+            <h5 class="normal mb-3">绑定者信息</h5>
+            <div class="bindingList d-flex justify-content-center" style="background-color: #151934; flex: 1;">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-dark">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- instructions-list Modal -->
+  <div class="modal fade" id="instructions-list-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="instructions-list-ModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: none !important; width: 80%;">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header border-dark">
+          <h5 class="modal-title d-flex flex-row" id="instructions-list-ModalCenterTitle">
+            <span style="width: 60px" class="ml-2 mr-2">指令</span>
+            <div class="input-group date">
+              <input type="text" class="form-control datepicker instructions-datepicker" value="new Date()">
+              <div class="input-group-addon">
+                <span class="glyphicon glyphicon-th"></span>
+              </div>
+            </div>
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          ...
+          <ul class="instructions-container">
+            ${instructionsContent}
+          </ul>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer border-dark">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -177,6 +259,8 @@
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
@@ -190,6 +274,7 @@
   <script type="text/javascript" src="/js/map_event.js"></script>
   <script type="text/javascript" src="/js/header.js"></script>
   <script type="text/javascript" src="/js/navigation_menu.js"></script>
+  <script type="text/javascript" src="/js/datepicker.js"></script>
   <script type="text/javascript" src="/js/index.js"></script>
 </body>
 

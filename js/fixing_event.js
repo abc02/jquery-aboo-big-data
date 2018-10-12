@@ -244,7 +244,7 @@ var fixingLists = (function ($el) {
           fixing.type = 'update'
           fixing.isTrigger = false
           Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
-        }, 5000)
+        }, 60000)
       })
     },
     bindTrajectoryEvent(map, source, params, fixing) {
@@ -297,8 +297,8 @@ var fixingLists = (function ($el) {
       $el.html(cache.map((item, index) => {
         let img, activeTextColor = 'text-muted'
         // url fixingid css acitve
-        if (fixing) {
-          if (fixing.fixingId === item.entity_name) activeTextColor = 'text-white'
+        if (params && params.fixingId === item.entity_name) {
+          activeTextColor = 'text-white'
         }
         if (item.entity_desc === '在线') img = '/assets/porint_online.png'
         if (item.entity_desc === '离线') img = '/assets/porint_offline.png'
@@ -357,138 +357,143 @@ var fixingListsPagination = (function ($el) {
 
 // 鞋垫信息
 var fixingInfo = (function ($el) {
-  Event.create('fixing').listen('GetFixingInfo', function (map, source, fixing) {
-    fixingInfo.refresh(map, source, fixing)
+  Event.create('fixing').listen('GetFixingInfo', function (map) {
+    fixingInfo.refresh(map)
   })
 
   return {
-    refresh(map, source, { fixingId, infoWindow }) {
-      // loacl 获取数据
-      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
-      FIXING_API.GetFixingInfo({ adminId: AdminId, fixingId }).then(res => {
-        let { bindingList, fixinginfo } = res.data, bindingListContent
-        let activatedTime = utils.handleTimestampToDate(fixinginfo.activatedTime),
-          createTime = utils.handleTimestampToDate(fixinginfo.createTime),
-          expireTime = utils.handleTimestampToDate(fixinginfo.expireTime),
-          mode = fixinginfo.mode === '1' ? '开机' : '关机'
-        // 更新窗口对象HTML信息
-        infoWindow.setWidth(760)
-        if (bindingList) {
-          bindingListContent = `
-            <table class="p table table-borderless">
-              <thead class="p-2 normal">
-                <tr>
-                  <th scope="col" class="normal text-muted p-1" width="10%">头像</th>
-                  <th scope="col" class="normal text-muted p-1" width="10%">昵称</th>
-                  <th scope="col" class="normal text-muted p-1" width="15%">电话</th>
-                  <th scope="col" class="normal text-muted p-1" width="20%">鞋垫昵称</th>
-                  <th scope="col" class="normal text-muted p-1" width="30%">绑定时间</th>
-                  <th scope="col" class="normal text-muted p-1" width="15%">审核</th>
-                </tr>
-              </thead>
-              <tbody>
-              ${bindingList.map(item => {
-              return `<tr class="pointer">
-                <th scope="row" class="p-1 text-center" width="10%">
-                <img src="${item.UserIcon}" width="16" height="16" />  
-                </th>
-                <td class="p p-1" width="10%">${item.relation}</td>
-                <td class="p p-1 text-white-50" width="15%">${item.Phone}</td>
-                <td class="p p-1 text-white-50" width="20%">${item.fixingName}</td>
-                <td class="p p-1 text-white-50" width="30%">${item.createTime}</td>
-                <td class="p p-1 text-white-50" width="15%">${item.state}</td>
-              </tr>`
-            }).join(' ')}
-              </tbody>
-            </table>`
-        } else {
-          bindingListContent = '<h5 class="d-flex align-items-center">该设备未绑定</h5>'
+    refresh(map) {
+      let titleHHTML = map.getInfoWindow().getTitle(),
+        titleNode = document.createRange().createContextualFragment(titleHHTML),
+        fixingId = titleNode.textContent,
+        // loacl 获取数据
+        userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.GetFixingInfo({ adminId: userInfo.AdminId, fixingId }).then(res => {
+        if (res.data.ret === 1001) {
+          let { bindingList, fixinginfo } = res.data, bindingListContent,
+            activatedTime = utils.handleTimestampToDate(fixinginfo.activatedTime),
+            batchId = fixinginfo.batchId,
+            bindingNum = fixinginfo.bindingNum,
+            btSwitch = fixinginfo.btSwitch,
+            createTime = utils.handleTimestampToDate(fixinginfo.createTime),
+            emergencyContact = fixinginfo.emergencyContact,
+            expireTime = utils.handleTimestampToDate(fixinginfo.expireTime),
+            fixingPassword = fixinginfo.fixingPassword,
+            isStarting = fixinginfo.isStarting,
+            managerId = fixinginfo.managerId,
+            mode = fixinginfo.mode === '1' ? '开机' : '关机',
+            serivceId = fixinginfo.serivceId,
+            sms = fixinginfo.sms,
+            state = fixinginfo.state
+
+          $el.find('.fixingid').text(fixingId)
+          $el.find('.mode').text(mode)
+          $el.find('.batchId').text(batchId)
+          $el.find('.emergencyContact').text(emergencyContact)
+          $el.find('.createTime').text(createTime)
+          $el.find('.expireTime').text(expireTime)
+          $el.find('.activatedTime').text(activatedTime)
+          $el.find('.sms').text(sms)
+
+          if (bindingList) {
+            bindingListContent = `
+              <table class="p table table-borderless">
+                <thead class="p-2 normal">
+                  <tr>
+                    <th scope="col" class="normal text-muted p-1">头像</th>
+                    <th scope="col" class="normal text-muted p-1">昵称</th>
+                    <th scope="col" class="normal text-muted p-1">电话</th>
+                    <th scope="col" class="normal text-muted p-1">鞋垫昵称</th>
+                    <th scope="col" class="normal text-muted p-1">绑定时间</th>
+                    <th scope="col" class="normal text-muted p-1">审核</th>
+                  </tr>
+                </thead>
+                <tbody>
+                ${bindingList.map(item => {
+                return `<tr class="pointer">
+                    <th scope="row" class="p-1 text-center"><img src="${item.UserIcon}" widht="16" height="16" />  </th>
+                    <td class="p p-1 text-white-50">${item.relation}</td>
+                    <td class="p p-1 text-white-50">${item.Phone}</td>
+                    <td class="p p-1 text-white-50">${item.fixingName}</td>
+                    <td class="p p-1 text-white-50">${item.createTime}</td>
+                    <td class="p p-1 text-white-50">${item.state}</td>
+                  </tr>`
+              }).join('')
+              }
+                </tbody>
+              </table>`
+          } else {
+            bindingListContent = '<h5 class="d-flex align-items-center">该设备未绑定</h5>'
+          }
+
+          $el.find('.bindingList').html(bindingListContent)
+          $el.modal('show')
+
         }
-        infoWindow.setContent(`<div>
-        <div class="d-flex text-white">
-          <div class="base-container mr-2">
-            <h5 class="normal mb-3">基本信息</h5>
-            <div style="background-color: #151934; width: 230px;" class="p-3">
-              <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">${fixingId}
-                  <span>${mode}</span>
-                </h6>
-                <p class="p text-muted d-flex justify-content-between">鞋垫ID
-                  <span>鞋垫状态</span>
-                </p>
-              </div>
-              <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">${fixinginfo.batchId}
-                  <span>${fixinginfo.emergencyContact}</span>
-                </h6>
-                <p class="p text-muted d-flex justify-content-between">产品批次
-                  <span>紧急联系人</span>
-                </p>
-              </div>
-              <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-between">${createTime}
-                  <span>${expireTime}</span>
-                </h6>
-                <p class="p text-muted d-flex justify-content-between">生产时间
-                  <span>月卡时间</span>
-                </p>
-              </div>
-              <div class="pt-3 pb-3">
-                <h6 class="normal d-flex justify-content-start">${activatedTime}
-                </h6>
-                <p class="p text-muted d-flex justify-content-between">激活时间
-                </p>
-              </div>
-              <div class="pt-3 pb-3">
-              <h6 class="normal d-flex justify-content-start">${fixinginfo.sms}
-              </h6>
-              <p class="p text-muted d-flex justify-content-start">
-                <span>服务手机号</span>
-              </p>
-            </div>
-            </div>
-          </div>
-          <div class="bing-container d-flex flex-column" style="flex: 1;">
-          <h5 class="normal mb-3">绑定者信息</h5>
-          <div class="d-flex justify-content-center" style="background-color: #151934; flex: 1;">
-            ${bindingListContent}
-            </div>
-          </div>
-        </div>
-        </div>`)
+
       })
     }
   }
-})()
+})($('#fixing-info-ModalCenter'))
 
 // 鞋垫指令
 var fixingInstructions = (function ($el) {
-  Event.create('fixing').listen('AdminGetInstructionsList', function (map, source, fixing) {
-    fixingInstructions.refresh(map, source, fixing)
+  Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
+    fixingInstructions.refresh(map, fixing)
   })
 
   return {
-    refresh(map, source, { infoWindow, fixingId }) {
+    refresh(map, fixing) {
+      let titleHHTML = map.getInfoWindow().getTitle(),
+        titleNode = document.createRange().createContextualFragment(titleHHTML)
+
+      fixing.fixingId = titleNode.textContent
+
+      if (fixing.type === 'init') {
+        fixing.currentTime = utils.handleTimestampToDate(fixing.currentTime)
+        $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime );
+      }
+      console.log(fixing)
+
       // loacl 获取数据
-      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo'),
-        time = utils.handleTimestampToDate(new Date())
-      FIXING_API.AdminGetInstructions({ adminId: AdminId, fixingId, time }).then(res => {
-        let instructions = res.data.data,
-          instructionsContent = instructions.map(item => {
-            return `<li class="mb-3 d-flex flex-row instruction-item"><p class="time text-muted" style="width: 100px;">${item.shijian}</p>
-            <p class="ml-4 breakAll" style="flex: 1;">${item.content}</p></li>`
+      userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
+        if (res.data.ret == 1001) {
+          let instructionsContent = res.data.data.reverse().map(item => {
+            return `<li class="mb-3 d-flex flex-row">
+            <p class="" style="width: 100px;">${item.shijian}</p>
+            <p class="ml-4 breakAll" style="flex: 1;">${item.content}</p>
+            </li>`
           }).join('')
-        infoWindow.setWidth(680)
-        infoWindow.setContent(`
-                <h5 class="normal text-white mb-3">指令回复</h5>
-                <ul class="instructions-container">
-                  ${instructionsContent}
-                </ul>
-          `)
+          $el.find('.instructions-container').html(instructionsContent)
+        }
+        if (res.data.ret === 1002) {
+          $el.find('.instructions-container').text(res.data.code)
+        }
+        $el.modal('show')
       })
     }
   }
-})()
+})($('#instructions-list-ModalCenter'))
+
+
+// 指令日期选择器
+var fixingInstructionsDatepicker = (function ($el) {
+  Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
+    fixingInstructionsDatepicker.refresh(map, fixing)
+  })
+
+  return {
+    refresh(map, fixing) {
+      $el.off('changeDate').one('changeDate', function (e) {
+        fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        $el.datepicker('update', fixing.currentTime)
+        fixing.type = 'update'
+        Event.create('fixing').trigger('AdminGetInstructionsList', map, fixing)
+      })
+    }
+  }
+})($('.instructions-datepicker'))
 
 // 鞋垫二维码
 var fixingQRCode = (function ($el) {
