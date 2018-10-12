@@ -451,7 +451,7 @@ var fixingInstructions = (function ($el) {
 
       if (fixing.type === 'init') {
         fixing.currentTime = utils.handleTimestampToDate(fixing.currentTime)
-        $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime );
+        $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime);
       }
 
       // loacl 获取数据
@@ -496,26 +496,36 @@ var fixingInstructionsDatepicker = (function ($el) {
 
 // 鞋垫二维码
 var fixingQRCode = (function ($el) {
-  Event.create('fixing').listen('GetFixingQRCode', function (map, source, fixing) {
-    fixingQRCode.refresh(map, source, fixing)
+  Event.create('fixing').listen('GetFixingQRCode', function (map) {
+    fixingQRCode.refresh(map)
   })
 
   return {
-    refresh(map, source, { infoWindow, fixingId }) {
-      // loacl 获取数据
-      let { AdminId } = utils.GetLoaclStorageUserInfo('userinfo')
-      FIXING_API.GetFixingQRCode({ adminId: AdminId, fixingId }).then(res => {
-        infoWindow.setWidth(485)
-        infoWindow.setContent(`<h5 class="normal mb-3">二维码</h5>
-        <div class="bg-white" style="width: 318px; height: 318px;">
-        <div id="qrcode" class="qrcode d-flex justify-content-center justify-content-cetner p-5">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data}" width="218" height="218" />
-        </div>
-        </div>`)
+    refresh(map) {
+      let titleHHTML = map.getInfoWindow().getTitle(),
+        titleNode = document.createRange().createContextualFragment(titleHHTML),
+        fixingId = titleNode.textContent,
+        // loacl 获取数据
+        userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
+
+        if (res.data.ret == 1001) {
+          $el.find('.fixing-qrcode-container').html(`
+            <div class="qrcode d-flex justify-content-center">
+              <div class="d-flex justify-content-center align-items-center bg-white" style="width: 238px; height: 238px;">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data}" width="218" height="218" />
+              </div>
+            </div>
+          `)
+        }
+        if (res.data.ret === 1002) {
+          $el.find('.fixing-qrcode-container').text(res.data.code)
+        }
+        $el.modal('show')
       })
     }
   }
-})()
+})($('#fixing-qrcod-ModalCenter'))
 
 // 鞋垫信息实时
 var fixingInfoLive = (function ($el) {
@@ -554,19 +564,19 @@ var fixingInfoLive = (function ($el) {
           map.addOverlay(marker)
 
           $el.append(`
-          <tr>
-            <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-            <td class="normal pt-4 pb-4 text-center">${mode}</td>
-            <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
-            <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-            <td class="normal pt-4 pb-4 text-center">${charge}</td>
-            <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
-            <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
-            <td class="normal pt-4 pb-4 text-center">${status}</td>
-            <td class="normal pt-4 pb-4 text-center">${lng}, ${lat}</td>
-            <td class="normal pt-4 pb-4 text-center">${address}</td>
-          </tr>
-          `)
+                <tr>
+                <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
+                <td class="normal pt-4 pb-4 text-center">${mode}</td>
+                <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
+                <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+                <td class="normal pt-4 pb-4 text-center">${charge}</td>
+                <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
+                <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
+                <td class="normal pt-4 pb-4 text-center">${status}</td>
+                <td class="normal pt-4 pb-4 text-center">${lng}, ${lat}</td>
+                <td class="normal pt-4 pb-4 text-center">${address}</td>
+                        </tr>
+                `)
 
           $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
             $(e.currentTarget).addClass('active').siblings().removeClass('active')
@@ -600,7 +610,7 @@ var fixinTrajectory = (function ($el) {
             let address = innerItem.address,
               charge = innerItem.charge === '1' ? '充电中' : '未充电',
               createTime = innerItem.create_time,
-              electricity = `${innerItem.electricity}%`, // 电量
+              electricity = `${innerItem.electricity}% `, // 电量
               longitude = utils.handleToCut(innerItem.longitude, 4),
               latitude = utils.handleToCut(innerItem.latitude, 4),
               mode = innerItem.mode,
@@ -609,19 +619,19 @@ var fixinTrajectory = (function ($el) {
               status = innerItem.status === '1' ? '运动' : '静止'
 
             return $(`
-            <tr>
-                <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-                <td class="normal pt-4 pb-4 text-center">${mode}</td>
-                <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
-                <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-                <td class="normal pt-4 pb-4 text-center">${charge}</td>
-                <td class="normal pt-4 pb-4 text-center">${electricity}</td>
-                <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
-                <td class="normal pt-4 pb-4 text-center">${status}</td>
-                <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
-                <td class="normal pt-4 pb-4 text-center">${address}</td>
-              </tr>
-              `).off('click').on('click', function (e) {
+                  <tr>
+                  <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
+                  <td class="normal pt-4 pb-4 text-center">${mode}</td>
+                  <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
+                  <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+                  <td class="normal pt-4 pb-4 text-center">${charge}</td>
+                  <td class="normal pt-4 pb-4 text-center">${electricity}</td>
+                  <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
+                  <td class="normal pt-4 pb-4 text-center">${status}</td>
+                  <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
+                  <td class="normal pt-4 pb-4 text-center">${address}</td>
+                              </tr>
+                  `).off('click').on('click', function (e) {
                 $(this).addClass('active').siblings().removeClass('active')
                 fixing.fixingId = item.entity_name
                 Event.create('map').trigger('trajectoryMarkerInfoWindow', map, innerItem, params, fixing)
@@ -758,7 +768,7 @@ var sportData = (function ($el) {
           let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
 
           res.data.sportList.forEach(item => {
-            let xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD}日`
+            let xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD} 日`
             xAxisArrays.push(xAxis)
             stepsArrays.push({
               name: item.steps,
@@ -804,7 +814,7 @@ var sportData = (function ($el) {
         utils.handleToCut(Math.random() * 100, 0),
         utils.handleToCut(Math.random() * 100, 0)
       ].forEach(item => {
-        let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD}日`
+        let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
         xAxisArrays.push(xAxis)
         stepsArrays.push({
           name: item,

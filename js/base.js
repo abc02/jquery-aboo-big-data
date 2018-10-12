@@ -27,17 +27,8 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-$('.home-button').click(function () {
-  $('.slider-dialog').toggle()
-})
-$('.conctrol-button').click(function () {
-  $('.slider-dialog').toggle()
-})
 $('.slider-doork').click(function () {
   $('.slider-dialog').toggle()
-})
-$('.slider-close').click(function () {
-  $('.slider-dialog').hide()
 })
 $('.bottom-doork-map').click(e => {
   $('.liveinfo-container').show()
@@ -46,12 +37,4 @@ $('.bottom-doork-map').click(e => {
 $('.bottom-doork-live').click(e => {
   $('.liveinfo-container').hide()
   $('.bottom-doork-map').show()
-})
-$('.bottom-doork-inner').click(function () {
-  $('.bottom-dialog').hide()
-  $('.bottom-doork').show()
-})
-$('.bottom-close').click(function () {
-  $('.bottom-dialog').hide()
-  $('.bottom-doork').show()
 })
