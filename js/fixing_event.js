@@ -27,7 +27,8 @@ var fixingSearch = (function ($el) {
             Event.create('fixing').trigger('index', map, res.data.data, params)
           }
           if (res.data.ret === 1002) {
-            alert(res.data.code)
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
           }
 
         })
@@ -42,7 +43,8 @@ var fixingSearch = (function ($el) {
             Event.create('fixing').trigger(utils.GetUrlPageName(), map, res.data.data, params, fixing)
           }
           if (res.data.ret === 1002) {
-            alert(res.data.code)
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
           }
 
         })
@@ -379,15 +381,15 @@ var fixingInfo = (function ($el) {
             emergencyContact = fixinginfo.emergencyContact,
             expireTime = utils.handleTimestampToDate(fixinginfo.expireTime),
             fixingPassword = fixinginfo.fixingPassword,
-            isStarting = fixinginfo.isStarting,
+            isStarting = fixinginfo.isStarting === '1' ? '开机' : '关机',
             managerId = fixinginfo.managerId,
-            mode = fixinginfo.mode === '1' ? '开机' : '关机',
+            mode = fixinginfo.mode === '1' ? '正常模式' : '追踪模式',
             serivceId = fixinginfo.serivceId,
             sms = fixinginfo.sms,
             state = fixinginfo.state
 
           $el.find('.fixingid').text(fixingId)
-          $el.find('.mode').text(mode)
+          $el.find('.mode').text(isStarting)
           $el.find('.batchId').text(batchId)
           $el.find('.emergencyContact').text(emergencyContact)
           $el.find('.createTime').text(createTime)
@@ -543,6 +545,7 @@ var fixingInfoLive = (function ($el) {
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       // 请求最后位置信息接口
       FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
+        let marker
         if (res.data.ret === 1001) {
 
           let address = res.data.address,
@@ -556,8 +559,7 @@ var fixingInfoLive = (function ($el) {
             lat = utils.handleToCut(positions[1], 4),
             shutdown = res.data.shutdown === '0' ? '关机' : '开机',
             status = res.data.status === '1' ? '运动' : '静止',
-            iconPath, marker
-
+            iconPath
 
           if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
           if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
@@ -586,9 +588,14 @@ var fixingInfoLive = (function ($el) {
           Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
         }
         if (res.data.ret === 1003) {
-          map.clearOverlays()
-          $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
-          $('#no-data-ModalCenter').modal('show')
+          fixing.point = new BMap.Point(0, 0)
+          marker = new BMap.Marker(fixing.point, { icon: new BMap.Icon('/assets/porint_offline.png', new BMap.Size(31, 44)) })
+          map.addOverlay(marker)
+
+          Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
+          // map.clearOverlays()
+          // $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+          // $('#no-data-ModalCenter').modal('show')
         }
       })
     }
@@ -810,9 +817,8 @@ var sportData = (function ($el) {
     refresh(map, item, params, fixing) {
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: item.entity_name, times: utils.handleTimeToUnix(fixing.currentTime) }).then(res => {
-        console.log(item)
+        let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
         if (res.data.ret === 1001) {
-          let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
 
           res.data.sportList.forEach(item => {
             let xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD} 日`
@@ -846,6 +852,37 @@ var sportData = (function ($el) {
           fixing.distance.setOption(distanceOption)
         }
         if (res.data.ret === 1002) {
+
+          [0, 0, 0, 0, 0, 0, 0].forEach(item => {
+            let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
+            xAxisArrays.push(xAxis)
+            stepsArrays.push({
+              name: item,
+              value: item
+            })
+            caloriesArrays.push({
+              name: item,
+              value: item
+            })
+            weightArrays.push({
+              name: item,
+              value: item
+            })
+            distanceArrays.push({
+              name: item,
+              value: item
+            })
+          })
+          stepsOption.xAxis.data = caloriesOption.xAxis.data = weightOption.xAxis.data = distanceOption.xAxis.data = xAxisArrays
+          stepsOption.series[0].data = stepsArrays
+          caloriesOption.series[0].data = caloriesArrays
+          weightOption.series[0].data = weightArrays
+          distanceOption.series[0].data = distanceArrays
+          // update
+          fixing.steps.setOption(stepsOption)
+          fixing.calorie.setOption(caloriesOption)
+          fixing.weight.setOption(weightOption)
+          fixing.distance.setOption(distanceOption)
           $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
           $('#no-data-ModalCenter').modal('show')
         }

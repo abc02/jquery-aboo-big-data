@@ -141,7 +141,7 @@ var mapInfoWindow = (function ($el) {
     },
     controlMarkerInfoWindow(map, item, params, fixing, marker) {
       let markerInfoWindow
-
+      // console.log(item, params, fixing, marker)
       if (fixing.type === 'init') {
         map.closeInfoWindow()
         // 默认创建窗口对象
@@ -178,11 +178,11 @@ var mapInfoWindow = (function ($el) {
             markerInfoWindow.setContent($el.html())
           }
 
-          if (res.data.ret === 1002) {
+          if (item.ret === 1002) {
             markerInfoWindow.setContent(res.data.code)
           }
 
-          if (res.data.ret === 1003) {
+          if (item.ret === 1003) {
             $el.find('.shutdown').text('初始化')
             $el.find('.mode').text('初始化')
             $el.find('.charge').text('初始化')
@@ -229,11 +229,11 @@ var mapInfoWindow = (function ($el) {
           markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
           markerInfoWindow.setContent($el.html())
         }
-        if (res.data.ret === 1002) {
+        if (item.ret === 1002) {
           markerInfoWindow.setContent(res.data.code)
         }
 
-        if (res.data.ret === 1003) {
+        if (item.ret === 1003) {
           $el.find('.shutdown').text('初始化')
           $el.find('.mode').text('初始化')
           $el.find('.charge').text('初始化')
