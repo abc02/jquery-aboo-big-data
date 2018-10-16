@@ -27,7 +27,12 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-$('.slider-doork').click(function () {
+$('.slider-doork').click(e => {
+  if ($(e.currentTarget).find('img').attr('src') === '/assets/extension.png') {
+    $(e.currentTarget).find('img').attr('src', '/assets/extension_select.png')
+  } else {
+    $(e.currentTarget).find('img').attr('src', '/assets/extension.png')
+  }
   $('.slider-dialog').toggle()
 })
 $('.bottom-doork-map').click(e => {
