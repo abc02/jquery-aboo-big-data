@@ -459,7 +459,7 @@ var fixingInstructions = (function ($el) {
       // loacl 获取数据
       userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
-        if (res.data.ret == 1001) {
+        if (res.data.ret === 1001) {
           let instructionsContent = res.data.data.reverse().map(item => {
             return `<tr class="">
                 <td class="border">${item.shijian}</td>
@@ -555,8 +555,8 @@ var fixingInfoLive = (function ($el) {
             mode = res.data.mode,
             modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
             positions = res.data.positions.split(','),
-            lng = utils.handleToCut(positions[0], 4),
-            lat = utils.handleToCut(positions[1], 4),
+            lng = positions[0],
+            lat = positions[1],
             shutdown = res.data.shutdown === '0' ? '关机' : '开机',
             status = res.data.status === '1' ? '运动' : '静止',
             iconPath
@@ -622,8 +622,8 @@ var fixinTrajectory = (function ($el) {
               charge = innerItem.charge === '1' ? '充电中' : '未充电',
               createTime = innerItem.create_time,
               electricity = `${innerItem.electricity}% `, // 电量
-              longitude = utils.handleToCut(innerItem.longitude, 4),
-              latitude = utils.handleToCut(innerItem.latitude, 4),
+              longitude = innerItem.longitude,
+              latitude = innerItem.latitude,
               mode = innerItem.mode,
               modestatus = innerItem.modestatus === '1' ? '正常模式' : '追踪模式',
               shutdown = innerItem.shutdown === '0' ? '关机' : '开机',

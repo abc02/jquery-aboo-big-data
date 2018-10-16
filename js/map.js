@@ -23,20 +23,59 @@ var map = (function (BMap) {
 
   });
 
-  let size = new BMap.Size(10, 20);
-  baiduMap.addControl(new BMap.CityListControl({
-    anchor: BMAP_ANCHOR_TOP_LEFT,
-    offset: size,
-    // 切换城市之间事件
-    onChangeBefore: function () {
-      console.log(baiduMap.getCurrentCity())
-      console.log('before');
-    },
-    // 切换城市之后事件
-    onChangeAfter: function (e) {
-      console.log(baiduMap.getCurrentCity())
-      console.log('after');
+
+  var mapType1 = new BMap.MapTypeControl({ mapTypes: [BMAP_NORMAL_MAP, BMAP_HYBRID_MAP], anchor: BMAP_ANCHOR_TOP_RIGHT, offset: new BMap.Size(10, 45) })
+  var overView = new BMap.OverviewMapControl()
+  var overViewOpen = new BMap.OverviewMapControl({ isOpen: true, anchor: BMAP_ANCHOR_BOTTOM_RIGHT })
+  var CityListControl = new BMap.CityListControl({ anchor: BMAP_ANCHOR_TOP_LEFT, offset: new BMap.Size(10, 20) })
+  var DistanceTool = new BMapLib.DistanceTool(baiduMap)
+  baiduMap.addControl(mapType1);          //2D图，混合图
+  baiduMap.addControl(overView);          //添加默认缩略地图控件
+  baiduMap.addControl(overViewOpen);      //右下角，打开
+  baiduMap.addControl(CityListControl);
+  // 定义一个控件类,即function
+  function DistanceControl() {
+    // 默认停靠位置和偏移量
+    this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
+    this.defaultOffset = new BMap.Size(10, 10);
+  }
+
+  // 通过JavaScript的prototype属性继承于BMap.Control
+  DistanceControl.prototype = new BMap.Control();
+
+  // 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
+  // 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
+  DistanceControl.prototype.initialize = function (map) {
+    // 创建一个DOM元素
+    var div = document.createElement("div");
+    // 添加文字说明
+    div.appendChild(document.createTextNode("测距"));
+    // 设置样式
+    div.classList.add('pointer', 'border', 'pl-2', 'pr-2', 'bg-white')
+    // 绑定事件,点击一次放大两级
+    div.onclick = function (e) {
+      DistanceTool.open()
     }
-  }));
+    // 添加DOM元素到地图中
+    map.getContainer().appendChild(div);
+    // 将DOM元素返回
+    return div;
+  }
+  // 创建控件
+  var DistanceControl = new DistanceControl();
+  // 添加到地图当中
+  baiduMap.addControl(DistanceControl);
+
+  var menu = new BMap.ContextMenu();
+	var txtMenuItem = [
+		{
+			text:'测距',
+			callback:function(){DistanceTool.open()}
+		},
+	];
+	for(var i=0; i < txtMenuItem.length; i++){
+		menu.addItem(new BMap.MenuItem(txtMenuItem[i].text,txtMenuItem[i].callback,100));
+	}
+	baiduMap.addContextMenu(menu);
   return baiduMap
 })(BMap)
