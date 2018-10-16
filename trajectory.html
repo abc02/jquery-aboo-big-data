@@ -260,10 +260,18 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-          <ul class="instructions-container">
-            ${instructionsContent}
-          </ul>
+        <div class="modal-body instructions-container">
+          <table class="instructions-table width-100 ">
+            <thead>
+              <tr>
+                <th scope="col" class="border text-center" style="width: 120px;">指令时间</th>
+                <th scope="col" class="border text-center" style="width: 120px;">指令方式</th>
+                <th scope="col" class="border text-center">操作指令</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
         <div class="modal-footer border-dark">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>

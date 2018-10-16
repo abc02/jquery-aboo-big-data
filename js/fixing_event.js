@@ -602,88 +602,85 @@ var fixingInfoLive = (function ($el) {
   }
 })($('.live-info-tbody'))
 
+
+
+var fixingTrajectoryTable = (function ($el) {
+  Event.create('fixing').listen('fixingTrajectoryTable', function (map, source, params, fixing) {
+    fixingTrajectoryTable.refresh(map, source, params, fixing)
+  })
+  return {
+    refresh(map, source, params, fixing) {
+      console.log(fixing)
+      $el.empty()
+      $el.append(source.map(item => {
+        let address = item.address,
+          charge = item.charge === '1' ? '充电中' : '未充电',
+          createTime = item.create_time,
+          electricity = `${item.electricity}% `, // 电量
+          longitude = item.longitude,
+          latitude = item.latitude,
+          mode = item.mode,
+          modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+          shutdown = item.shutdown === '0' ? '关机' : '开机',
+          status = item.status === '1' ? '运动' : '静止'
+
+
+        let renderTableRow = () => {
+          return $(`
+          <tr>
+          <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
+          <td class="normal pt-4 pb-4 text-center">${mode}</td>
+          <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
+          <td class="normal pt-4 pb-4 text-center">${createTime}</td>
+          <td class="normal pt-4 pb-4 text-center">${charge}</td>
+          <td class="normal pt-4 pb-4 text-center">${electricity}</td>
+          <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
+          <td class="normal pt-4 pb-4 text-center">${status}</td>
+          <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
+          <td class="normal pt-4 pb-4 text-center">${address}</td>
+                      </tr>
+          `)
+            .off('click')
+            .on('click', function (e) {
+              $(this).addClass('active').siblings().removeClass('active')
+              // fixing.fixingId = item.entity_name
+              Event.create('map').trigger('trajectoryMarkerInfoWindow', map, item, params, fixing)
+            })
+        }
+        if (fixing.modegps && mode === 'GPS') {
+          return renderTableRow()
+        }
+        if (fixing.modelbs && mode === 'LBS') {
+          return renderTableRow()
+        }
+        if (fixing.modewifi && mode === 'WIFI') {
+          return renderTableRow()
+        }
+      }))
+    }
+  }
+})($('.track-list-tbody'))
+
 // 轨迹信息
-var fixinTrajectory = (function ($el) {
+var fixingTrajectory = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, item, params, fixing) {
-    fixinTrajectory.refresh(map, item, params, fixing)
+    fixingTrajectory.refresh(map, item, params, fixing)
   })
 
   return {
     refresh(map, item, params, fixing) {
-      $el.empty()
       if (fixing.type === 'init') {
         $('.trajectory-datepicker').datepicker('update', fixing.currentTime);
       }
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
-          $el.append(res.data.data.map(innerItem => {
-            let address = innerItem.address,
-              charge = innerItem.charge === '1' ? '充电中' : '未充电',
-              createTime = innerItem.create_time,
-              electricity = `${innerItem.electricity}% `, // 电量
-              longitude = innerItem.longitude,
-              latitude = innerItem.latitude,
-              mode = innerItem.mode,
-              modestatus = innerItem.modestatus === '1' ? '正常模式' : '追踪模式',
-              shutdown = innerItem.shutdown === '0' ? '关机' : '开机',
-              status = innerItem.status === '1' ? '运动' : '静止'
+          fixing.fixingId = item.entity_name
 
-            return $(`
-                  <tr>
-                  <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-                  <td class="normal pt-4 pb-4 text-center">${mode}</td>
-                  <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
-                  <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-                  <td class="normal pt-4 pb-4 text-center">${charge}</td>
-                  <td class="normal pt-4 pb-4 text-center">${electricity}</td>
-                  <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
-                  <td class="normal pt-4 pb-4 text-center">${status}</td>
-                  <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
-                  <td class="normal pt-4 pb-4 text-center">${address}</td>
-                              </tr>
-                  `).off('click').on('click', function (e) {
-                $(this).addClass('active').siblings().removeClass('active')
-                fixing.fixingId = item.entity_name
-                Event.create('map').trigger('trajectoryMarkerInfoWindow', map, innerItem, params, fixing)
-              })
-          }))
-
-
-          // // 简单的节流函数
-          // function throttle(func, wait, mustRun) {
-          //   var timeout,
-          //     startTime = new Date();
-
-          //   return function () {
-          //     var context = this,
-          //       args = arguments,
-          //       curTime = new Date();
-
-          //     clearTimeout(timeout);
-          //     // 如果达到了规定的触发时间间隔，触发 handler
-          //     if (curTime - startTime >= mustRun) {
-          //       func.apply(context, args);
-          //       startTime = curTime;
-          //       // 没达到触发间隔，重新设定定时器
-          //     } else {
-          //       timeout = setTimeout(func, wait);
-          //     }
-          //   };
-          // };
-          // $('.bottom-info-container ').off('scroll').on('scroll', throttle(e => {
-          //   if (!e) return
-          //   let srcollTop = $(e.currentTarget).scrollTop()
-          //   if (srcollTop < 50) return
-          //   console.log($(e.currentTarget).find('.bottom-info-table > thead').css({
-          //     position: 'fixed',
-          //     zIndex: '2',
-          //     left: '5%',
-          //     right: '0'
-          //   }))
-
-          // }, 500, 1000))
-
+          fixing.modegps = $('.mode-container').find("#modegps").prop('checked')
+          fixing.modelbs = $('.mode-container').find("#modelbs").prop('checked')
+          fixing.modewifi = $('.mode-container').find("#modewifi").prop('checked')
+          Event.create('fixing').trigger('fixingTrajectoryTable', map, res.data.data, params, fixing)
           Event.create('map').trigger('GetTrackList', map, res.data.data, params, fixing)
         }
         if (res.data.ret === 1002) {

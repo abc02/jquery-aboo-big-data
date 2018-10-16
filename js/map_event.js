@@ -328,6 +328,38 @@ var mapPanToMarkerPoint = (function () {
   }
 })()
 
+
+var fixingTrajectoryFilter = (function ($el) {
+  Event.create('map').listen('GetTrackList', function (map, source, params, fixing) {
+    fixingTrajectoryFilter.refresh(map, source, params, fixing)
+  })
+
+  return {
+    refresh(map, source, params, fixing) {
+      var $modegps = $el.find("#modegps"),
+        $modelbs = $el.find("#modelbs"),
+        $modewifi = $el.find("#modewifi")
+
+      $modegps.off('change').on('change', function () {
+        fixing.modegps = $(this).prop('checked')
+        Event.create('fixing').trigger('fixingTrajectoryTable', map, source, params, fixing)
+        Event.create('map').trigger('GetTrackList', map, source, params, fixing)
+      })
+      $modelbs.off('change').on('change', function () {
+        fixing.modelbs = $(this).prop('checked')
+        Event.create('fixing').trigger('fixingTrajectoryTable', map, source, params, fixing)
+        Event.create('map').trigger('GetTrackList', map, source, params, fixing)
+      })
+      $modewifi.off('change').on('change', function () {
+        fixing.modewifi = $(this).prop('checked')
+        Event.create('fixing').trigger('fixingTrajectoryTable', map, source, params, fixing)
+        Event.create('map').trigger('GetTrackList', map, source, params, fixing)
+      })
+    }
+  }
+})($('.mode-container'))
+
+
 // 轨迹历史
 var mapTrajectory = (function () {
   Event.create('map').listen('GetTrackList', function (map, source, params, fixing) {
@@ -337,25 +369,73 @@ var mapTrajectory = (function () {
   return {
     refresh(map, source, params, fixing) {
       map.clearOverlays()
-      let startItem = source[0],
-        endItem = source[source.length - 1],
-        startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
+      let startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
         endIcon = new BMap.Icon("/assets/trajectory_end.png", new BMap.Size(31, 44)),
-        startPoint = new BMap.Point(startItem.longitude, startItem.latitude),
-        endPoint = new BMap.Point(endItem.longitude, endItem.latitude),
-        startMarker = new BMap.Marker(startPoint, { icon: startIcon }),
-        endMarker = new BMap.Marker(endPoint, { icon: endIcon }),
-        polylines = source.map(item => new BMap.Point(item.longitude, item.latitude)),
-        polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 3, strokeOpacity: 0.5 });   //创建折线
+        startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines, polyline
+
+
+      for (let startIndex = 0; startIndex < source.length; startIndex++) {
+        if (fixing.modegps && source[startIndex].mode === 'GPS') {
+          startItem = source[startIndex]
+          startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
+          startMarker = new BMap.Marker(startPoint, { icon: startIcon })
+          break;
+        }
+        if (fixing.modegps && source[startIndex].mode === 'LBS') {
+          startItem = source[startIndex]
+          startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
+          startMarker = new BMap.Marker(startPoint, { icon: startIcon })
+          break;
+        }
+        if (fixing.modegps && source[startIndex].mode === 'WIFI') {
+          startItem = source[startIndex]
+          startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
+          startMarker = new BMap.Marker(startPoint, { icon: startIcon })
+          break;
+        }
+      }
+
+      for (let endIndex = source.length - 1; endIndex > 0; endIndex--) {
+        if (fixing.modegps && source[endIndex].mode === 'GPS') {
+          endItem = source[endIndex]
+          endPoint = new BMap.Point(endItem.longitude, endItem.latitude)
+          endMarker = new BMap.Marker(endPoint, { icon: endIcon })
+          break;
+        }
+        if (fixing.modegps && source[endIndex].mode === 'LBS') {
+          endItem = source[endIndex]
+          endPoint = new BMap.Point(endItem.longitude, endItem.latitude)
+          endMarker = new BMap.Marker(endPoint, { icon: endIcon })
+          break;
+        }
+        if (fixing.modegps && source[endIndex].mode === 'WIFI') {
+          endItem = source[endIndex]
+          endPoint = new BMap.Point(endItem.longitude, endItem.latitude)
+          endMarker = new BMap.Marker(endPoint, { icon: endIcon })
+          break;
+        }
+      }
+      polylines = source.map(item => {
+        if (fixing.modegps && item.mode === 'GPS') {
+          return new BMap.Point(item.longitude, item.latitude)
+        }
+        if (fixing.modelbs && item.mode === 'LBS') {
+          return new BMap.Point(item.longitude, item.latitude)
+        }
+        if (fixing.modewifi && item.mode === 'WIFI') {
+          return new BMap.Point(item.longitude, item.latitude)
+        }
+      })
+      polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 3, strokeOpacity: 0.5 });   //创建折线
+      console.log(startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines, polyline)
 
       map.addOverlay(startMarker)
       map.addOverlay(endMarker)
       map.addOverlay(polyline);   //增加折线
-      map.setViewport(polylines)
+      // map.setViewport(polylines)
     }
   }
 })()
-
 
 
 // 鞋垫地图计数模块
