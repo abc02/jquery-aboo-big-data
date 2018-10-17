@@ -512,12 +512,11 @@ var fixingQRCode = (function ($el) {
         // loacl 获取数据
         userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
-
         if (res.data.ret == 1001) {
           $el.find('.fixing-qrcode-container').html(`
             <div class="qrcode d-flex justify-content-center">
               <div class="d-flex justify-content-center align-items-center bg-white" style="width: 238px; height: 238px;">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data}" width="218" height="218" />
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data.data}" width="218" height="218" />
               </div>
             </div>
           `)
