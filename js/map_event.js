@@ -6,8 +6,12 @@ var mapMarkerPoint = (function () {
     console.log('addMarkerPoint')
     mapMarkerPoint.addMarkerPoint(map, source, params)
   })
-  Event.create('map').listen('control', (map, source, params) => {
-    mapMarkerPoint.addControlMarkerPoint(map, source, params)
+  Event.create('map').listen('control', (map, item, params) => {
+    mapMarkerPoint.addControlMarkerPoint(map, item, params)
+  })
+
+  Event.create('map').listen('trajectory', (map, item, params, fixing) => {
+    mapMarkerPoint.addTrajectoryMarkerPoint(map, item, params, fixing)
   })
 
   return {
@@ -47,6 +51,12 @@ var mapMarkerPoint = (function () {
       if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
       marker = new BMap.Marker(point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
       map.addOverlay(marker)
+    },
+    addTrajectoryMarkerPoint(map, item, params, fixing) {
+      if (!item) return
+      let marker = new BMap.Marker(new BMap.Point(item.longitude, item.latitude), { icon: new BMap.Icon('/assets/address-new.png', new BMap.Size(20, 20), { imageSize: new BMap.Size(20, 20) }) })
+      map.addOverlay(marker)
+      Event.create('map').trigger('trajectoryMarkerInfoWindow', map, item, params, fixing, marker)
     }
   }
 })()
@@ -277,8 +287,18 @@ var mapInfoWindow = (function ($el) {
       markerInfoWindow.setTitle(`<h5 class="mb-2">${fixing.fixingId}</h5>`)
       markerInfoWindow.setContent($el.html())
 
-      fixing.point = new BMap.Point(item.longitude, item.latitude)
-      map.openInfoWindow(markerInfoWindow, fixing.point)
+      if (marker) {
+        marker.addEventListener("click", function (e) {
+          map.openInfoWindow(markerInfoWindow, new BMap.Point(item.longitude, item.latitude))
+          $('.track-list-tbody > tr')
+            .eq(item.markerIndex)
+            .addClass('active')
+            .siblings()
+            .removeClass('active')
+        })
+      } else {
+        map.openInfoWindow(markerInfoWindow, new BMap.Point(item.longitude, item.latitude))
+      }
 
     }
 
@@ -371,7 +391,7 @@ var mapTrajectory = (function () {
       map.clearOverlays()
       let startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
         endIcon = new BMap.Icon("/assets/trajectory_end.png", new BMap.Size(31, 44)),
-        startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines = [], polyline
+        startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines = [], markers = [], polyline
 
 
       for (let startIndex = 0; startIndex < source.length; startIndex++) {
@@ -388,7 +408,6 @@ var mapTrajectory = (function () {
           break;
         }
         if (fixing.modewifi && source[startIndex].mode === 'WIFI') {
-          console.log(source[startIndex])
           startItem = source[startIndex]
           startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
           startMarker = new BMap.Marker(startPoint, { icon: startIcon })
@@ -419,15 +438,22 @@ var mapTrajectory = (function () {
       source.forEach(item => {
         if (fixing.modegps && item.mode === 'GPS') {
           polylines.push(new BMap.Point(item.longitude, item.latitude))
+          markers.push(item)
         }
         if (fixing.modelbs && item.mode === 'LBS') {
           polylines.push(new BMap.Point(item.longitude, item.latitude))
+          markers.push(item)
         }
         if (fixing.modewifi && item.mode === 'WIFI') {
           polylines.push(new BMap.Point(item.longitude, item.latitude))
+          markers.push(item)
         }
       })
-      polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 3, strokeOpacity: 0.5 });   //创建折线
+      markers.forEach((item, index) => {
+        item.markerIndex = index
+        Event.create('map').trigger('trajectory', map, item, params, fixing)
+      })
+      polyline = new BMap.Polyline(polylines, { strokeColor: "#689bff", strokeWeight: 4, strokeOpacity: 0.8 });   //创建折线
       if (startMarker && endMarker && polylines && polyline) {
         map.addOverlay(startMarker)
         map.addOverlay(endMarker)
