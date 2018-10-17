@@ -371,7 +371,7 @@ var mapTrajectory = (function () {
       map.clearOverlays()
       let startIcon = new BMap.Icon("/assets/trajectory_start.png", new BMap.Size(31, 44)),
         endIcon = new BMap.Icon("/assets/trajectory_end.png", new BMap.Size(31, 44)),
-        startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines, polyline
+        startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines = [], polyline
 
 
       for (let startIndex = 0; startIndex < source.length; startIndex++) {
@@ -381,13 +381,14 @@ var mapTrajectory = (function () {
           startMarker = new BMap.Marker(startPoint, { icon: startIcon })
           break;
         }
-        if (fixing.modegps && source[startIndex].mode === 'LBS') {
+        if (fixing.modelbs && source[startIndex].mode === 'LBS') {
           startItem = source[startIndex]
           startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
           startMarker = new BMap.Marker(startPoint, { icon: startIcon })
           break;
         }
-        if (fixing.modegps && source[startIndex].mode === 'WIFI') {
+        if (fixing.modewifi && source[startIndex].mode === 'WIFI') {
+          console.log(source[startIndex])
           startItem = source[startIndex]
           startPoint = new BMap.Point(startItem.longitude, startItem.latitude)
           startMarker = new BMap.Marker(startPoint, { icon: startIcon })
@@ -402,37 +403,37 @@ var mapTrajectory = (function () {
           endMarker = new BMap.Marker(endPoint, { icon: endIcon })
           break;
         }
-        if (fixing.modegps && source[endIndex].mode === 'LBS') {
+        if (fixing.modelbs && source[endIndex].mode === 'LBS') {
           endItem = source[endIndex]
           endPoint = new BMap.Point(endItem.longitude, endItem.latitude)
           endMarker = new BMap.Marker(endPoint, { icon: endIcon })
           break;
         }
-        if (fixing.modegps && source[endIndex].mode === 'WIFI') {
+        if (fixing.modewifi && source[endIndex].mode === 'WIFI') {
           endItem = source[endIndex]
           endPoint = new BMap.Point(endItem.longitude, endItem.latitude)
           endMarker = new BMap.Marker(endPoint, { icon: endIcon })
           break;
         }
       }
-      polylines = source.map(item => {
+      source.forEach(item => {
         if (fixing.modegps && item.mode === 'GPS') {
-          return new BMap.Point(item.longitude, item.latitude)
+          polylines.push(new BMap.Point(item.longitude, item.latitude))
         }
         if (fixing.modelbs && item.mode === 'LBS') {
-          return new BMap.Point(item.longitude, item.latitude)
+          polylines.push(new BMap.Point(item.longitude, item.latitude))
         }
         if (fixing.modewifi && item.mode === 'WIFI') {
-          return new BMap.Point(item.longitude, item.latitude)
+          polylines.push(new BMap.Point(item.longitude, item.latitude))
         }
       })
       polyline = new BMap.Polyline(polylines, { strokeColor: "blue", strokeWeight: 3, strokeOpacity: 0.5 });   //创建折线
-      console.log(startItem, endItem, startPoint, endPoint, startMarker, endMarker, polylines, polyline)
-
-      map.addOverlay(startMarker)
-      map.addOverlay(endMarker)
-      map.addOverlay(polyline);   //增加折线
-      // map.setViewport(polylines)
+      if (startMarker && endMarker && polylines && polyline) {
+        map.addOverlay(startMarker)
+        map.addOverlay(endMarker)
+        map.addOverlay(polyline);   //增加折线
+        map.setViewport(polylines)
+      }
     }
   }
 })()

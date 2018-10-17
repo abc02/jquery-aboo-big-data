@@ -610,7 +610,6 @@ var fixingTrajectoryTable = (function ($el) {
   })
   return {
     refresh(map, source, params, fixing) {
-      console.log(fixing)
       $el.empty()
       $el.append(source.map(item => {
         let address = item.address,
