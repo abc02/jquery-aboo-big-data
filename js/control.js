@@ -58,7 +58,14 @@ var control = (function (pageName) {
   $('#restart-file').on('change', handlerFile);
   $('#update-file').on('click', function () {
     FIXING_API.BatchAddFixing({ adminId: userInfo.AdminId, batchId: '', fixingIds: persons.join(',') }).then(res => {
-      alert(res.data.code)
+      if (res.data.ret === 1001) {
+        $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+        $('#no-data-ModalCenter').modal('show')
+      }
+      if (res.data.ret === 1002) {
+        $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+        $('#no-data-ModalCenter').modal('show')
+      }
     })
   })
   let params = utils.GetUrlParams()
