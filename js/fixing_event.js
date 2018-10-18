@@ -532,13 +532,14 @@ var fixingQRCode = (function ($el) {
 
 // 鞋垫信息实时
 var fixingInfoLive = (function ($el) {
+  var oldCreateTime
   Event.create('fixing').listen('GetLastPosition', function (map, item, params, fixing) {
     fixingInfoLive.refresh(map, item, params, fixing)
   })
 
   return {
     refresh(map, item, params, fixing) {
-      if (fixing.type === 'init') $el.empty()
+      if (fixing.type === 'init') $el.find('.live-info-tbody').empty()
 
       // loacl 获取数据
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
@@ -560,14 +561,20 @@ var fixingInfoLive = (function ($el) {
             status = res.data.status === '1' ? '运动' : '静止',
             iconPath
 
-          if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
-          if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
-          fixing.point = new BMap.Point(lng, lat)
-          marker = new BMap.Marker(fixing.point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
-          map.addOverlay(marker)
+          console.log(oldCreateTime !== res.data.createTime)
+          if (oldCreateTime !== res.data.createTime) {
 
-          $el.append(`
-                <tr>
+            oldCreateTime = res.data.createTime
+            if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
+            if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
+            fixing.point = new BMap.Point(lng, lat)
+            marker = new BMap.Marker(fixing.point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
+            map.addOverlay(marker)
+
+            $el
+              .find('.live-info-tbody')
+              .append(`
+                <tr id="${res.data.createTime}">
                 <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
                 <td class="normal pt-4 pb-4 text-center">${mode}</td>
                 <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
@@ -580,11 +587,27 @@ var fixingInfoLive = (function ($el) {
                 <td class="normal pt-4 pb-4 text-center">${address}</td>
                         </tr>
                 `)
+              .off('mouseenter mouseleave')
+              .on('mouseenter mouseleave', 'tr', function (e) {
+                $(e.currentTarget).addClass('active').siblings().removeClass('active')
+              })
+            utils.setUrlToTableIndex(res.data.createTime)
 
-          $el.off('mouseenter mouseleave').on('mouseenter mouseleave', 'tr', function (e) {
-            $(e.currentTarget).addClass('active').siblings().removeClass('active')
-          })
-          Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
+            $el.off('scroll').on('scroll', function (e) {
+              if (!e) return
+              let scrollTop = $(this).find('.live-info-tbody').offset().top
+              if (scrollTop > 800) {
+                $(this)
+                  .find('.position-fixed')
+                  .hide()
+              } else {
+                $(this).find('.position-fixed').show()
+              }
+            })
+
+            Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
+          }
+
         }
         if (res.data.ret === 1003) {
           fixing.point = new BMap.Point(0, 0)
@@ -599,7 +622,7 @@ var fixingInfoLive = (function ($el) {
       })
     }
   }
-})($('.live-info-tbody'))
+})($('.live-info-container'))
 
 
 
@@ -609,23 +632,24 @@ var fixingTrajectoryTable = (function ($el) {
   })
   return {
     refresh(map, source, params, fixing) {
-      $el.empty()
-      $el.append(source.map(item => {
-        let address = item.address,
-          charge = item.charge === '1' ? '充电中' : '未充电',
-          createTime = item.create_time,
-          electricity = `${item.electricity}% `, // 电量
-          longitude = item.longitude,
-          latitude = item.latitude,
-          mode = item.mode,
-          modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
-          shutdown = item.shutdown === '0' ? '关机' : '开机',
-          status = item.status === '1' ? '运动' : '静止'
+      $el.find('.track-list-tbody')
+        .empty()
+        .append(source.map((item, index) => {
+          let address = item.address,
+            charge = item.charge === '1' ? '充电中' : '未充电',
+            createTime = item.create_time,
+            electricity = `${item.electricity}% `, // 电量
+            longitude = item.longitude,
+            latitude = item.latitude,
+            mode = item.mode,
+            modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+            shutdown = item.shutdown === '0' ? '关机' : '开机',
+            status = item.status === '1' ? '运动' : '静止'
 
 
-        let renderTableRow = () => {
-          return $(`
-          <tr>
+          let renderTableRow = () => {
+            return $(`
+          <tr id='${index}'>
           <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
           <td class="normal pt-4 pb-4 text-center">${mode}</td>
           <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
@@ -636,28 +660,42 @@ var fixingTrajectoryTable = (function ($el) {
           <td class="normal pt-4 pb-4 text-center">${status}</td>
           <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
           <td class="normal pt-4 pb-4 text-center">${address}</td>
-                      </tr>
+          </tr>
           `)
-            .off('click')
-            .on('click', function (e) {
-              $(this).addClass('active').siblings().removeClass('active')
-              // fixing.fixingId = item.entity_name
-              Event.create('map').trigger('trajectoryMarkerInfoWindow', map, item, params, fixing)
-            })
+              .off('click')
+              .on('click', function (e) {
+                $(this).addClass('active').siblings().removeClass('active')
+                // utils.setUrlToTableIndex(item.markerIndex)
+                // fixing.fixingId = item.entity_name
+                Event.create('map').trigger('trajectoryMarkerInfoWindow', map, item, params, fixing)
+              })
+          }
+          if (fixing.modegps && mode === 'GPS') {
+            return renderTableRow()
+          }
+          if (fixing.modelbs && mode === 'LBS') {
+            return renderTableRow()
+          }
+          if (fixing.modewifi && mode === 'WIFI') {
+            return renderTableRow()
+          }
+        }))
+
+      $el.off('scroll').on('scroll', function (e) {
+        if (!e) return
+        let scrollTop = $(this).find('.track-list-tbody').offset().top
+        if (scrollTop > 800) {
+          $(this)
+            .find('.position-fixed')
+            .hide()
+        } else {
+          $(this).find('.position-fixed').show()
         }
-        if (fixing.modegps && mode === 'GPS') {
-          return renderTableRow()
-        }
-        if (fixing.modelbs && mode === 'LBS') {
-          return renderTableRow()
-        }
-        if (fixing.modewifi && mode === 'WIFI') {
-          return renderTableRow()
-        }
-      }))
+      })
+
     }
   }
-})($('.track-list-tbody'))
+})($('.track-info-container'))
 
 // 轨迹信息
 var fixingTrajectory = (function ($el) {
@@ -689,7 +727,7 @@ var fixingTrajectory = (function ($el) {
       })
     }
   }
-})($('.track-list-tbody'))
+})()
 
 
 var fixingTrajectoryDatepicker = (function ($el) {

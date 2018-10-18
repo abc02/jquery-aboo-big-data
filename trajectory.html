@@ -77,24 +77,26 @@
             </button>
           </div>
         </div>
-        <div class="relative bottom-info-container liveinfo-container bg-dark border-top text-white" style="height: 230px; overflow-y: auto;">
+        <div class="relative bottom-info-container track-info-container liveinfo-container bg-dark border-top text-white" style="height: 230px; overflow-y: auto;">
+          <table class="position-fixed width-100 bg-dark" style="width: 94.8%; position: fixed; display: none; z-index: 10;">
+            <thead class="track-list-thead">
+              <tr>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">设备状态</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">定位类型</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="10%">设备昵称</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="10%">定位时间</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">充电状态</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">电量</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">当前模式</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">设备状态</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="25%">经纬度</th>
+                <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="25%">地址</th>
+              </tr>
+            </thead>
+          </table>
           <button class="bottom-doork-live absolute-top-center pointer" style="top: -45px; z-index: 9; transform: rotate(90deg);">
             <img src="/assets/extension.png" alt="extension">
           </button>
-          <!-- <div class="bg-dark pt-4" style="position: fixed; z-index: 2; left: 5%;right: 0 ;">
-            <div class="d-flex flex-row">
-              <span class="normal text-muted p-2 text-center" style="">设备状态</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">定位类型</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">设备昵称</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 2;">定位时间</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">充电状态</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">电量</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">当前模式</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 1;">设备状态</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 2;">经纬度</span>
-              <span class="normal text-muted p-2 text-center" style="flex: 3;">地址</span>
-            </div>
-          </div> -->
           <div class="d-flex flex-column">
             <div class="p-4 d-flex flex-row align-items-center">
               <h5 class="normal mr-4">轨迹信息</h5>
@@ -107,19 +109,19 @@
                 </div>
               </div>
             </div>
-            <table class="bottom-info-table live-info-table width-100">
-              <thead>
+            <table class="bottom-info-table live-info-table track-info-table width-100">
+              <thead class="track-list-thead">
                 <tr>
-                  <th scope="col" class="normal text-muted p-2 text-center">设备状态</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">定位类型</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">设备昵称</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">定位时间</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">充电状态</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">电量</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">当前模式</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">设备状态</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">经纬度</th>
-                  <th scope="col" class="normal text-muted p-2 text-center">地址</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">设备状态</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">定位类型</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="10%">设备昵称</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="10%">定位时间</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">充电状态</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">电量</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">当前模式</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="5%">设备状态</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="25%">经纬度</th>
+                  <th scope="col" class="pt-3 pb-3 normal text-muted text-center" width="25%">地址</th>
                 </tr>
               </thead>
               <tbody class="track-list-tbody text-muted">

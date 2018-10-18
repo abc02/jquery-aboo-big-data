@@ -1,11 +1,11 @@
 var utils = (function () {
-  function setFixingIdRedirectUrl (map, url) {
+  function setFixingIdRedirectUrl(map, url) {
     let titleHHTML = map.getInfoWindow().getTitle(),
       titleNode = document.createRange().createContextualFragment(titleHHTML),
       fixingId = titleNode.textContent,
       params = utils.GetUrlParams()
 
-      params.fixingId = fixingId
+    params.fixingId = fixingId
     return location.assign(`${url}.html?${Qs.stringify(params)}`)
   }
   function GetUrlPageName() {
@@ -20,6 +20,11 @@ var utils = (function () {
       url = `${location.pathname}?${paramsStringify}`
     history.pushState({ url: url, title: document.title }, document.title, url)
     return Qs.parse(paramsStringify)
+  }
+  function setUrlToTableIndex(index) {
+    var url = `${location.origin}${location.pathname}${location.search}#${index}`
+    location.assign(url)
+    return index
   }
   function handleTimeToUnix(data) {
     return Math.round(new Date(data) / 1000)
@@ -126,6 +131,7 @@ var utils = (function () {
     GetUrlPageName,
     GetUrlParams,
     SetUrlParams,
+    setUrlToTableIndex,
     handleTimeToUnix,
     handleToPad,
     handleToCut,
