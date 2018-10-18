@@ -228,25 +228,27 @@ var fixingLists = (function ($el) {
           .siblings()
           .removeClass('text-white')
           .addClass('text-muted')
+        if (!window.isClickLock) {
+          window.isClickLock = true
+          if (window.setIntervaler) {
+            map.clearOverlays()
+            clearInterval(window.setIntervaler)
+          }
+          let fixing = {
+            point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
+            fixingId: item.entity_name,
+            type: 'init',
+            isTrigger: true
+          }
 
-        if (window.setIntervaler) {
-          map.clearOverlays()
-          clearInterval(window.setIntervaler)
-        }
-        let fixing = {
-          point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
-          fixingId: item.entity_name,
-          type: 'init',
-          isTrigger: true
-        }
-
-        Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
-        Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
-        window.setIntervaler = setInterval(() => {
-          fixing.type = 'update'
-          fixing.isTrigger = false
+          Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
           Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
-        }, 60000)
+          window.setIntervaler = setInterval(() => {
+            fixing.type = 'update'
+            fixing.isTrigger = false
+            Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
+          }, 60000)
+        }
       })
     },
     bindTrajectoryEvent(map, source, params, fixing) {
@@ -539,15 +541,18 @@ var fixingInfoLive = (function ($el) {
 
   return {
     refresh(map, item, params, fixing) {
-      if (fixing.type === 'init') $el.find('.live-info-tbody').empty()
+      if (fixing.type === 'init')  {
+        $el.find('.live-info-tbody').empty()
+        oldCreateTime = null
+      }
 
       // loacl 获取数据
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       // 请求最后位置信息接口
       FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
+        window.isClickLock = false
         let marker
         if (res.data.ret === 1001) {
-
           let address = res.data.address,
             charge = res.data.charge === '1' ? '充电中' : '未充电',
             createTime = utils.handleTimestampToDateTime(res.data.createTime),
