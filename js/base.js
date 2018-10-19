@@ -31,18 +31,21 @@ axios.interceptors.response.use(function (response) {
 });
 
 $('.slider-doork').click(e => {
-  if ($(e.currentTarget).find('img').attr('src') === '/assets/extension.png') {
-    $(e.currentTarget).find('img').attr('src', '/assets/extension_select.png')
+  if ($(e.currentTarget).find('img').attr('src') === '/assets/extension_left.png') {
+    $(e.currentTarget).find('img').attr('src', '/assets/extension_right.png')
   } else {
-    $(e.currentTarget).find('img').attr('src', '/assets/extension.png')
+    $(e.currentTarget).find('img').attr('src', '/assets/extension_left.png')
   }
   $('.slider-dialog').toggle()
 })
 $('.bottom-doork-map').click(e => {
-  $('.liveinfo-container').show()
+  $('.bottom-container').show()
   $(e.currentTarget).hide()
 })
 $('.bottom-doork-live').click(e => {
-  $('.liveinfo-container').hide()
+  $('.bottom-container').hide()
+  console.log('------------------------------------');
+  console.log(( $('.bottom-doork-map')));
+  console.log('------------------------------------');
   $('.bottom-doork-map').show()
 })

@@ -668,8 +668,10 @@
   overflow-y:scroll;
   -webkit-overflow-scrolling: touch; /*为了滚动顺畅  */
 }
-
 .table .tbody::-webkit-scrollbar {
+  display: none; /*隐藏滚动条*/
+}
+.table .tbody::-moz-scrollbar {
   display: none; /*隐藏滚动条*/
 }
 
