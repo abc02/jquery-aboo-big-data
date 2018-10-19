@@ -71,7 +71,7 @@ var control = (function (pageName) {
   let params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
-  params.pageSize = 7
+  params.pageSize = 4
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {

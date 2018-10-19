@@ -566,7 +566,6 @@ var fixingInfoLive = (function ($el) {
             status = res.data.status === '1' ? '运动' : '静止',
             iconPath
 
-          console.log(oldCreateTime !== res.data.createTime)
           if (oldCreateTime !== res.data.createTime) {
 
             oldCreateTime = res.data.createTime
@@ -580,16 +579,16 @@ var fixingInfoLive = (function ($el) {
               .find('.live-info-tbody')
               .append(`
                 <tr id="${res.data.createTime}">
-                <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-                <td class="normal pt-4 pb-4 text-center">${mode}</td>
-                <td class="normal pt-4 pb-4 text-center">${item.entity_name}</td>
-                <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-                <td class="normal pt-4 pb-4 text-center">${charge}</td>
-                <td class="normal pt-4 pb-4 text-center">${electricity}%</td>
-                <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
-                <td class="normal pt-4 pb-4 text-center">${status}</td>
-                <td class="normal pt-4 pb-4 text-center">${lng}, ${lat}</td>
-                <td class="normal pt-4 pb-4 text-center">${address}</td>
+                <th scope="row" class="normal pt-4 pb-4 text-center" width="5%">${shutdown}</th>
+                <td class="normal pt-4 pb-4 text-center" width="5%">${mode}</td>
+                <td class="normal pt-4 pb-4 text-center" width="10%">${item.entity_name}</td>
+                <td class="normal pt-4 pb-4 text-center" width="10%">${createTime}</td>
+                <td class="normal pt-4 pb-4 text-center" width="5%">${charge}</td>
+                <td class="normal pt-4 pb-4 text-center" width="5%">${electricity}%</td>
+                <td class="normal pt-4 pb-4 text-center" width="5%">${modestatus}</td>
+                <td class="normal pt-4 pb-4 text-center" width="5%">${status}</td>
+                <td class="normal pt-4 pb-4 text-center" width="25%">${lng}, ${lat}</td>
+                <td class="normal pt-4 pb-4 text-center" width="25%">${address}</td>
                         </tr>
                 `)
               .off('mouseenter mouseleave')
@@ -655,16 +654,16 @@ var fixingTrajectoryTable = (function ($el) {
           let renderTableRow = () => {
             return $(`
           <tr id='${index}'>
-          <th scope="row" class="normal pt-4 pb-4 text-center">${shutdown}</th>
-          <td class="normal pt-4 pb-4 text-center">${mode}</td>
-          <td class="normal pt-4 pb-4 text-center">${fixing.fixingId}</td>
-          <td class="normal pt-4 pb-4 text-center">${createTime}</td>
-          <td class="normal pt-4 pb-4 text-center">${charge}</td>
-          <td class="normal pt-4 pb-4 text-center">${electricity}</td>
-          <td class="normal pt-4 pb-4 text-center">${modestatus}</td>
-          <td class="normal pt-4 pb-4 text-center">${status}</td>
-          <td class="normal pt-4 pb-4 text-center">${longitude}, ${latitude}</td>
-          <td class="normal pt-4 pb-4 text-center">${address}</td>
+          <th scope="row" class="normal pt-4 pb-4 text-center" width="5%">${shutdown}</th>
+          <td class="normal pt-4 pb-4 text-center" width="5%">${mode}</td>
+          <td class="normal pt-4 pb-4 text-center" width="10%">${fixing.fixingId}</td>
+          <td class="normal pt-4 pb-4 text-center" width="10%">${createTime}</td>
+          <td class="normal pt-4 pb-4 text-center" width="5%">${charge}</td>
+          <td class="normal pt-4 pb-4 text-center" width="5%">${electricity}</td>
+          <td class="normal pt-4 pb-4 text-center" width="5%">${modestatus}</td>
+          <td class="normal pt-4 pb-4 text-center" width="5%">${status}</td>
+          <td class="normal pt-4 pb-4 text-center" width="25%">${longitude}, ${latitude}</td>
+          <td class="normal pt-4 pb-4 text-center" width="25%">${address}</td>
           </tr>
           `)
               .off('click')
