@@ -597,18 +597,6 @@ var fixingInfoLive = (function ($el) {
               })
             utils.setUrlToTableIndex(res.data.createTime)
 
-            $el.off('scroll').on('scroll', function (e) {
-              if (!e) return
-              let scrollTop = $(this).find('.live-info-tbody').offset().top
-              if (scrollTop > 800) {
-                $(this)
-                  .find('.position-fixed')
-                  .hide()
-              } else {
-                $(this).find('.position-fixed').show()
-              }
-            })
-
             Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
           }
 
@@ -684,18 +672,6 @@ var fixingTrajectoryTable = (function ($el) {
             return renderTableRow()
           }
         }))
-
-      $el.off('scroll').on('scroll', function (e) {
-        if (!e) return
-        let scrollTop = $(this).find('.track-list-tbody').offset().top
-        if (scrollTop > 800) {
-          $(this)
-            .find('.position-fixed')
-            .hide()
-        } else {
-          $(this).find('.position-fixed').show()
-        }
-      })
 
     }
   }
