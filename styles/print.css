@@ -1,0 +1,24 @@
+@page {
+  size: 1.2in 1.2in;
+  margin: 0;
+  padding: 0;
+}
+
+@media print {
+  /*隐藏不打印的元素*/
+  .no-print {
+    display: none;
+  }
+  /*其他打印样式*/
+  .print {
+    width: 28mm;
+    height: 28mm;
+    padding: 2mm;
+    /* margin: 0; */
+    border: initial;
+    border-radius: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: always;
+  }
+}

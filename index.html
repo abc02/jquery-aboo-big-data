@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
+  <link rel="stylesheet" media="print" href="/styles/print.css">
 </head>
 
 <body>
@@ -66,7 +67,8 @@
           </ul>
           <ul class="p-1 fixing-container">
           </ul>
-          <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"" id="pagination"></ul>
+          <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"
+            id="pagination"></ul>
         </div>
         <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
           <img src="/assets/extension_left.png" alt="extension">
@@ -274,9 +276,16 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body fixing-qrcode-container">
+        <div class="modal-body fixing-qrcode-container d-flex justify-content-center">
+          <div class="qrcBody-container bg-white d-flex justify-content-center align-items-center" style="width: 238px; height: 238px;">
+            <div class="qrcBody " id="qrcBody">
+              <img class="qrcImg print" src="">
+              <!-- <img class="align-center-middle upLogo" src=""> -->
+            </div>
+          </div>
         </div>
         <div class="modal-footer border-dark">
+          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode')">打印</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
         </div>
       </div>
@@ -307,6 +316,8 @@
   <script type="text/javascript" src="//api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+  <script type="text/javascript" src="//cdn.bootcss.com/jQuery.print/1.6.0/jQuery.print.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>

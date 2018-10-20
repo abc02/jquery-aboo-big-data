@@ -40,7 +40,7 @@ var bottomDoork = (function ($el) {
       $el.off('click').on('click', e => {
         $('.bottom-container').hide()
         $('.bottom-doork-map').show()
-        if (utils.GetUrlPageName()=== 'control') params.pageSize = 12
+        if (utils.GetUrlPageName() === 'control') params.pageSize = 12
         if (utils.GetUrlPageName() === 'trajectory') params.pageSize = 14
         Event.create('fixing').trigger(utils.GetUrlPageName(), map, source, params, fixing)
       })
@@ -61,7 +61,7 @@ var mapDoork = (function ($el) {
       $el.off('click').on('click', e => {
         $('.bottom-container').show()
         $(e.currentTarget).hide()
-        if (utils.GetUrlPageName()=== 'control') params.pageSize = 5
+        if (utils.GetUrlPageName() === 'control') params.pageSize = 5
         if (utils.GetUrlPageName() === 'trajectory') params.pageSize = 6
         Event.create('fixing').trigger(utils.GetUrlPageName(), map, source, params, fixing)
       })
@@ -524,7 +524,7 @@ var fixingInstructions = (function ($el) {
 
       fixing.fixingId = titleNode.textContent
       if (fixing.type === 'init') {
-        fixing.currentTime =  $el.find('.instructions-datepicker').attr('value')
+        fixing.currentTime = $el.find('.instructions-datepicker').attr('value')
         $el.find('.instructions-datepicker').datepicker('update')
       }
       // loacl 获取数据
@@ -584,13 +584,24 @@ var fixingQRCode = (function ($el) {
         userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
         if (res.data.ret == 1001) {
-          $el.find('.fixing-qrcode-container').html(`
-            <div class="qrcode d-flex justify-content-center">
-              <div class="d-flex justify-content-center align-items-center bg-white" style="width: 238px; height: 238px;">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${res.data.data}" width="218" height="218" />
-              </div>
-            </div>
-          `)
+          // $el.find('.fixing-qrcode-container').html(`
+          //   <div class="qrcode ">
+          //     <div class="d-flex justify-content-center align-items-center bg-white">
+          //     <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${}" width="218" height="218" />
+          //     </div>
+          //   </div>
+          // `)
+
+          $('#qrcBody').qrcode({
+            width: 218,
+            height: 218,
+            text: res.data.data //二维码的内容
+          });
+          var qrcSrc = $("canvas")[0].toDataURL();//二维码canvas转img
+          $("#qrcBody .qrcImg").attr("src", qrcSrc);
+          $("#qrcBody > canvas").hide();//隐藏canvas部分
+          $("#qrcBody > .qrcImg").show();//显示img部分
+          $('#qrcBody').data('url', res.data.data)
         }
         if (res.data.ret === 1002) {
           $el.find('.fixing-qrcode-container').text(res.data.code)
@@ -600,6 +611,49 @@ var fixingQRCode = (function ($el) {
     }
   }
 })($('#fixing-qrcod-ModalCenter'))
+
+// 打印二维码
+var printQRCode = (function ($el) {
+  Event.create('fixing').listen('printQRCode', function (map) {
+    printQRCode.refresh(map)
+  })
+
+  return {
+    refresh(map) {
+      // let strWindowFeatures = `
+      //     channelmode=no,
+      //     directories=no,
+      //     fullscreen=no,
+      //     menubar=no,
+      //     resizable=no,
+      //     scrollbars=no,
+      //     titlebar=no,
+      //     toolbar=no,
+      //     status=no,
+      //     location=no,
+      //     height=500,
+      //     width=500,
+      //     left=50
+      // `;
+      // let url =  $('#qrcBody').data( 'url')
+      // windowObjectReference = window.open(`${location.origin}/print.html?${url}`, "_blank", strWindowFeatures)
+      $("#qrcBody").print({
+        globalStyles: false,
+        mediaPrint: true,
+        stylesheet: null,
+        noPrintSelector: ".no-print",
+        iframe: true,
+        append: null,
+        prepend: null,
+        manuallyCopyFormValues: true,
+        deferred: $.Deferred(),
+        timeout: 750,
+        // title: '',
+        doctype: '<!doctype html>'
+      });
+    }
+  }
+})()
 
 // 鞋垫信息实时
 var fixingInfoLive = (function ($el) {
@@ -783,7 +837,7 @@ var fixingTrajectoryDatepicker = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, item, params, fixing) {
     fixingTrajectoryDatepicker.refresh(map, item, params, fixing)
   })
-  return {  
+  return {
     refresh(map, item, params, fixing) {
       $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))

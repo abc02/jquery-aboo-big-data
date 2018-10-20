@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>二维码打印</title>
+</head>
+
+<div class="qrcBody" id="qrcBodyImg">
+  <img class="qrcImg" src="">
+  <!-- <img class="align-center-middle upLogo" src=""> -->
+</div>
+
+<button id="btnPrint" type="button" class="btn btn-primary pull-right" style="margin-left :30px">Print QRC
+</button>
+
+<body>
+  <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+  <script>
+    let url = location.search
+    jQuery('#qrcBodyImg').qrcode({
+       width: 250,
+       height: 250,
+       text: url //二维码的内容
+   });
+    var qrcSrc = $("canvas")[0].toDataURL();//二维码canvas转img
+    // var upLogSrc = "img/kaoshen.jpg";//二维码中间的logo
+    $("#qrcBodyImg .qrcImg").attr("src", qrcSrc);
+    // $("#qrcBodyImg .upLogo").attr("src", upLogSrc);
+    $("#qrcBodyImg > canvas").hide();//隐藏canvas部分
+    $("#qrcBodyImg > .qrcImg").show();//显示img部分
+
+   
+  </script>
+</body>
+
+</html>
