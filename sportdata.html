@@ -19,7 +19,7 @@
       <button type="button" class="btn btn-primary border-right">
         <img src="/assets/classification.png" title="classification" width="39" height="29" class="ml-2 mr-2" />
       </button>
-      <div class="d-flex flex-row pt-4 pb-4" style="flex: 1;">
+      <div class="d-flex flex-row pt-4 pb-4 flex-fill">
         <img src="/assets/aboo.png" title="aboo" width="32" height="42" class="ml-4 mr-4" />
         <h3 class="text-white">阿布跑跑大数据中心</h3>
       </div>
@@ -27,7 +27,7 @@
         <button type="button" data-toggle="modal" data-target="#loginModal">登录</button>
       </div>
     </header>
-    <div class="d-flex flex-row" style="flex: 1;">
+    <div class="d-flex flex-row flex-fill">
       <nav class="nav d-flex flex-column bg-dark border-right navigation-menu">
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 index" href="javascript:void(0);">
           <img src="/assets/home.png" title="home" width="38" height="30">
@@ -48,33 +48,39 @@
           <p class="pt-2 text-primary">运动数据</p>
         </a>
       </nav>
-      <div class="d-flex flex-column " style="flex: 1;">
-        <div class="d-flex flex-row" style="flex: 1;">
-          <div class="d-flex flex-column  bg-dark relative">
-            <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px; display: block;">
-              <div class="pl-4 pr-4 pt-3 pb-3">
-                <div class="row-between border search-container">
-                  <input type="text" class="p-2 text-white search-container nav-search" placeholder="输入关键字" />
-                  <button type="button" class="border-left pl-3 pt-1 pb-1 pr-3">
-                    <img src="/assets/search.png" title="search" width="18p" height="18" />
-                  </button>
+      <div class="d-flex flex-row flex-fill">
+        <div class="d-flex flex-row relative">
+          <div class="bg-dark relative d-flex align-items-stretch">
+            <div class="slider-dialog bg-dark shadow-right-big" style="width: 368px; display: block;">
+              <section class="height-100 d-flex flex-column">
+                <div class="slider-dialog-list-container flex-fill relative">
+                  <div class="pl-4 pr-4 pt-3 pb-3">
+                    <div class="row-between border search-container">
+                      <input type="text" class="p-2 text-white search-container nav-search" placeholder="输入关键字" />
+                      <button type="button" class="border-left pl-3 pt-1 pb-1 pr-3">
+                        <img src="/assets/search.png" title="search" width="18p" height="18" />
+                      </button>
+                    </div>
+                  </div>
+                  <ul class="nav justify-content-center nav-tab-container">
+                  </ul>
+                  <ul class="p-1 fixing-container">
+                  </ul>
+                  <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"
+                    id="pagination"></ul>
                 </div>
-              </div>
-              <ul class="nav justify-content-center nav-tab-container">
-              </ul>
-              <ul class="p-1 fixing-container">
-              </ul>
-              <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
-              <div class="datepicker sportdata-datepicker d-flex p0 justify-content-center" data-date="new Date()"></div>
-              <input type="hidden" id="my_hidden_input">
-
+                <div class="datepicker-container">
+                  <div class="datepicker sportdata-datepicker d-flex p0 justify-content-center" data-date="new Date()"></div>
+                  <input type="hidden" id="my_hidden_input">
+                </div>
+              </section>
             </div>
 
             <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
-              <img src="/assets/extension_right.png" alt="extension">
+              <img src="/assets/extension_left.png" alt="extension">
             </button>
           </div>
-          <div style="flex: 1; background-color: #141831; padding-left: 60px;" class="d-flex flex-row flex-wrap align-items-center justify-content-center">
+          <div style="background-color: #141831; padding-left: 60px;" class="flex-fill d-flex flex-row flex-wrap align-items-center justify-content-center">
             <div id="calorie" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
               class="mt-2 mb-2 mr-4 ml-4 border"></div>
             <div id="distance" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
@@ -86,7 +92,6 @@
           </div>
         </div>
       </div>
-    </div>
   </main>
   <!-- no-data Modal -->
   <div class="modal fade" id="no-data-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="no-data-ModalCenterTitle"

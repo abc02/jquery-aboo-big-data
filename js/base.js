@@ -29,23 +29,3 @@ axios.interceptors.response.use(function (response) {
   // Do something with response error
   return Promise.reject(error);
 });
-
-$('.slider-doork').click(e => {
-  if ($(e.currentTarget).find('img').attr('src') === '/assets/extension_left.png') {
-    $(e.currentTarget).find('img').attr('src', '/assets/extension_right.png')
-  } else {
-    $(e.currentTarget).find('img').attr('src', '/assets/extension_left.png')
-  }
-  $('.slider-dialog').toggle()
-})
-$('.bottom-doork-map').click(e => {
-  $('.bottom-container').show()
-  $(e.currentTarget).hide()
-})
-$('.bottom-doork-live').click(e => {
-  $('.bottom-container').hide()
-  console.log('------------------------------------');
-  console.log(( $('.bottom-doork-map')));
-  console.log('------------------------------------');
-  $('.bottom-doork-map').show()
-})

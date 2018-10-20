@@ -51,7 +51,7 @@
       <div class="d-flex flex-column " style="flex: 1;">
         <div class="d-flex flex-row" style="flex: 1;">
           <div class="d-flex flex-row relative">
-            <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 9; width: 368px; display: block;">
+            <div class="slider-dialog bg-dark shadow-right-big relative" style="z-index: 9; width: 368px; display: block;">
               <div class="pl-4 pr-4 pt-3 pb-3">
                 <div class="row-between border search-container">
                   <input type="text" class="p-2 text-white nav-search" placeholder="输入关键字" />
@@ -64,10 +64,10 @@
               </ul>
               <ul class="p-1 fixing-container">
               </ul>
-              <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
+              <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;" id="pagination"></ul>
             </div>
             <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 9; transform: translateX(100%);">
-              <img src="/assets/extension_right.png" alt="extension">
+              <img src="/assets/extension_left.png" alt="extension">
             </button>
           </div>
           <div class="baidumap-container d-flex relative" style="flex: 1;">
@@ -78,7 +78,7 @@
           </div>
         </div>
         <div class="relative bottom-container track-info-container liveinfo-container bg-dark border-top text-white">
-          <button class="bottom-doork-live absolute-top-center pointer" style="font-size: 0;">
+          <button class="bottom-container-doork absolute-top-center pointer" style="font-size: 0;">
             <img src="/assets/extension_down.png" alt="extension">
           </button>
           <div class="d-flex flex-column">
@@ -137,9 +137,9 @@
       <p class="flex-fill"><span class='text-primary bold mr-2'>经纬度 </span><span class='positions'>${lng}, ${lat}</span></p>
       <p class="flex-fill"><span class='text-primary bold mr-2'>电量 </span><span class='electricity'>${electricity}</span></p>
     </div>
-    <div class='d-flex flex-row mb-4'>
-      <p class="flex-fill">
-        <span class='text-primary bold mr-2'>位置 </span><span class='address'>${address}</span>
+    <div class='d-flex flex-row mb-2'>
+      <p class="flex-fill d-flex flex-row">
+        <span class='text-primary bold mr-2'>位置 </span><span class='flex-fill address ellipsis' style="max-width: 358px;">${address}</span>
       </p>
     </div>
     <div class='d-flex justify-content-center info-window-buttons'>

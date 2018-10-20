@@ -8,7 +8,7 @@ var sportdata = (function (pageName) {
   let params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
-  params.pageSize = 7
+  params.pageSize = 8
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   let fixing = {

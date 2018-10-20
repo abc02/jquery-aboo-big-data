@@ -268,16 +268,16 @@
 
 /* 超出部分显示省略号 */
 
-.ellipsis {
+/* .ellipsis {
   text-overflow: ellipsis;
   overflow: hidden;
-}
+} */
 
-/* .ellipsis {
+.ellipsis {
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
-} */
+}
 
 .hidden {
   overflow: hidden;
@@ -664,7 +664,7 @@
 
 .table .tbody {
   display:block;
-  height: 320px;
+  height: 230px;
   overflow-y:scroll;
   -webkit-overflow-scrolling: touch; /*为了滚动顺畅  */
 }

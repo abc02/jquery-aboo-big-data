@@ -48,7 +48,7 @@
             <p class="pt-2">运动数据</p>
           </a>
         </nav>
-        <div class="slider-dialog bg-dark shadow-right-big" style="z-index: 999; width: 368px; display: block;">
+        <div class="slider-dialog bg-dark shadow-right-big relative" style="z-index: 999; width: 368px; display: block;">
           <h5 class="d-flex justify-content-between text-light ml-4 mr-4 mt-3 mb-2">查看设备数量
           </h5>
           <div class="border-bottom pl-4 pr-4 pt-2 pb-2">
@@ -66,7 +66,7 @@
           </ul>
           <ul class="p-1 fixing-container">
           </ul>
-          <ul class="pagination-container d-flex justify-content-center" id="pagination"></ul>
+          <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"" id="pagination"></ul>
         </div>
         <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
           <img src="/assets/extension_left.png" alt="extension">
@@ -133,9 +133,9 @@
       <p class="flex-fill"><span class='text-primary bold mr-2'>经纬度 </span><span class='positions'>${lng}, ${lat}</span></p>
       <p class="flex-fill"><span class='text-primary bold mr-2'>电量 </span><span class='electricity'>${electricity}</span></p>
     </div>
-    <div class='d-flex flex-row mb-4'>
-      <p class="flex-fill">
-        <span class='text-primary bold mr-2'>位置 </span><span class='address'>${address}</span>
+    <div class='d-flex flex-row mb-2'>
+      <p class="flex-fill d-flex flex-row">
+        <span class='text-primary bold mr-2'>位置 </span><span class='flex-fill address ellipsis' style="max-width: 358px;">${address}</span>
       </p>
     </div>
     <div class='d-flex justify-content-center info-window-buttons'>

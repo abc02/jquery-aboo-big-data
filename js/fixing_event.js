@@ -1,3 +1,74 @@
+
+var sliderDoork = (function ($el) {
+  Event.create('fixing').listen('index', function (map, source, params, fixing) {
+    sliderDoork.refresh(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('control', function (map, source, params, fixing) {
+    sliderDoork.refresh(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
+    sliderDoork.refresh(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
+    sliderDoork.refresh(map, source, params, fixing)
+  })
+
+  return {
+    refresh(map, source, params, fixing) {
+      $el.off('click').on('click', e => {
+        if ($(e.currentTarget).find('img').attr('src') === '/assets/extension_left.png') {
+          $(e.currentTarget).find('img').attr('src', '/assets/extension_right.png')
+        } else {
+          $(e.currentTarget).find('img').attr('src', '/assets/extension_left.png')
+        }
+        $('.slider-dialog').toggle()
+      })
+    }
+  }
+})($('.slider-doork'))
+
+var bottomDoork = (function ($el) {
+  Event.create('fixing').listen('control', function (map, source, params, fixing) {
+    bottomDoork.refresh(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
+    bottomDoork.refresh(map, source, params, fixing)
+  })
+
+  return {
+    refresh(map, source, params, fixing) {
+      $el.off('click').on('click', e => {
+        $('.bottom-container').hide()
+        $('.bottom-doork-map').show()
+        if (utils.GetUrlPageName()=== 'control') params.pageSize = 12
+        if (utils.GetUrlPageName() === 'trajectory') params.pageSize = 14
+        Event.create('fixing').trigger(utils.GetUrlPageName(), map, source, params, fixing)
+      })
+    }
+  }
+})($('.bottom-container-doork'))
+
+var mapDoork = (function ($el) {
+  Event.create('fixing').listen('control', function (map, source, params, fixing) {
+    mapDoork.refresh(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
+    mapDoork.refresh(map, source, params, fixing)
+  })
+
+  return {
+    refresh(map, source, params, fixing) {
+      $el.off('click').on('click', e => {
+        $('.bottom-container').show()
+        $(e.currentTarget).hide()
+        if (utils.GetUrlPageName()=== 'control') params.pageSize = 5
+        if (utils.GetUrlPageName() === 'trajectory') params.pageSize = 6
+        Event.create('fixing').trigger(utils.GetUrlPageName(), map, source, params, fixing)
+      })
+    }
+  }
+})($('.bottom-doork-map'))
+
 // 搜索
 var fixingSearch = (function ($el) {
   Event.create('fixing').listen('index', function (map, source, params) {
@@ -452,14 +523,12 @@ var fixingInstructions = (function ($el) {
         titleNode = document.createRange().createContextualFragment(titleHHTML)
 
       fixing.fixingId = titleNode.textContent
-
       if (fixing.type === 'init') {
-        fixing.currentTime = utils.handleTimestampToDate(fixing.currentTime)
-        $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime);
+        fixing.currentTime =  $el.find('.instructions-datepicker').attr('value')
+        $el.find('.instructions-datepicker').datepicker('update')
       }
-
       // loacl 获取数据
-      userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
           let instructionsContent = res.data.data.reverse().map(item => {
@@ -469,7 +538,7 @@ var fixingInstructions = (function ($el) {
                 <td class="border breakAll">${item.content}</td>
               </tr>`
           }).join('')
-          $el.find('.instructions-container > .instructions-table > tbody').html(instructionsContent)
+          $el.find('.instructions-container > .instructions-table > tbody').empty().html(instructionsContent)
           $el.modal('show')
         }
         if (res.data.ret === 1002) {
@@ -492,7 +561,7 @@ var fixingInstructionsDatepicker = (function ($el) {
     refresh(map, fixing) {
       $el.off('changeDate').one('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-        $el.datepicker('update', fixing.currentTime)
+        $el.datepicker('update')
         fixing.type = 'update'
         Event.create('fixing').trigger('AdminGetInstructionsList', map, fixing)
       })
@@ -541,7 +610,7 @@ var fixingInfoLive = (function ($el) {
 
   return {
     refresh(map, item, params, fixing) {
-      if (fixing.type === 'init')  {
+      if (fixing.type === 'init') {
         $el.find('.live-info-tbody').empty()
         oldCreateTime = null
       }
@@ -714,11 +783,12 @@ var fixingTrajectoryDatepicker = (function ($el) {
   Event.create('fixing').listen('GetTrackList', function (map, item, params, fixing) {
     fixingTrajectoryDatepicker.refresh(map, item, params, fixing)
   })
-  return {
+  return {  
     refresh(map, item, params, fixing) {
       $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-        $el.datepicker('update', fixing.currentTime)
+        $el.datepicker('update')
+        $('.instructions-datepicker').attr('value', fixing.currentTime)
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
       })
     }
@@ -952,7 +1022,7 @@ var sportDataDatepicker = (function ($el) {
     refresh(map, item, params, fixing) {
       $el.off('changeDate').one('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-        $el.datepicker('update', fixing.currentTime)
+        $el.datepicker('update')
         fixing.type = 'update'
         Event.create('fixing').trigger('GetFixingSportData', map, item, params, fixing)
       })

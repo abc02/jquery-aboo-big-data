@@ -128,7 +128,7 @@ var mapInfoWindow = (function ($el) {
     initMarkerInfoWindow(map, source, params, fixing, marker) {
       map.closeInfoWindow()
       // 默认创建窗口对象
-      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, offset: new BMap.Size(0, -20) })
+      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230, offset: new BMap.Size(0, -20) })
       // 监听覆盖物 click 事件
       BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
         map.openInfoWindow(markerInfoWindow, fixing.point)
@@ -206,7 +206,7 @@ var mapInfoWindow = (function ($el) {
       if (fixing.type === 'init') {
         map.closeInfoWindow()
         // 默认创建窗口对象
-        markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, offset: new BMap.Size(0, -20) })
+        markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230, offset: new BMap.Size(0, -20) })
         // 监听覆盖物 click 事件
         BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
           map.openInfoWindow(markerInfoWindow, fixing.point)
@@ -311,9 +311,8 @@ var mapInfoWindow = (function ($el) {
 
     },
     trajectoryMarkerInfoWindow(map, item, params, fixing, marker) {
-      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458 })
+      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230 })
 
-      // 监听覆盖物 click 事件
       let address = item.address,
         charge = item.charge === '1' ? '充电中' : '未充电',
         createTime = item.create_time,
