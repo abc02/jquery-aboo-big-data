@@ -316,7 +316,7 @@
       </div>
     </div>
   </div>
-
+  
   <!-- fixing-qrcode Modal -->
   <div class="modal fade" id="fixing-qrcod-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="fixing-qrcod-ModalCenterTitle"
     aria-hidden="true">
@@ -337,12 +337,12 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer border-dark">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+        <div class="modal-footer border-dark">
+          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode', map)">打印</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 
   <!-- no-data Modal -->

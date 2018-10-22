@@ -647,7 +647,7 @@ var fixingQRCode = (function ($el) {
           $('#qrcBody > p').text(fixingId)
         }
         if (res.data.ret === 1002) {
-          $el.find('.fixing-qrcode-container').text(res.data.code)
+          $el.find('#qrcBody > p').text(res.data.code)
         }
         $el.modal('show')
       })
