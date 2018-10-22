@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
-  <link rel="stylesheet" media="print" href="/styles/print.css">
+  <!-- <link rel="stylesheet" media="print" href="/styles/print.css"> -->
 </head>
 
 <body>
@@ -47,6 +47,10 @@
             href="javascript:void(0);">
             <img src="/assets/sportdata.png" title="movement" width="40" height="38">
             <p class="pt-2">运动数据</p>
+          </a>
+          <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sms" href="javascript:void(0);">
+            <img src="/assets/sportdata.png" title="sms" width="40" height="38">
+            <p class="pt-2">短信中心</p>
           </a>
         </nav>
         <div class="slider-dialog bg-dark shadow-right-big relative" style="z-index: 999; width: 368px; display: block;">
@@ -277,15 +281,16 @@
           </button>
         </div>
         <div class="modal-body fixing-qrcode-container d-flex justify-content-center">
-          <div class="qrcBody-container bg-white d-flex justify-content-center align-items-center" style="width: 238px; height: 238px;">
-            <div class="qrcBody " id="qrcBody">
-              <img class="qrcImg print" src="">
+          <div class="qrcBody-container bg-white d-flex justify-content-center align-items-center p-2">
+            <div class="qrcBody print" id="qrcBody">
+              <img class="qrcImg" src="">
               <!-- <img class="align-center-middle upLogo" src=""> -->
+              <p class="text-dark text-center mt-2"></p>
             </div>
           </div>
         </div>
         <div class="modal-footer border-dark">
-          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode')">打印</button>
+          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode', map)">打印</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
         </div>
       </div>
@@ -317,7 +322,9 @@
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
-  <script type="text/javascript" src="//cdn.bootcss.com/jQuery.print/1.6.0/jQuery.print.min.js"></script>
+  <!-- <script type="text/javascript" src="//cdn.bootcss.com/jQuery.print/1.6.0/jQuery.print.min.js"></script> -->
+  <!-- <script type="text/javascript" src="//cdn.bootcss.com/PrintArea/2.4.1/jquery.PrintArea.min.js"></script> -->
+  <script type="text/javascript" src="//cdn.bootcss.com/printThis/1.14.0/printThis.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>

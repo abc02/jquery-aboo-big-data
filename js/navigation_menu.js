@@ -10,7 +10,7 @@ var navigationMenu = (function ($el) {
       $el.on('click', '.nav-menu', function (e) {
         e.preventDefault()
         let $currentTarget = $(e.currentTarget),
-          classNames = ['index', 'control', 'trajectory', 'sportdata'],
+          classNames = ['index', 'control', 'trajectory', 'sportdata', 'sms'],
           result = classNames.filter(className => $currentTarget.hasClass(className)),
           params = utils.GetUrlParams()
         if (params.fixingId) delete params.fixingId

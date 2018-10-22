@@ -41,6 +41,12 @@ var FIXING_API = (function () {
   function BatchAddFixing({ adminId, batchId, fixingIds }) {
     return axios.post('/BatchAddFixing', Qs.stringify({ adminId, batchId, fixingIds }))
   }
+  function PushSmsInstructions({ adminId, content, fixingId }) {
+    return axios.post('/PushSmsInstructions', Qs.stringify({ adminId, content, fixingId }))
+  }
+  function GetSmsInstructionsList({ adminId, time, fixingId }) {
+    return axios.post('/GetSmsInstructionsList', Qs.stringify({ adminId, time, fixingId }))
+  }
   return {
     GetFixingList,
     GetFixingInfo,
@@ -51,6 +57,8 @@ var FIXING_API = (function () {
     AdminGetInstructionsList,
     AdminGetInstructions,
     GetFixingListForSearch,
-    BatchAddFixing
+    BatchAddFixing,
+    PushSmsInstructions,
+    GetSmsInstructionsList
   }
 })()

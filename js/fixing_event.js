@@ -1,17 +1,17 @@
 
 var sliderDoork = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, params, fixing) {
+  Event.create('fixing').listen(utils.GetUrlPageName(), function (map, source, params, fixing) {
     sliderDoork.refresh(map, source, params, fixing)
   })
-  Event.create('fixing').listen('control', function (map, source, params, fixing) {
-    sliderDoork.refresh(map, source, params, fixing)
-  })
-  Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
-    sliderDoork.refresh(map, source, params, fixing)
-  })
-  Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
-    sliderDoork.refresh(map, source, params, fixing)
-  })
+  // Event.create('fixing').listen('control', function (map, source, params, fixing) {
+  //   sliderDoork.refresh(map, source, params, fixing)
+  // })
+  // Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
+  //   sliderDoork.refresh(map, source, params, fixing)
+  // })
+  // Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
+  //   sliderDoork.refresh(map, source, params, fixing)
+  // })
 
   return {
     refresh(map, source, params, fixing) {
@@ -72,7 +72,6 @@ var mapDoork = (function ($el) {
 // 搜索
 var fixingSearch = (function ($el) {
   Event.create('fixing').listen('index', function (map, source, params) {
-    fixingSearch.unBindEvent()
     fixingSearch.bindIndexEvent(map, source, params)
   })
   Event.create('fixing').listen('control', function (map, source, params, fixing) {
@@ -84,12 +83,15 @@ var fixingSearch = (function ($el) {
   Event.create('fixing').listen('sportdata', function (map, source, params, fixing) {
     fixingSearch.bindEvent(map, source, params, fixing)
   })
+  Event.create('fixing').listen('sms', function (map, source, params, fixing) {
+    fixingSearch.bindEvent(map, source, params, fixing)
+  })
   return {
     unBindEvent() {
-      $el.off('click')
+      $el
     },
     bindIndexEvent(map, source, params) {
-      $el.on('click', 'button', function (e) {
+      $el.off('click').on('click', 'button', function (e) {
         let value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
@@ -106,7 +108,7 @@ var fixingSearch = (function ($el) {
       })
     },
     bindEvent(map, source, params, fixing) {
-      $el.on('click', 'button', function (e) {
+      $el.off('click').on('click', 'button', function (e) {
         let value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
@@ -151,6 +153,11 @@ var fixingListsTab = (function ($el) {
     fixingListsTab.refresh(map, source, params, fixing)
     fixingListsTab.unBindEvent()
     fixingListsTab.bindSportDataEvent(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('sms', function (map, source, params, fixing) {
+    fixingListsTab.refresh(map, source, params, fixing)
+    fixingListsTab.unBindEvent()
+    fixingListsTab.bindSMSEvent(map, source, params, fixing)
   })
 
   return {
@@ -224,6 +231,19 @@ var fixingListsTab = (function ($el) {
         Event.create('fixing').trigger('sportdata', map, source, params, fixing)
       })
     },
+    bindSMSEvent(map, source, params, fixing) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('fixing').trigger('sms', map, source, params, fixing)
+      })
+    },
     refresh(map, source, params) {
       if (!source) source = []
       $el.html(`<li class="nav-item fixing-all"><a class="nav-link " href="#">全部（${source.length}）</a></li>
@@ -261,6 +281,11 @@ var fixingLists = (function ($el) {
     fixingLists.refresh(map, source, params, fixing)
     fixingLists.unBindEvent()
     fixingLists.bindSportdataEvent(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('sms', function (map, source, params, fixing) {
+    fixingLists.refresh(map, source, params, fixing)
+    fixingLists.unBindEvent()
+    fixingLists.bindSMSEvent(map, source, params, fixing)
   })
 
   return {
@@ -348,6 +373,21 @@ var fixingLists = (function ($el) {
           .addClass('text-muted')
 
         Event.create('fixing').trigger('GetFixingSportData', map, item, params, fixing)
+      })
+    },
+    bindSMSEvent(map, source, params, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data()
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+
+
+        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
       })
     },
     refresh(map, source, params, fixing) {
@@ -525,24 +565,26 @@ var fixingInstructions = (function ($el) {
       fixing.fixingId = titleNode.textContent
       if (fixing.type === 'init') {
         fixing.currentTime = $el.find('.instructions-datepicker').attr('value')
-        $el.find('.instructions-datepicker').datepicker('update')
       }
       // loacl 获取数据
+      $el.find('.instructions-datepicker').datepicker('update')
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
           let instructionsContent = res.data.data.reverse().map(item => {
-            return `<tr class="">
+            return $(`<tr class="">
                 <td class="border">${item.shijian}</td>
                 <td class="border text-center">${item.leixing}</td>
                 <td class="border breakAll">${item.content}</td>
-              </tr>`
-          }).join('')
-          $el.find('.instructions-container > .instructions-table > tbody').empty().html(instructionsContent)
+              </tr>`)
+          })
+          $el.find('.instructions-table > tbody').empty().append(instructionsContent)
           $el.modal('show')
         }
         if (res.data.ret === 1002) {
-          $el.find('.instructions-container').text(res.data.code)
+          $el.find('.instructions-table > tbody').empty().append(`<tr>
+            <td colspan="3" class="border text-center pt-2 pb-2">${res.data.code}</td>
+          </tr>`)
           $el.modal('show')
         }
       })
@@ -602,6 +644,7 @@ var fixingQRCode = (function ($el) {
           $("#qrcBody > canvas").hide();//隐藏canvas部分
           $("#qrcBody > .qrcImg").show();//显示img部分
           $('#qrcBody').data('url', res.data.data)
+          $('#qrcBody > p').text(fixingId)
         }
         if (res.data.ret === 1002) {
           $el.find('.fixing-qrcode-container').text(res.data.code)
@@ -637,20 +680,25 @@ var printQRCode = (function ($el) {
       // `;
       // let url =  $('#qrcBody').data( 'url')
       // windowObjectReference = window.open(`${location.origin}/print.html?${url}`, "_blank", strWindowFeatures)
-      $("#qrcBody").print({
-        globalStyles: false,
-        mediaPrint: true,
-        stylesheet: null,
-        noPrintSelector: ".no-print",
-        iframe: true,
-        append: null,
-        prepend: null,
-        manuallyCopyFormValues: true,
-        deferred: $.Deferred(),
-        timeout: 750,
-        // title: '',
-        doctype: '<!doctype html>'
-      });
+      // $("#qrcBody").print({
+      //   globalStyles: false,
+      //   mediaPrint: true,
+      //   stylesheet: null,
+      //   noPrintSelector: ".no-print",
+      //   iframe: true,
+      //   append: null,
+      //   prepend: null,
+      //   manuallyCopyFormValues: true,
+      //   deferred: $.Deferred(),
+      //   timeout: 750,
+      //   // title: '',
+      //   doctype: '<!doctype html>'
+      // });
+      $('#qrcBody').printThis({
+        importCSS: false,
+        importStyle: false,
+        loadCSS: '/styles/print.css'
+      })
     }
   }
 })()
@@ -780,6 +828,10 @@ var fixingTrajectoryTable = (function ($el) {
               .off('click')
               .on('click', function (e) {
                 $(this).addClass('active').siblings().removeClass('active')
+                fixing.currentTime = utils.handleTimestampToDate($('.trajectory-datepicker').datepicker('getDate'))
+                $('.instructions-datepicker').attr('value', fixing.currentTime)
+                $('.instructions-datepicker').datepicker('update')
+                // $('.instructions-datepicker').attr('value', $('.instructions-datepicker').attr('value'))
                 // utils.setUrlToTableIndex(item.markerIndex)
                 // fixing.fixingId = item.entity_name
                 Event.create('map').trigger('trajectoryMarkerInfoWindow', map, item, params, fixing)
@@ -843,6 +895,7 @@ var fixingTrajectoryDatepicker = (function ($el) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
         $el.datepicker('update')
         $('.instructions-datepicker').attr('value', fixing.currentTime)
+        console.log($('.instructions-datepicker').attr('value'))
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
       })
     }
@@ -1083,3 +1136,112 @@ var sportDataDatepicker = (function ($el) {
     }
   }
 })($('.sportdata-datepicker '))
+
+// 发送短信指令
+var fixingPushSmsInstructions = (function ($el) {
+  Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
+    fixingPushSmsInstructions.refresh(map, item, params, fixing)
+  })
+
+  return {
+    refresh(map, item, params, fixing) {
+
+      $el.off('click').on('click', function () {
+        if (fixing.type === 'init') {
+          $('.sms-datepicker').datepicker('update');
+        }
+        let userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+          content = $('#sms-instructions-list-textarea').val()
+        if (!content) {
+          $('#no-data-ModalCenter').find('.no-data-container').text('请输入发送指令')
+          $('#no-data-ModalCenter').modal('show')
+          return
+        }
+        FIXING_API.PushSmsInstructions({ adminId: userInfo.AdminId, fixingId: item.entity_name, content }).then(res => {
+          if (res.data.ret === 1001) {
+            fixing.type = 'push'
+            Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+          }
+          if (res.data.ret === 1002) {
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
+          }
+        })
+      })
+
+    }
+  }
+})($('.push-sms-instructions'))
+
+// 短信中心列表
+var fixingInstructionsList = (function ($el) {
+  Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
+    fixingInstructionsList.refresh(map, item, params, fixing)
+  })
+
+  return {
+    refresh(map, item, params, fixing) {
+      if (fixing.type === 'init') {
+        $('.sms-datepicker').datepicker('update');
+      }
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      fixing.fixingId = item.entity_name
+      FIXING_API.GetSmsInstructionsList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
+        if (res.data.ret === 1001) {
+          $('.instructions-table > tbody')
+            .empty()
+            .append(res.data.data.map((item, index) => {
+              let Content = item.Content,
+                Ctime = utils.handleTimestampToDateTime(item.Ctime),
+                Fcontent = item.Fcontent,
+                Ftime = item.Ftime,
+                Id = item.Id,
+                Imei = item.Imei,
+                Mobile = item.Mobile,
+                Sendkey = item.Sendkey,
+                status = item.status === '0' ? '发送失败' : '发送成功'
+
+
+              return $(`
+                  <tr id='${index}'>
+                  <th scope="row" class="normal border pt-2 pb-2 text-center" width="20%">${Ctime}</th>
+                  <td class="normal border pt-2 pb-2 text-center" width="10%">${Sendkey}</td>
+                  <td class="normal border pt-2 pb-2 text-center" width="10%">${status}</td>
+                  <td class="normal border pt-2 pb-2 text-center" width="30%">${Content}</td>
+                  <td class="normal border pt-2 pb-2 text-center" width="15%">${Imei}</td>
+                  <td class="normal border pt-2 pb-2 text-center" width="15%">${Mobile}</td>
+                  </tr>
+                  `)
+            }))
+          // Event.create('fixing').trigger('fixingTrajectoryTable', map, res.data.data, params, fixing)
+        }
+        if (res.data.ret === 1002) {
+          $('.instructions-table > tbody')
+            .html(`
+            <tr>
+            <td colspan="6" class="border text-center pt-2 pb-2">${res.data.code}</td>
+            </tr>`)
+        }
+      })
+    }
+  }
+})()
+
+
+
+
+var smsDatepicker = (function ($el) {
+  Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
+    smsDatepicker.refresh(map, item, params, fixing)
+  })
+  return {
+    refresh(map, item, params, fixing) {
+      $el.off('changeDate').on('changeDate', function (e) {
+        fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        $el.datepicker('update')
+        fixing.type = 'update'
+        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+      })
+    }
+  }
+})($('.sms-datepicker'))
