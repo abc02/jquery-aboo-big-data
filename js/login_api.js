@@ -1,8 +1,8 @@
 
 var LOGIN_API = (function () {
   // 账户登录
-  function AdminLoginAccount({ username, password }) {
-    return axios.post('/AdminLoginAccount', Qs.stringify({ username, password }))
+  function AdminLoginForData({ username, password }) {
+    return axios.post('/AdminLoginForData', Qs.stringify({ username, password }))
   }
   // 修改管理密码
   function AdminEditPassword({ adminId, oldPassword, newPassword }) {
@@ -13,7 +13,7 @@ var LOGIN_API = (function () {
     return axios.post('/AdminUpdateUserStatusInfo', Qs.stringify({ adminId, userId, userStatus }))
   }
   return {
-    AdminLoginAccount,
+    AdminLoginForData,
     AdminEditPassword,
     AdminUpdateUserStatusInfo,
   }
