@@ -80,15 +80,15 @@ var map = (function (BMap) {
     <div class="mode-container reltive absolute-top-left bg-white pt-1 pb-1 pl-2 pr-2 shadow-bottom" style="display: none; margin-top: 45px; min-width: 160px;">
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="modegps" checked>
-        <label class="custom-control-label" for="modegps">室外卫星定位</label>
+        <label class="custom-control-label" for="modegps">卫星定位</label>
       </div>
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="modelbs" checked>
-        <label class="custom-control-label" for="modelbs">移动基站定位</label>
+        <label class="custom-control-label" for="modelbs">基站定位</label>
       </div>
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="modewifi" checked>
-        <label class="custom-control-label" for="modewifi">室内无线定位</label>
+        <label class="custom-control-label" for="modewifi">无线定位</label>
       </div>
       <div class="arrow-up absolute-top-left" style="transform: translateY(-99%);"></div>
     </div>
@@ -110,7 +110,9 @@ var map = (function (BMap) {
   var DistanceControl = new DistanceControl();
   // 添加到地图当中
   baiduMap.addControl(DistanceControl);
-  baiduMap.addControl(SelectModeControl);
+  console.log(utils.GetUrlPageName())
+  if(utils.GetUrlPageName() === 'trajectory') baiduMap.addControl(SelectModeControl);
+  
 
   var menu = new BMap.ContextMenu();
   var txtMenuItem = [
