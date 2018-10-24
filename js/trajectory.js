@@ -9,7 +9,7 @@ var trajectory = (function () {
   let params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
-  params.pageSize = 6
+  params.pageSize = 5
   params.fixingListsTabIndex ? params.fixingListsTabIndex = Number.parseInt(params.fixingListsTabIndex) : params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   let fixing = {
