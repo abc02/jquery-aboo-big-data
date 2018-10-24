@@ -134,10 +134,10 @@ var fixingListsTab = (function ($el) {
     fixingListsTab.unBindEvent()
     fixingListsTab.bindCommonEvent(map, source, params)
   })
-  Event.create('fixing').listen('index', function (map, source, params) {
-    fixingListsTab.refresh(map, source, params)
+  Event.create('fixing').listen('index', function (map, source, params, fixing) {
+    fixingListsTab.refresh(map, source, params, fixing)
     fixingListsTab.unBindEvent()
-    fixingListsTab.bindIndexEvent(map, source, params)
+    fixingListsTab.bindIndexEvent(map, source, params, fixing)
   })
   Event.create('fixing').listen('control', function (map, source, params, fixing) {
     fixingListsTab.refresh(map, source, params, fixing)
@@ -178,7 +178,7 @@ var fixingListsTab = (function ($el) {
         Event.create('fixing').trigger('index', map, source, params)
       })
     },
-    bindIndexEvent(map, source, params) {
+    bindIndexEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
         // update tabindex css
         $(e.currentTarget)
@@ -189,7 +189,7 @@ var fixingListsTab = (function ($el) {
         params.fixingListsTabIndex = $(e.currentTarget).index()
         utils.SetUrlParams(params)
         Event.create('map').trigger('index', map, source, params)
-        Event.create('fixing').trigger('index', map, source, params)
+        Event.create('fixing').trigger('index', map, source, params, fixing)
       })
     },
     bindControlEvent(map, source, params, fixing) {
@@ -292,7 +292,7 @@ var fixingLists = (function ($el) {
     unBindEvent() {
       $el.off('click')
     },
-    bindIndexEvent(map, source, params) {
+    bindIndexEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
         let item = $(e.currentTarget).data()
         // update item css
@@ -303,14 +303,17 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-        let { longitude, latitude } = item.latest_location, iconPath, marker,
-          point = new BMap.Point(longitude, latitude)
+        let { longitude, latitude } = item.latest_location, iconPath, marker
+        fixing.fixingId = item.entity_name
+        fixing.point = new BMap.Point(longitude, latitude)
+        fixing.isTrigger = true
+          
         if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
         if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
-        marker = new BMap.Marker(point, { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
+        marker = new BMap.Marker(fixing.point , { icon: new BMap.Icon(iconPath, new BMap.Size(31, 44)) })
         map.addOverlay(marker)
-        Event.create('map').trigger('mapPanToMarkerPoint', map, point)
-        Event.create('map').trigger('initMarkerInfoWindow', map, source, params, { fixingId: item.entity_name, point, isTrigger: true }, marker)
+        Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
+        Event.create('map').trigger('initMarkerInfoWindow', map, source, params, fixing, marker)
       })
 
     },
@@ -562,8 +565,10 @@ var fixingInstructions = (function ($el) {
       fixing.fixingId = titleNode.textContent
       if (fixing.type === 'init') {
         let currentTime = $el.find('.instructions-datepicker').attr('value')
+        console.log(currentTime)
         if (currentTime) fixing.currentTime = currentTime
       }
+      console.log(fixing)
       // loacl 获取数据
       $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime)
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')

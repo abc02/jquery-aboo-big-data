@@ -13,9 +13,13 @@ var index = (function () {
   params.pageSize = 11
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
+  let fixing = {
+    currentTime: utils.handleTimestampToDate(new Date()),//当天
+    type: 'init'
+  }
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
     // 通知地图更新，列表更新
     Event.create('map').trigger('index', map, res.data.data, params)
-    Event.create('fixing').trigger('index', map, res.data.data, params)
+    Event.create('fixing').trigger('index', map, res.data.data, params, fixing)
   })
 })()
