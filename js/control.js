@@ -74,20 +74,21 @@ var control = (function (pageName) {
   params.pageSize = 5
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
+  let fixing = {
+    currentTime: utils.handleTimestampToDate(new Date()),//当天
+    type: 'init'
+  }
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
-    Event.create('fixing').trigger('control', map, res.data.data, params, null)
+    Event.create('fixing').trigger('control', map, res.data.data, params, fixing)
     if (params && params.fixingId) {
       if (window.setIntervaler) {
         map.clearOverlays()
         clearInterval(window.setIntervaler)
       }
       let item = utils.FilterFxingListUrl(res.data.data)[0]
-      let fixing = {
-        point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
-        fixingId: item.entity_name,
-        type: 'init',
-        isTrigger: true
-      }
+      fixing.point = new BMap.Point(item.latest_location.longitude, item.latest_location.latitude)
+      fixing.fixingId = item.entity_name
+      fixing.isTrigger = true
 
       Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
       Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)

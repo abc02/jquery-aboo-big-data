@@ -139,10 +139,10 @@ var fixingListsTab = (function ($el) {
     fixingListsTab.unBindEvent()
     fixingListsTab.bindIndexEvent(map, source, params)
   })
-  Event.create('fixing').listen('control', function (map, source, params) {
-    fixingListsTab.refresh(map, source, params)
+  Event.create('fixing').listen('control', function (map, source, params, fixing) {
+    fixingListsTab.refresh(map, source, params, fixing)
     fixingListsTab.unBindEvent()
-    fixingListsTab.bindControlEvent(map, source, params)
+    fixingListsTab.bindControlEvent(map, source, params, fixing)
   })
   Event.create('fixing').listen('trajectory', function (map, source, params, fixing) {
     fixingListsTab.refresh(map, source, params, fixing)
@@ -192,7 +192,7 @@ var fixingListsTab = (function ($el) {
         Event.create('fixing').trigger('index', map, source, params)
       })
     },
-    bindControlEvent(map, source, params) {
+    bindControlEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
         // update tabindex css
         $(e.currentTarget)
@@ -202,7 +202,7 @@ var fixingListsTab = (function ($el) {
           .removeClass('border-bottom text-white')
         params.fixingListsTabIndex = $(e.currentTarget).index()
         utils.SetUrlParams(params)
-        Event.create('fixing').trigger('control', map, source, params)
+        Event.create('fixing').trigger('control', map, source, params, fixing)
       })
     },
     bindTrajectoryEvent(map, source, params, fixing) {
@@ -314,7 +314,7 @@ var fixingLists = (function ($el) {
       })
 
     },
-    bindControlEvent(map, source, params) {
+    bindControlEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
         let item = $(e.currentTarget).data()
         // update item css
@@ -324,18 +324,16 @@ var fixingLists = (function ($el) {
           .siblings()
           .removeClass('text-white')
           .addClass('text-muted')
+
         if (!window.isClickLock) {
           window.isClickLock = true
           if (window.setIntervaler) {
             map.clearOverlays()
             clearInterval(window.setIntervaler)
           }
-          let fixing = {
-            point: new BMap.Point(item.latest_location.longitude, item.latest_location.latitude),
-            fixingId: item.entity_name,
-            type: 'init',
-            isTrigger: true
-          }
+          fixing.point = new BMap.Point(item.latest_location.longitude, item.latest_location.latitude)
+          fixing.fixingId = item.entity_name
+          fixing.isTrigger = true
 
           Event.create('map').trigger('mapPanToMarkerPoint', map, fixing.point)
           Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
@@ -561,13 +559,13 @@ var fixingInstructions = (function ($el) {
     refresh(map, fixing) {
       let titleHHTML = map.getInfoWindow().getTitle(),
         titleNode = document.createRange().createContextualFragment(titleHHTML)
-
       fixing.fixingId = titleNode.textContent
       if (fixing.type === 'init') {
-        fixing.currentTime = $el.find('.instructions-datepicker').attr('value')
+        let currentTime = $el.find('.instructions-datepicker').attr('value')
+        if (currentTime) fixing.currentTime = currentTime
       }
       // loacl 获取数据
-      $el.find('.instructions-datepicker').datepicker('update')
+      $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime)
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
@@ -601,7 +599,7 @@ var fixingInstructionsDatepicker = (function ($el) {
 
   return {
     refresh(map, fixing) {
-      $el.off('changeDate').one('changeDate', function (e) {
+      $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
         $el.datepicker('update')
         fixing.type = 'update'
@@ -895,7 +893,6 @@ var fixingTrajectoryDatepicker = (function ($el) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
         $el.datepicker('update')
         $('.instructions-datepicker').attr('value', fixing.currentTime)
-        console.log($('.instructions-datepicker').attr('value'))
         Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
       })
     }
