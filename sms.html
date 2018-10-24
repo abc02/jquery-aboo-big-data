@@ -57,7 +57,7 @@
           <div class="bg-dark relative d-flex align-items-stretch">
             <div class="slider-dialog bg-dark shadow-right-big" style="width: 368px; display: block;">
               <section class="height-100 d-flex flex-column">
-                <div class="slider-dialog-list-container flex-fill relative">
+                <div class="slider-dialog-list-container flex-fill relative d-flex flex-column">
                   <div class="pl-4 pr-4 pt-3 pb-3">
                     <div class="row-between border search-container">
                       <input type="text" class="p-2 text-white search-container nav-search" placeholder="输入关键字" />
@@ -66,12 +66,13 @@
                       </button>
                     </div>
                   </div>
-                  <ul class="nav justify-content-center nav-tab-container">
-                  </ul>
-                  <ul class="p-1 fixing-container">
-                  </ul>
-                  <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"
-                    id="pagination"></ul>
+                  <div class="d-flex flex-column justify-content-between align-items-stretch flex-fill">
+                    <ul class="nav justify-content-center nav-tab-container">
+                    </ul>
+                    <ul class="mb-3 fixing-container flex-fill">
+                    </ul>
+                    <ul class="pagination-container d-flex justify-content-center mb-3" id="pagination"></ul>
+                  </div>
                 </div>
                 <div class="datepicker-container">
                   <div class="datepicker sms-datepicker d-flex p0 justify-content-center" data-date="new Date()"></div>

@@ -53,7 +53,7 @@
             <p class="pt-2">短信中心</p>
           </a>
         </nav>
-        <div class="slider-dialog bg-dark shadow-right-big relative" style="z-index: 999; width: 368px; display: block;">
+        <div class="slider-dialog bg-dark shadow-right-big relative d-flex flex-column" style="z-index: 999; width: 368px; display: block;">
           <h5 class="d-flex justify-content-between text-light ml-4 mr-4 mt-3 mb-2">查看设备数量
           </h5>
           <div class="border-bottom pl-4 pr-4 pt-2 pb-2">
@@ -67,12 +67,13 @@
               </button>
             </div>
           </div>
-          <ul class="nav justify-content-center nav-tab-container">
-          </ul>
-          <ul class="p-1 fixing-container">
-          </ul>
-          <ul class="pagination-container d-flex justify-content-center absolute-bottom-center" style="bottom: 12px;"
-            id="pagination"></ul>
+          <div class="d-flex flex-column justify-content-between align-items-stretch flex-fill">
+            <ul class="nav justify-content-center nav-tab-container">
+            </ul>
+            <ul class="mb-3 fixing-container flex-fill">
+            </ul>
+            <ul class="pagination-container d-flex justify-content-center mb-3" id="pagination"></ul>
+          </div>
         </div>
         <button class="slider-doork absolute-middle-right pointer" style="right: 1px; z-index: 999; transform: translateX(100%);">
           <img src="/assets/extension_left.png" alt="extension">
@@ -151,7 +152,7 @@
         <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
       <button onclick="Event.create('fixing').trigger('GetFixingInfo', map)" type='button' class='fixing-info  ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='14' height='17' src='/assets/contro_data.png' />资料</button>
-      <button onclick="Event.create('fixing').trigger('AdminGetInstructionsList', map, { type: 'init', currentTime: new Date()})"
+      <button onclick="Event.create('fixing').trigger('AdminGetInstructionsList', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})"
         type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
       <button onclick="Event.create('fixing').trigger('GetFixingQRCode', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
