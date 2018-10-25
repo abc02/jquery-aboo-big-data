@@ -1,4 +1,3 @@
-
 var sliderDoork = (function ($el) {
   Event.create('fixing').listen(utils.GetUrlPageName(), function (map, source, params, fixing) {
     sliderDoork.refresh(map, source, params, fixing)
@@ -1144,10 +1143,17 @@ var fixingPushSmsInstructions = (function ($el) {
   Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
     fixingPushSmsInstructions.refresh(map, item, params, fixing)
   })
-
+  Event.create('fixing').listen('sms', function (map, source, params, fixing) {
+    fixingPushSmsInstructions.smsRefresh(map, source, params, fixing)
+  })
   return {
+    smsRefresh(map, source, params, fixing ) {
+      $el.off('click').on('click', function () {
+        $('#no-data-ModalCenter').find('.no-data-container').text('请先在列表中选择设备ID')
+        $('#no-data-ModalCenter').modal('show')
+      })
+    },
     refresh(map, item, params, fixing) {
-
       $el.off('click').on('click', function () {
         if (fixing.type === 'init') {
           $('.sms-datepicker').datepicker('update');

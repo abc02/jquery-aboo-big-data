@@ -110,7 +110,6 @@ var map = (function (BMap) {
   var DistanceControl = new DistanceControl();
   // 添加到地图当中
   baiduMap.addControl(DistanceControl);
-  console.log(utils.GetUrlPageName())
   if(utils.GetUrlPageName() === 'trajectory') baiduMap.addControl(SelectModeControl);
   
 
