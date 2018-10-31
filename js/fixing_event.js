@@ -330,7 +330,8 @@ var fixingLists = (function ($el) {
         if (!window.isClickLock) {
           window.isClickLock = true
           if (window.setIntervaler) {
-            map.clearOverlays()
+            
+            fixing.type = 'init'
             clearInterval(window.setIntervaler)
           }
           fixing.point = new BMap.Point(item.latest_location.longitude, item.latest_location.latitude)
@@ -341,7 +342,7 @@ var fixingLists = (function ($el) {
           Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
           window.setIntervaler = setInterval(() => {
             fixing.type = 'update'
-            fixing.isTrigger = false
+            fixing.isTrigger = true
             Event.create('fixing').trigger('GetLastPosition', map, item, params, fixing)
           }, 60000)
         }
@@ -723,6 +724,7 @@ var fixingInfoLive = (function ($el) {
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       // 请求最后位置信息接口
       FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
+        
         window.isClickLock = false
         let marker
         if (res.data.ret === 1001) {
@@ -740,7 +742,7 @@ var fixingInfoLive = (function ($el) {
             iconPath
 
           if (oldCreateTime !== res.data.createTime) {
-
+            map.clearOverlays()
             oldCreateTime = res.data.createTime
             if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
             if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
