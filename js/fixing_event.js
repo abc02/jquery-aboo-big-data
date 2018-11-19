@@ -70,8 +70,8 @@ var mapDoork = (function ($el) {
 
 // 搜索
 var fixingSearch = (function ($el) {
-  Event.create('fixing').listen('index', function (map, source, params) {
-    fixingSearch.bindIndexEvent(map, source, params)
+  Event.create('fixing').listen('index', function (map, source, params, fixing) {
+    fixingSearch.bindIndexEvent(map, source, params, fixing)
   })
   Event.create('fixing').listen('control', function (map, source, params, fixing) {
     fixingSearch.bindEvent(map, source, params, fixing)
@@ -89,14 +89,14 @@ var fixingSearch = (function ($el) {
     unBindEvent() {
       $el
     },
-    bindIndexEvent(map, source, params) {
+    bindIndexEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'button', function (e) {
         let value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
-            Event.create('map').trigger('index', map, res.data.data, params)
-            Event.create('fixing').trigger('index', map, res.data.data, params)
+            Event.create('map').trigger('index', map, res.data.data, params, fixing)
+            Event.create('fixing').trigger('index', map, res.data.data, params, fixing)
           }
           if (res.data.ret === 1002) {
             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
