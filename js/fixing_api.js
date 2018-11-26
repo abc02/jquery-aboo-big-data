@@ -47,6 +47,9 @@ var FIXING_API = (function () {
   function GetSmsInstructionsList({ adminId, time, fixingId }) {
     return axios.post('/GetSmsInstructionsList', Qs.stringify({ adminId, time, fixingId }))
   }
+  function SendInstruction({ adminId, fixingId, instruction }) {
+    return axios.post('/SendInstruction', Qs.stringify({ adminId, fixingId, instruction }))
+  }
   return {
     GetFixingList,
     GetFixingInfo,
@@ -59,6 +62,7 @@ var FIXING_API = (function () {
     GetFixingListForSearch,
     BatchAddFixing,
     PushSmsInstructions,
-    GetSmsInstructionsList
+    GetSmsInstructionsList,
+    SendInstruction
   }
 })()

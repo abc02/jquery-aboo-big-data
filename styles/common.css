@@ -682,6 +682,6 @@
 }
 
 .table .thead {
-  width: calc( 100% - 1em )
+  /* width: calc( 100% - 1em ) */
 }
 /* table thead th{ background:#ccc;} */

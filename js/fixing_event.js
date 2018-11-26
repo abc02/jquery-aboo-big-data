@@ -497,7 +497,8 @@ var fixingInfo = (function ($el) {
             fixingPassword = fixinginfo.fixingPassword,
             isStarting = fixinginfo.isStarting === '1' ? '开机' : '关机',
             managerId = fixinginfo.managerId,
-            mode = fixinginfo.mode === '1' ? '正常模式' : '追踪模式',
+            mode = fixinginfo.mode === '0' ? '省电模式' : fixinginfo.mode === '1' ? '正常模式' : '追踪模式',
+            // mode = fixinginfo.mode === '1' ? '正常模式' : '追踪模式',
             serivceId = fixinginfo.serivceId,
             sms = fixinginfo.sms,
             state = fixinginfo.state
@@ -552,14 +553,28 @@ var fixingInfo = (function ($el) {
   }
 })($('#fixing-info-ModalCenter'))
 
-// 鞋垫指令
-var fixingInstructions = (function ($el) {
-  Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
-    fixingInstructions.refresh(map, fixing)
+
+// instructions-list-20181126-ModalCenter
+var instructionsDialog = (function ($el) {
+  Event.create('fixing').listen('instructionsDialog', function (map, fixing) {
+    instructionsDialog.refresh(map, fixing)
   })
 
   return {
     refresh(map, fixing) {
+      Event.create('fixing').trigger('AdminGetInstructionsList', map, fixing)
+      Event.create('fixing').trigger('AdminGetInstructions', map, fixing)
+    }
+  }
+})()
+
+var AdminGetInstructions = (function($el) {
+  Event.create('fixing').listen('AdminGetInstructions', function (map, fixing) {
+    AdminGetInstructions.refresh(map, fixing)
+  })
+  
+  return {
+    refresh(map,fixing) {
       let titleHHTML = map.getInfoWindow().getTitle(),
         titleNode = document.createRange().createContextualFragment(titleHHTML)
       fixing.fixingId = titleNode.textContent
@@ -574,31 +589,111 @@ var fixingInstructions = (function ($el) {
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
+          // 1 设备 2 平台
           let instructionsContent = res.data.data.reverse().map(item => {
+            let leixingText = item.leixing === '1' ? '设备' : '平台'
             return $(`<tr class="">
-                <td class="border">${item.shijian}</td>
-                <td class="border text-center">${item.leixing}</td>
-                <td class="border breakAll">${item.content}</td>
+                <td class="" width="120">${item.shijian}</td>
+                <td class="" width="100">${leixingText}</td>
+                <td class="breakAll" width="238">${item.content}</td>
               </tr>`)
           })
-          $el.find('.instructions-table > tbody').empty().append(instructionsContent)
+          $el.find('#AdminGetInstructions .tbody').empty().append(instructionsContent)
           $el.modal('show')
         }
         if (res.data.ret === 1002) {
-          $el.find('.instructions-table > tbody').empty().append(`<tr>
-            <td colspan="3" class="border text-center pt-2 pb-2">${res.data.code}</td>
+          $el.find('#AdminGetInstructions  .tbody').empty().append(`<tr>
+            <td colspan="3" class="text-center pt-2 pb-2">${res.data.code}</td>
           </tr>`)
           $el.modal('show')
         }
       })
     }
   }
-})($('#instructions-list-ModalCenter'))
+
+})($('#instructions-list-20181126-ModalCenter'))
+
+
+var AdminGetInstructionsList = (function($el) {
+  Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
+    AdminGetInstructionsList.refresh(map, fixing)
+  })
+  
+  return {
+    refresh(map, fixing) {
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.AdminGetInstructionsList({ adminId: userInfo.AdminId }).then(res => {
+        if (res.data.ret === 1001) {
+          let instructionsContent = res.data.data.map((item, index) => {
+            return $(`<tr class="" data-id="${item.Id}" data-instructions="${item.Instructions}" data-type="${item.type}">
+                <td class="pl-4" width="120">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios${item.Id}" value="${item.Instructions}">
+                  <label class="form-check-label" for="exampleRadios${item.Id}">
+                    ${item.Content}
+                  </label>
+                </div>
+              </td>
+              </tr>`)
+          })
+          $el.find('#AdminGetInstructionsList .tbody').empty().append(instructionsContent)
+        }
+        if (res.data.ret === 1002) {
+        
+        }
+      })
+    }
+  }
+
+})($('#instructions-list-20181126-ModalCenter'))
+
+// 鞋垫指令
+// var fixingInstructions = (function ($el) {
+//   Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
+//     fixingInstructions.refresh(map, fixing)
+//   })
+
+//   return {
+//     refresh(map, fixing) {
+//       let titleHHTML = map.getInfoWindow().getTitle(),
+//         titleNode = document.createRange().createContextualFragment(titleHHTML)
+//       fixing.fixingId = titleNode.textContent
+//       if (fixing.type === 'init') {
+//         let currentTime = $el.find('.instructions-datepicker').attr('value')
+//         console.log(currentTime)
+//         if (currentTime) fixing.currentTime = currentTime
+//       }
+//       console.log(fixing)
+//       // loacl 获取数据
+//       $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime)
+//       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+//       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
+//         if (res.data.ret === 1001) {
+//           let instructionsContent = res.data.data.reverse().map(item => {
+//             return $(`<tr class="">
+//                 <td class="border">${item.shijian}</td>
+//                 <td class="border text-center">${item.leixing}</td>
+//                 <td class="border breakAll">${item.content}</td>
+//               </tr>`)
+//           })
+//           $el.find('.instructions-table > tbody').empty().append(instructionsContent)
+//           $el.modal('show')
+//         }
+//         if (res.data.ret === 1002) {
+//           $el.find('.instructions-table > tbody').empty().append(`<tr>
+//             <td colspan="3" class="border text-center pt-2 pb-2">${res.data.code}</td>
+//           </tr>`)
+//           $el.modal('show')
+//         }
+//       })
+//     }
+//   }
+// })($('#instructions-list-ModalCenter'))
 
 
 // 指令日期选择器
 var fixingInstructionsDatepicker = (function ($el) {
-  Event.create('fixing').listen('AdminGetInstructionsList', function (map, fixing) {
+  Event.create('fixing').listen('instructionsDialog', function (map, fixing) {
     fixingInstructionsDatepicker.refresh(map, fixing)
   })
 
@@ -608,11 +703,40 @@ var fixingInstructionsDatepicker = (function ($el) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
         $el.datepicker('update')
         fixing.type = 'update'
-        Event.create('fixing').trigger('AdminGetInstructionsList', map, fixing)
+        Event.create('fixing').trigger('AdminGetInstructions', map, fixing)
       })
     }
   }
 })($('.instructions-datepicker'))
+
+// 指令日期选择器
+var SendInstruction = (function ($el) {
+  Event.create('fixing').listen('instructionsDialog', function (map, fixing) {
+    SendInstruction.refresh(map, fixing)
+  })
+
+  return {
+    refresh(map, fixing) {
+      $el.off('click').on('click', function (e) {
+        let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        let InstructionsTextarea = $('#InstructionsTextarea').val()
+        let InstructionsRadio = $('input:radio:checked').val()
+        let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
+        FIXING_API.SendInstruction({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, instruction }).then(res => {
+          if (res.data.ret === 1001 ) {
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
+            Event.create('fixing').trigger('AdminGetInstructions', map, fixing)
+          }
+          if (res.data.ret === 1002) {
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
+          }
+        })
+      })
+    }
+  }
+})($('#SendInstruction-button'))
 
 // 鞋垫二维码
 var fixingQRCode = (function ($el) {
@@ -733,7 +857,7 @@ var fixingInfoLive = (function ($el) {
             createTime = utils.handleTimestampToDateTime(res.data.createTime),
             electricity = res.data.electricity, // 电量
             mode = res.data.mode,
-            modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
+            modestatus = res.data.modestatus === '0' ? '省电模式' : res.data.modestatus === '1' ? '正常模式' : '追踪模式',
             positions = res.data.positions.split(','),
             lng = positions[0],
             lat = positions[1],
@@ -809,7 +933,8 @@ var fixingTrajectoryTable = (function ($el) {
             longitude = item.longitude,
             latitude = item.latitude,
             mode = item.mode,
-            modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+            modestatus = item.modestatus === '0' ? '省电模式' : item.modestatus === '1' ? '正常模式' : '追踪模式',
+            // modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
             shutdown = item.shutdown === '0' ? '关机' : '开机',
             status = item.status === '1' ? '运动' : '静止'
 
