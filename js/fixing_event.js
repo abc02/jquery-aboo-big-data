@@ -595,14 +595,17 @@ var AdminGetInstructions = (function($el) {
             return $(`<tr class="">
                 <td class="" width="120">${item.shijian}</td>
                 <td class="" width="100">${leixingText}</td>
-                <td class="breakAll" width="238">${item.content}</td>
+                <td class="breakAll">${item.content}</td>
               </tr>`)
           })
-          $el.find('#AdminGetInstructions .tbody').empty().append(instructionsContent)
+          $el.find('#AdminGetInstructions .tbody').mCustomScrollbar()
+          .find('.mCustomScrollBox > .mCSB_container').empty().append(instructionsContent)
+          $el.find('#AdminGetInstructions .tbody').mCustomScrollbar('scrollTo', 'top')
           $el.modal('show')
         }
         if (res.data.ret === 1002) {
-          $el.find('#AdminGetInstructions  .tbody').empty().append(`<tr>
+          $el.find('#AdminGetInstructions  .tbody').mCustomScrollbar()
+          .find('.mCustomScrollBox > .mCSB_container').empty().append(`<tr>
             <td colspan="3" class="text-center pt-2 pb-2">${res.data.code}</td>
           </tr>`)
           $el.modal('show')
@@ -626,7 +629,7 @@ var AdminGetInstructionsList = (function($el) {
         if (res.data.ret === 1001) {
           let instructionsContent = res.data.data.map((item, index) => {
             return $(`<tr class="" data-id="${item.Id}" data-instructions="${item.Instructions}" data-type="${item.type}">
-                <td class="pl-4" width="120">
+                <td class="pl-4">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios${item.Id}" value="${item.Instructions}">
                   <label class="form-check-label" for="exampleRadios${item.Id}">
@@ -636,7 +639,8 @@ var AdminGetInstructionsList = (function($el) {
               </td>
               </tr>`)
           })
-          $el.find('#AdminGetInstructionsList .tbody').empty().append(instructionsContent)
+          $el.find('#AdminGetInstructionsList .tbody').mCustomScrollbar()
+          .find('.mCustomScrollBox > .mCSB_container').empty().append(instructionsContent)
         }
         if (res.data.ret === 1002) {
         
@@ -709,7 +713,7 @@ var fixingInstructionsDatepicker = (function ($el) {
   }
 })($('.instructions-datepicker'))
 
-// 指令日期选择器
+// 
 var SendInstruction = (function ($el) {
   Event.create('fixing').listen('instructionsDialog', function (map, fixing) {
     SendInstruction.refresh(map, fixing)
@@ -719,9 +723,9 @@ var SendInstruction = (function ($el) {
     refresh(map, fixing) {
       $el.off('click').on('click', function (e) {
         let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-        let InstructionsTextarea = $('#InstructionsTextarea').val()
-        let InstructionsRadio = $('input:radio:checked').val()
-        let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
+        let instruction = $('#InstructionsTextarea').val()
+        // let InstructionsRadio = $('input:radio:checked').val()
+        // let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
         FIXING_API.SendInstruction({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, instruction }).then(res => {
           if (res.data.ret === 1001 ) {
             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
@@ -737,6 +741,20 @@ var SendInstruction = (function ($el) {
     }
   }
 })($('#SendInstruction-button'))
+
+var AdminGetInstructionsListChecks = (function ($el) {
+  Event.create('fixing').listen('instructionsDialog', function (map, fixing) {
+    AdminGetInstructionsListChecks.refresh(map, fixing)
+  })
+
+  return {
+    refresh(map, fixing) {
+      $el.off('click').on('click', 'input.form-check-input', function (e) {
+        $('#InstructionsTextarea').val($(this).val())
+      })
+    }
+  }
+})($('#AdminGetInstructionsList'))
 
 // 鞋垫二维码
 var fixingQRCode = (function ($el) {
@@ -894,6 +912,7 @@ var fixingInfoLive = (function ($el) {
               .on('mouseenter mouseleave', 'tr', function (e) {
                 $(e.currentTarget).addClass('active').siblings().removeClass('active')
               })
+            $el.mCustomScrollbar()
             utils.setUrlToTableIndex(res.data.createTime)
 
             Event.create('map').trigger('controlMarkerInfoWindow', map, res.data, params, fixing, marker)
@@ -923,7 +942,8 @@ var fixingTrajectoryTable = (function ($el) {
   })
   return {
     refresh(map, source, params, fixing) {
-      $el.find('.track-list-tbody')
+      $el.find('.track-list-tbody').mCustomScrollbar()
+      .find('.mCustomScrollBox > .mCSB_container')
         .empty()
         .append(source.map((item, index) => {
           let address = item.address,
@@ -976,7 +996,7 @@ var fixingTrajectoryTable = (function ($el) {
             return renderTableRow()
           }
         }))
-
+        $el.find('.track-list-tbody').mCustomScrollbar('scrollTo', 'top')
     }
   }
 })($('.track-info-container'))

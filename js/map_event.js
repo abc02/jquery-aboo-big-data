@@ -151,7 +151,8 @@ var mapInfoWindow = (function ($el) {
               createTime = utils.handleTimestampToDateTime(res.data.createTime),
               electricity = res.data.electricity, // 电量
               mode = res.data.mode,
-              modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
+              modestatus = res.data.modestatus === '0' ?  '省电模式' : res.data.modestatus === '1' ? '正常模式' : '追踪模式',
+              // modestatus = res.data.modestatus === '1' ? '正常模式' : '追踪模式',
               positions = res.data.positions.split(','),
               lng = utils.handleToCut(positions[0], 4),
               lat = utils.handleToCut(positions[1], 4),
@@ -218,7 +219,8 @@ var mapInfoWindow = (function ($el) {
               createTime = utils.handleTimestampToDateTime(item.createTime),
               electricity = item.electricity, // 电量
               mode = item.mode,
-              modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+              modestatus = item.modestatus === '0' ?  '省电模式' : item.modestatus === '1' ? '正常模式' : '追踪模式',
+              // modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
               positions = item.positions.split(','),
               lng = utils.handleToCut(positions[0], 4),
               lat = utils.handleToCut(positions[1], 4),
@@ -280,7 +282,8 @@ var mapInfoWindow = (function ($el) {
               createTime = utils.handleTimestampToDateTime(item.createTime),
               electricity = item.electricity, // 电量
               mode = item.mode,
-              modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+              modestatus = item.modestatus === '0' ?  '省电模式' : item.modestatus === '1' ? '正常模式' : '追踪模式',
+              // modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
               positions = item.positions.split(','),
               lng = utils.handleToCut(positions[0], 4),
               lat = utils.handleToCut(positions[1], 4),
@@ -335,7 +338,8 @@ var mapInfoWindow = (function ($el) {
         longitude = utils.handleToCut(item.latitude, 4),
         latitude = utils.handleToCut(item.longitude, 4),
         mode = item.mode,
-        modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
+        modestatus = item.modestatus === '0' ?  '省电模式' : item.modestatus === '1' ? '正常模式' : '追踪模式',
+        // modestatus = item.modestatus === '1' ? '正常模式' : '追踪模式',
         shutdown = item.shutdown === '0' ? '关机' : '开机',
         status = item.status === '1' ? '运动' : '静止'
 
