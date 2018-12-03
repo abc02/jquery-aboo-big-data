@@ -24,6 +24,11 @@ axios.interceptors.request.use(function (config) {
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
   // Do something with response data
+  if (response && response.data.ret === 1003) {
+    // 返回 1003 清除token信息并跳转到登录页面
+    localStorage.removeItem('userinfo')
+    location.assign('/login.html')
+  }
   return response
 }, function (error) {
   // Do something with response error
