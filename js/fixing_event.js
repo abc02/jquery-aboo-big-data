@@ -1133,6 +1133,12 @@ var sportData = (function ($el) {
         trigger: 'axis',
         axisPointer: {
           type: 'none'
+        },
+        // 使用字符串模板，模板变量为图例名称 {name}
+        // formatter: 'Legend {a0}',
+        // 使用回调函数
+        formatter: function (name) {
+            return `${name[0].axisValue}<br /> ${Number.parseInt(name[0].value)} 米`
         }
       },
       xAxis: {
