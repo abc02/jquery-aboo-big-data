@@ -1391,18 +1391,18 @@ var fixingInstructionsList = (function ($el) {
 
 
 
-var smsDatepicker = (function ($el) {
-  Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
-    smsDatepicker.refresh(map, item, params, fixing)
-  })
-  return {
-    refresh(map, item, params, fixing) {
-      $el.off('changeDate').on('changeDate', function (e) {
-        fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-        $el.datepicker('update')
-        fixing.type = 'update'
-        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
-      })
-    }
-  }
-})($('.sms-datepicker'))
+// var smsDatepicker = (function ($el) {
+//   Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
+//     smsDatepicker.refresh(map, item, params, fixing)
+//   })
+//   return {
+//     refresh(map, item, params, fixing) {
+//       $el.off('changeDate').on('changeDate', function (e) {
+//         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+//         $el.datepicker('update')
+//         fixing.type = 'update'
+//         Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+//       })
+//     }
+//   }
+// })($('.sms-datepicker'))

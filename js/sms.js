@@ -8,7 +8,7 @@ var sms = (function () {
   let params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
-  params.pageSize = 5
+  params.pageSize = 12
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
   let fixing = {
