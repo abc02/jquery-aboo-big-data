@@ -130,8 +130,8 @@
          </div>
          <div class="d-flex modal-body instructions-container">
            <div style="min-width: 708px;" class="mr-2 bg-dark d-flex flex-column">
-             <h5 class="p-4">指令回复</h5>
-             <table class="table" id="AdminGetInstructions">
+             <h5 class="p-4">短信指令回复</h5>
+             <table class="table" id="GetSmsInstructionsList">
                <thead class="thead">
                  <tr>
                    <th scope="col" class="" width="120">指令时间</th>
@@ -143,9 +143,9 @@
                </tbody>
              </table>
              <div class="d-flex flex-row justify-content-start ml-4 mr-4 mt-4 mb-4">
-               <button type="primary" class="bg-bule color-white mr-4 pt-2 pb-2 pl-4 pr-4" onclick="Event.create('fixing').trigger('AdminGetInstructions', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})">刷新</button>
+               <button type="primary" class="bg-bule color-white mr-4 pt-2 pb-2 pl-4 pr-4 reset-button">刷新</button>
                <div class="input-group date " style="width: auto;">
-                 <input type="text" class="form-control datepicker instructions-datepicker">
+                 <input type="text" class="form-control datepicker instructions-datepicker sms-datepicker">
                  <div class="input-group-addon">
                    <span class="glyphicon glyphicon-th"></span>
                  </div>
@@ -153,8 +153,8 @@
              </div>
            </div>
            <div style="min-width: 316px;" class="bg-dark d-flex flex-column">
-             <h5 class="p-4">发送指令</h5>
-             <table class="table" id="AdminGetInstructionsList" >
+             <h5 class="p-4">短信指令列表</h5>
+             <table class="table" id="GetSmsInstructionsMod" >
                <thead class="thead" style="width: auto;">
                  <tr>
                    <th scope="col" class="" width="566">操作指令列表</th>
@@ -164,7 +164,7 @@
                </tbody>
              </table>
              <textarea class="ml-4 mr-4 mb-4 color-white p-3" placeholder="请编写指令" style="background: rgb(17, 18, 39);" name="InstructionsTextarea" id="InstructionsTextarea" cols="30" rows="5"></textarea>
-             <button id="SendInstruction-button" type="primary" class="bg-bule ml-4 mb-4 mt-2 pl-4 pr-4 pt-2 pb-2 align-self-start">发送指令</button>
+             <button id="sms-push-button" type="primary" class="bg-bule ml-4 mb-4 mt-2 pl-4 pr-4 pt-2 pb-2 align-self-start push-sms-button">发送短信指令</button>
            </div>
          </div>
          <div class="modal-footer border-dark">

@@ -387,8 +387,7 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-
-        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+        Event.create('fixing').trigger('smsInstructionsDialog', map, item, params, fixing)
       })
     },
     refresh(map, source, params, fixing) {
@@ -574,7 +573,7 @@ var AdminGetInstructions = (function($el) {
   })
   
   return {
-    refresh(map,fixing) {
+    refresh(map, fixing) {
       let titleHHTML = map.getInfoWindow().getTitle(),
         titleNode = document.createRange().createContextualFragment(titleHHTML)
       fixing.fixingId = titleNode.textContent
@@ -705,7 +704,7 @@ var fixingInstructionsDatepicker = (function ($el) {
     refresh(map, fixing) {
       $el.off('changeDate').on('changeDate', function (e) {
         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-        $el.datepicker('update')
+        $el.datepicker('update', fixing.currentTime)
         fixing.type = 'update'
         Event.create('fixing').trigger('AdminGetInstructions', map, fixing)
       })
@@ -1289,39 +1288,114 @@ var sportDataDatepicker = (function ($el) {
       })
     }
   }
-})($('.sportdata-datepicker '))
+})($('.sportdata-datepicker'))
 
 // 发送短信指令
-var fixingPushSmsInstructions = (function ($el) {
-  Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
-    fixingPushSmsInstructions.refresh(map, item, params, fixing)
-  })
-  Event.create('fixing').listen('sms', function (map, source, params, fixing) {
-    fixingPushSmsInstructions.smsRefresh(map, source, params, fixing)
+// var fixingPushSmsInstructions = (function ($el) {
+//   Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
+//     fixingPushSmsInstructions.refresh(map, item, params, fixing)
+//   })
+//   Event.create('fixing').listen('sms', function (map, source, params, fixing) {
+//     fixingPushSmsInstructions.smsRefresh(map, source, params, fixing)
+//   })
+//   return {
+//     smsRefresh(map, source, params, fixing ) {
+//       $el.off('click').on('click', function () {
+//         $('#no-data-ModalCenter').find('.no-data-container').text('请先在列表中选择设备ID')
+//         $('#no-data-ModalCenter').modal('show')
+//       })
+//     },
+//     refresh(map, item, params, fixing) {
+//       $el.off('click').on('click', function () {
+//         if (fixing.type === 'init') {
+//           $('.sms-datepicker').datepicker('update');
+//         }
+//         let userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+//           content = $('#sms-instructions-list-textarea').val()
+//         if (!content) {
+//           $('#no-data-ModalCenter').find('.no-data-container').text('请输入发送指令')
+//           $('#no-data-ModalCenter').modal('show')
+//           return
+//         }
+//         FIXING_API.PushSmsInstructions({ adminId: userInfo.AdminId, fixingId: item.entity_name, content }).then(res => {
+//           if (res.data.ret === 1001) {
+//             fixing.type = 'push'
+//             Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+//           }
+//           if (res.data.ret === 1002) {
+//             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+//             $('#no-data-ModalCenter').modal('show')
+//           }
+//         })
+//       })
+
+//     }
+//   }
+// })($('.push-sms-instructions'))
+
+var smsDatepicker = (function ($el) {
+  Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
+    smsDatepicker.refresh(map, item, params, fixing)
   })
   return {
-    smsRefresh(map, source, params, fixing ) {
-      $el.off('click').on('click', function () {
-        $('#no-data-ModalCenter').find('.no-data-container').text('请先在列表中选择设备ID')
-        $('#no-data-ModalCenter').modal('show')
+    refresh(map, item, params, fixing) {
+      $el.datepicker('update', fixing.currentTime)
+      $el.off('changeDate').on('changeDate', function (e) {
+        fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
+        $el.datepicker('update', fixing.currentTime)
+        fixing.type = 'update'
+        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
       })
-    },
+    }
+  }
+})($('.sms-datepicker'))
+
+
+// sms-instructions-list-20181207-ModalCenter
+var smsInstructionsDialog = (function ($el) {
+  Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
+    smsInstructionsDialog.refresh(map, item, params, fixing)
+  })
+  return {
+    refresh(map, item, params, fixing) {
+      Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+      Event.create('fixing').trigger('GetSmsInstructionsMod', map, item, params, fixing)
+    }
+  }
+})()
+
+// sms-restart-button 
+var smsRestartButton= (function ($el) {
+  Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
+    smsRestartButton.refresh(map, item, params, fixing)
+  })
+  return {
     refresh(map, item, params, fixing) {
       $el.off('click').on('click', function () {
-        if (fixing.type === 'init') {
-          $('.sms-datepicker').datepicker('update');
-        }
-        let userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
-          content = $('#sms-instructions-list-textarea').val()
-        if (!content) {
-          $('#no-data-ModalCenter').find('.no-data-container').text('请输入发送指令')
-          $('#no-data-ModalCenter').modal('show')
-          return
-        }
+        Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+      })
+    }
+  }
+})($('.reset-button'))
+
+// 发送指令短信
+var PushSmsInstructions = (function ($el) {
+  Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
+    PushSmsInstructions.refresh(map, item, params, fixing)
+  })
+
+  return {
+    refresh(map, item, params, fixing) {
+      $el.off('click').on('click', function (e) {
+        let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        let content = $('#InstructionsTextarea').val()
+        // let InstructionsRadio = $('input:radio:checked').val()
+        // let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
         FIXING_API.PushSmsInstructions({ adminId: userInfo.AdminId, fixingId: item.entity_name, content }).then(res => {
-          if (res.data.ret === 1001) {
-            fixing.type = 'push'
-            Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
+          if (res.data.ret === 1001 ) {
+            $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+            $('#no-data-ModalCenter').modal('show')
+            Event.create('fixing').trigger('AdminGetInstructions', map, item, params, fixing)
           }
           if (res.data.ret === 1002) {
             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
@@ -1329,30 +1403,45 @@ var fixingPushSmsInstructions = (function ($el) {
           }
         })
       })
-
     }
   }
-})($('.push-sms-instructions'))
+})($('#sms-push-button'))
 
-// 短信中心列表
-var fixingInstructionsList = (function ($el) {
+var AdminGetInstructionsListChecks = (function ($el) {
+  Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
+    AdminGetInstructionsListChecks.refresh(map, item, params, fixing)
+  })
+
+  return {
+    refresh(map, item, params, fixing) {
+      $('#InstructionsTextarea').val('')
+      $el.off('click').on('click', 'input.form-check-input', function (e) {
+        $('#InstructionsTextarea').val($(this).val())
+      })
+    }
+  }
+})($('#GetSmsInstructionsMod'))
+
+// 短信列表
+var GetSmsInstructionsList = (function ($el) {
   Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
-    fixingInstructionsList.refresh(map, item, params, fixing)
+    GetSmsInstructionsList.refresh(map, item, params, fixing)
   })
 
   return {
     refresh(map, item, params, fixing) {
       if (fixing.type === 'init') {
-        $('.sms-datepicker').datepicker('update');
+        let currentTime = $el.find('.instructions-datepicker').attr('value')
+        // console.log(currentTime)
+        if (currentTime) fixing.currentTime = currentTime
+        // console.log(fixing)
       }
+      // fixing.fixingId = item.entity_name
       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-      fixing.fixingId = item.entity_name
       FIXING_API.GetSmsInstructionsList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
-          $('.instructions-table > tbody')
-            .empty()
-            .append(res.data.data.map((item, index) => {
-              let Content = item.Content,
+          let smsInstructionsContent = res.data.data.map((item, index) => {
+                let Content = item.Content,
                 Ctime = utils.handleTimestampToDateTime(item.Ctime),
                 Fcontent = item.Fcontent,
                 Ftime = item.Ftime,
@@ -1361,8 +1450,6 @@ var fixingInstructionsList = (function ($el) {
                 Mobile = item.Mobile,
                 Sendkey = item.Sendkey,
                 status = item.status === '0' ? '发送失败' : '发送成功'
-
-
               return $(`
                   <tr id='${index}'>
                   <th scope="row" class="normal border pt-2 pb-2 text-center" width="20%">${Ctime}</th>
@@ -1373,36 +1460,57 @@ var fixingInstructionsList = (function ($el) {
                   <td class="normal border pt-2 pb-2 text-center" width="15%">${Mobile}</td>
                   </tr>
                   `)
-            }))
-          // Event.create('fixing').trigger('fixingTrajectoryTable', map, res.data.data, params, fixing)
+            })
+            $el.find('#GetSmsInstructionsList .tbody').mCustomScrollbar()
+            .find('.mCustomScrollBox > .mCSB_container').empty().append(smsInstructionsContent)
+            $el.find('#AdminGetInstructions .tbody').mCustomScrollbar('scrollTo', 'top')
+            $el.modal('show')
         }
         if (res.data.ret === 1002) {
-          $('.instructions-table > tbody')
-            .html(`
-            <tr>
-            <td colspan="6" class="border text-center pt-2 pb-2">${res.data.code}</td>
-            </tr>`)
+          $el.find('#GetSmsInstructionsList .tbody').mCustomScrollbar()
+          .find('.mCustomScrollBox > .mCSB_container').empty().append(`<tr>
+            <td colspan="6" class="text-center pt-2 pb-2">${res.data.code}</td>
+          </tr>`)
+          $el.modal('show')
         }
       })
     }
   }
-})()
+})($('#sms-instructions-list-20181207-ModalCenter'))
 
 
+// 短信指令
+var GetSmsInstructionsMod = (function($el) {
+  Event.create('fixing').listen('GetSmsInstructionsMod', function (map, item, params, fixing) {
+    GetSmsInstructionsMod.refresh(map, item, params, fixing)
+  })
+  
+  return {
+    refresh(map, item, params, fixing) {
+      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      FIXING_API.GetSmsInstructionsMod({ adminId: userInfo.AdminId }).then(res => {
+        if (res.data.ret === 1001) {
+          console.log(res)
+          let smsInstructionsContent = res.data.data.map((item, index) => {
+            return $(`<tr class="" data-id="${item.Id}" data-instructions="${item.Instructions}" data-type="${item.type}">
+                <td class="pl-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios${item.Id}" value="${item.Instructions}">
+                  <label class="form-check-label" for="exampleRadios${item.Id}">
+                    ${item.Content}
+                  </label>
+                </div>
+              </td>
+              </tr>`)
+          })
+          $el.find('#GetSmsInstructionsMod .tbody').mCustomScrollbar()
+          .find('.mCustomScrollBox > .mCSB_container').empty().append(smsInstructionsContent)
+        }
+        if (res.data.ret === 1002) {
+        
+        }
+      })
+    }
+  }
 
-
-// var smsDatepicker = (function ($el) {
-//   Event.create('fixing').listen('GetSmsInstructionsList', function (map, item, params, fixing) {
-//     smsDatepicker.refresh(map, item, params, fixing)
-//   })
-//   return {
-//     refresh(map, item, params, fixing) {
-//       $el.off('changeDate').on('changeDate', function (e) {
-//         fixing.currentTime = utils.handleTimestampToDate($el.datepicker('getDate'))
-//         $el.datepicker('update')
-//         fixing.type = 'update'
-//         Event.create('fixing').trigger('GetSmsInstructionsList', map, item, params, fixing)
-//       })
-//     }
-//   }
-// })($('.sms-datepicker'))
+})($('#sms-instructions-list-20181207-ModalCenter'))

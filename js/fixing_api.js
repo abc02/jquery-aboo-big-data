@@ -33,6 +33,9 @@ var FIXING_API = (function () {
   function AdminGetInstructions({ adminId, fixingId, time }) {
     return axios.post('/AdminGetInstructions', Qs.stringify({ adminId, fixingId, time }))
   }
+  function SendInstruction({ adminId, fixingId, instruction }) {
+    return axios.post('/SendInstruction', Qs.stringify({ adminId, fixingId, instruction }))
+  }
   // 获取设备列表（搜索）
   function GetFixingListForSearch({ adminId, query }) {
     return axios.post('/GetFixingListForSearch', Qs.stringify({ adminId, query }))
@@ -46,9 +49,6 @@ var FIXING_API = (function () {
   }
   function GetSmsInstructionsList({ adminId, time, fixingId }) {
     return axios.post('/GetSmsInstructionsList', Qs.stringify({ adminId, time, fixingId }))
-  }
-  function SendInstruction({ adminId, fixingId, instruction }) {
-    return axios.post('/SendInstruction', Qs.stringify({ adminId, fixingId, instruction }))
   }
   function GetSmsInstructionsMod ({adminId}) {
     return axios.post('/GetSmsInstructionsMod', Qs.stringify({ adminId }))
