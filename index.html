@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.min.css">
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
-  <!-- <link rel="stylesheet" media="print" href="/styles/print.css"> -->
+  <link rel="stylesheet" media="print" href="/styles/print.css">
 </head>
 
 <body>
@@ -159,7 +159,7 @@
       <button onclick="Event.create('fixing').trigger('instructionsDialog', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})"
         type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
-      <button onclick="Event.create('fixing').trigger('GetFixingQRCode', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+      <button onclick="Event.create('fixing').trigger('fixingqrcodedialog', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
     </div>
   </div>
@@ -344,15 +344,18 @@
         </div>
         <div class="modal-body fixing-qrcode-container d-flex justify-content-center">
           <div class="qrcBody-container bg-white d-flex justify-content-center align-items-center p-2">
-            <div class="qrcBody print" id="qrcBody">
-              <img class="qrcImg" src="">
-              <!-- <img class="align-center-middle upLogo" src=""> -->
+            <div id="qrcode-small">
+              <img id="qrcode-samll-img" src="">
+              <p></p>
+            </div>
+            <div id="qrcode-big">
+              <img id="qrcode-big-img" src="">
               <p class="text-dark text-center mt-2"></p>
             </div>
           </div>
         </div>
         <div class="modal-footer border-dark">
-          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode', map)">打印</button>
+          <button type="button" class="btn btn-primary print-qrcode-button">打印</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
         </div>
       </div>
@@ -385,7 +388,7 @@
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
   <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.concat.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
-  <!-- <script type="text/javascript" src="//cdn.bootcss.com/jQuery.print/1.6.0/jQuery.print.min.js"></script> -->
+  <script type="text/javascript" src="//cdn.bootcss.com/jQuery.print/1.6.0/jQuery.print.min.js"></script>
   <!-- <script type="text/javascript" src="//cdn.bootcss.com/PrintArea/2.4.1/jquery.PrintArea.min.js"></script> -->
   <script type="text/javascript" src="//cdn.bootcss.com/printThis/1.14.0/printThis.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
@@ -394,7 +397,10 @@
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/javascript" src="/lib/browser.js"></script>
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
+  <script type="text/javascript" src="/lib/jquery.printqr.js"></script>
+  <script type="text/javascript" src="/lib/jquery.jqprint-0.3.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
   <script type="text/javascript" src="/js/base.js"></script>
   <script type="text/javascript" src="/js/utils.js"></script>

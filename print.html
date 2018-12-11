@@ -13,12 +13,12 @@
   <!-- <img class="align-center-middle upLogo" src=""> -->
 </div>
 
-<button id="btnPrint" type="button" class="btn btn-primary pull-right" style="margin-left :30px">Print QRC
-</button>
+<button id="btnPrint" type="button" class="btn btn-primary pull-right" onclick="print()" style="margin-top: 8px; margin-left: 30px">打印</button>
 
 <body>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+  <script type="text/javascript" src="//cdn.bootcss.com/printThis/1.14.0/printThis.min.js"></script>
   <script>
     let url = location.search
     jQuery('#qrcBodyImg').qrcode({
@@ -32,8 +32,12 @@
     // $("#qrcBodyImg .upLogo").attr("src", upLogSrc);
     $("#qrcBodyImg > canvas").hide();//隐藏canvas部分
     $("#qrcBodyImg > .qrcImg").show();//显示img部分
-
    
+    // $('#qrcBody').printThis({
+    //     importCSS: false,
+    //     importStyle: false,
+    //     // loadCSS: '/styles/print.css'
+    //   })
   </script>
 </body>
 

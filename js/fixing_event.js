@@ -755,7 +755,61 @@ var AdminGetInstructionsListChecks = (function ($el) {
   }
 })($('#AdminGetInstructionsList'))
 
-// 鞋垫二维码
+// qrcode dialog
+var fixingqrcodedialog = (function ($el) {
+  Event.create('fixing').listen('fixingqrcodedialog', function (map) {
+    fixingqrcodedialog.refresh(map)
+  })
+
+  return {
+    refresh(map) {
+      let titleHHTML = map.getInfoWindow().getTitle(),
+      titleNode = document.createRange().createContextualFragment(titleHHTML),
+      fixingId = titleNode.textContent,
+      // loacl 获取数据
+      userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+    FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
+      if (res.data.ret == 1001) {
+        $el.find('#qrcode-big').qrcode({
+          width: 158,
+          height: 158,
+          text: res.data.data //二维码的内容
+        });
+        // $el.find('#qrcode-small').qrcode({
+        //   width: 100,
+        //   height: 100,
+        //   text: res.data.data //二维码的内容
+        // });
+        var qrcodeSmallSrc =  $el.find("#qrcode-big canvas")[0].toDataURL();//二维码canvas转img
+        $el.find("#qrcode-big img").attr("src", qrcodeSmallSrc);
+        $el.find("#qrcode-big canvas").hide();//隐藏canvas部分
+        $el.find('#qrcode-big p').text(fixingId)
+        $el.modal('show')
+        $el.find('.print-qrcode-button').off('click').on('click', function () {
+          // $('#qrcBody').printThis({
+          //   importCSS: false,
+          //   loadCSS: "/styles/print.css",
+          //   // header: "<h1>Look at all of my kitties!</h1>"
+          // })
+          $("#qrcode-big img").jqprint({
+            debug: true, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false 
+            importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件） 
+            printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。 
+            // operaSupport: true //表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true 
+          });
+            
+        })
+      }
+      if (res.data.ret === 1002) {
+        $el.find('#qrcBody > p').text(res.data.code)
+        $el.modal('show')
+      }
+      
+      })
+    }
+  }
+})($('#fixing-qrcod-ModalCenter'))
+
 var fixingQRCode = (function ($el) {
   Event.create('fixing').listen('GetFixingQRCode', function (map) {
     fixingQRCode.refresh(map)
@@ -763,86 +817,43 @@ var fixingQRCode = (function ($el) {
 
   return {
     refresh(map) {
-      let titleHHTML = map.getInfoWindow().getTitle(),
-        titleNode = document.createRange().createContextualFragment(titleHHTML),
-        fixingId = titleNode.textContent,
-        // loacl 获取数据
-        userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-      FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
-        if (res.data.ret == 1001) {
-          // $el.find('.fixing-qrcode-container').html(`
-          //   <div class="qrcode ">
-          //     <div class="d-flex justify-content-center align-items-center bg-white">
-          //     <img src="https://api.qrserver.com/v1/create-qr-code/?size=218x218&data=${}" width="218" height="218" />
-          //     </div>
-          //   </div>
-          // `)
-
-          $('#qrcBody').qrcode({
-            width: 218,
-            height: 218,
-            text: res.data.data //二维码的内容
-          });
-          var qrcSrc = $("canvas")[0].toDataURL();//二维码canvas转img
-          $("#qrcBody .qrcImg").attr("src", qrcSrc);
-          $("#qrcBody > canvas").hide();//隐藏canvas部分
-          $("#qrcBody > .qrcImg").show();//显示img部分
-          $('#qrcBody').data('url', res.data.data)
-          $('#qrcBody > p').text(fixingId)
-        }
-        if (res.data.ret === 1002) {
-          $el.find('#qrcBody > p').text(res.data.code)
-        }
-        $el.modal('show')
-      })
+      
+      
     }
   }
 })($('#fixing-qrcod-ModalCenter'))
 
 // 打印二维码
 var printQRCode = (function ($el) {
-  Event.create('fixing').listen('printQRCode', function (map) {
-    printQRCode.refresh(map)
+  Event.create('fixing').listen('printQRCode', function (url) {
+    printQRCode.refresh(url)
   })
 
   return {
-    refresh(map) {
-      // let strWindowFeatures = `
-      //     channelmode=no,
-      //     directories=no,
-      //     fullscreen=no,
-      //     menubar=no,
-      //     resizable=no,
-      //     scrollbars=no,
-      //     titlebar=no,
-      //     toolbar=no,
-      //     status=no,
-      //     location=no,
-      //     height=500,
-      //     width=500,
-      //     left=50
-      // `;
+    refresh(url) {
+      let strWindowFeatures = `
+          channelmode=no,
+          directories=no,
+          fullscreen=no,
+          menubar=no,
+          resizable=no,
+          scrollbars=no,
+          titlebar=no,
+          toolbar=no,
+          status=no,
+          location=no,
+          height=328,
+          width=318,
+          left=50
+      `;
       // let url =  $('#qrcBody').data( 'url')
       // windowObjectReference = window.open(`${location.origin}/print.html?${url}`, "_blank", strWindowFeatures)
-      // $("#qrcBody").print({
-      //   globalStyles: false,
-      //   mediaPrint: true,
-      //   stylesheet: null,
-      //   noPrintSelector: ".no-print",
-      //   iframe: true,
-      //   append: null,
-      //   prepend: null,
-      //   manuallyCopyFormValues: true,
-      //   deferred: $.Deferred(),
-      //   timeout: 750,
-      //   // title: '',
-      //   doctype: '<!doctype html>'
-      // });
-      $('#qrcBody').printThis({
-        importCSS: false,
-        importStyle: false,
-        loadCSS: '/styles/print.css'
-      })
+      // windowObjectReference = window.open(`/print.html?${url}`, "_blank", strWindowFeatures)
+      // $('#qrcBody').printThis({
+      //   importCSS: false,
+      //   importStyle: false,
+      //   loadCSS: '/styles/print.css'
+      // })
     }
   }
 })()

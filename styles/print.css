@@ -1,27 +1,19 @@
-/* @page :left {
-  margin-left: 10mm;
-  margin-right: 4mm;
-} */
-
-@page {
-  size: 3cm portrait;
-  margin: 0.2mm;
-}
-
 @media print {
-  #qrcBody {
-    width: 3cm;
-    width: 3cm;
-    margin: inherit;
-    text-align: center;
-  }
-  #qrcBody img {
-    width: 2.5cm;
-    height: 2.5cm;
-    margin-left: 0.5cm;
-  }
-  #qrcBody p {
+  @page {
+    size: 30mm 30mm portrait;
     margin: 0;
-    font-size: 6pt;
+    padding: 0;
+  }
+  img {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 0;
+    margin-left: 19mm;
+    width: 20mm;
+    height: 20mm;
+  }
+  p {
+    margin-left: 17mm;
+    font-size: 12pt;
   }
 }
