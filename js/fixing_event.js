@@ -770,38 +770,71 @@ var fixingqrcodedialog = (function ($el) {
       userInfo = utils.GetLoaclStorageUserInfo('userinfo')
     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
       if (res.data.ret == 1001) {
-        $el.find('#qrcode-big').qrcode({
-          width: 158,
-          height: 158,
-          text: res.data.data //二维码的内容
-        });
-        // $el.find('#qrcode-small').qrcode({
-        //   width: 100,
-        //   height: 100,
-        //   text: res.data.data //二维码的内容
+        // $el.find('#qrcode-big').qrcode({
+        //   width: 158,
+        //   height: 158,
+        //   text: res.data.data, //二维码的内容
+        //   // moduleSize: '20px',
+        //   ECLevel: 3
         // });
-        var qrcodeSmallSrc =  $el.find("#qrcode-big canvas")[0].toDataURL();//二维码canvas转img
-        $el.find("#qrcode-big img").attr("src", qrcodeSmallSrc);
-        $el.find("#qrcode-big canvas").hide();//隐藏canvas部分
+        // var qrcodeSmallSrc =  $el.find("#qrcode-big canvas")[0].toDataURL();//二维码canvas转img
+        // $el.find("#qrcode-big img").attr("src", qrcodeSmallSrc);
+        $el.find("#qrcode-big img").attr("src", `https://dataconsole.abpao.com/Login/getContactsMP?url=${res.data.data}`);
+        // $el.find("#qrcode-big canvas").hide();//隐藏canvas部分
         $el.find('#qrcode-big p').text(fixingId)
-        $el.modal('show')
         $el.find('.print-qrcode-button').off('click').on('click', function () {
-          // $('#qrcBody').printThis({
-          //   importCSS: false,
-          //   loadCSS: "/styles/print.css",
-          //   // header: "<h1>Look at all of my kitties!</h1>"
+          // $("#qrcode-big").jqprint({
+          //   debug: true, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false 
+          //   importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件） 
+          //   printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。 
+          //   // operaSupport: true //表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true 
           // })
-          $("#qrcode-big img").jqprint({
-            debug: true, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false 
-            importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件） 
-            printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。 
-            // operaSupport: true //表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true 
-          });
-            
+          let strWindowFeatures = `
+                channelmode=no,
+                directories=no,
+                fullscreen=no,
+                menubar=no,
+                resizable=no,
+                scrollbars=no,
+                titlebar=no,
+                toolbar=no,
+                status=no,
+                location=no,
+                height=268,
+                width=318,
+                left=50
+            `;
+          let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
+          //  $('#qrcode-big').printThis({
+          //     debug: true,               // show the iframe for debugging
+          //     importCSS: true,            // import parent page css
+          //     importStyle: false,         // import style tags
+          //     printContainer: true,       // print outer container/$.selector
+          //     loadCSS: '/styles/print.css',                // path to additional css file - use an array [] for multiple
+          //     // pageTitle: "",              // add title to print page
+          //     removeInline: false,        // remove inline styles from print elements
+          //     removeInlineSelector: "*",  // custom selectors to filter inline styles. removeInline must be true
+          //     printDelay: 333,            // variable print delay
+          //     header: null,               // prefix to html
+          //     // footer: null,               // postfix to html
+          //     // footer: $el.find('#qrcode-big p'),
+          //     base: false,                // preserve the BASE tag or accept a string for the URL
+          //     formValues: true,           // preserve input/form values
+          //     canvas: false,              // copy canvas content
+          //     // doctypeString: '...',       // enter a different doctype for older markup
+          //     removeScripts: false,       // remove script tags from print content
+          //     copyTagClasses: false,      // copy classes from the html & body tag
+          //     beforePrintEvent: null,     // function for printEvent in iframe
+          //     beforePrint: null,          // function called before iframe is filled
+          //     afterPrint: null            // function called before iframe is removed
+          //   })
         })
+        $el.modal('show')
+       
       }
       if (res.data.ret === 1002) {
         $el.find('#qrcBody > p').text(res.data.code)
+        $el.find('.print-qrcode-button').hide()
         $el.modal('show')
       }
       

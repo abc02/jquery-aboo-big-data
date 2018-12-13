@@ -1,19 +1,16 @@
+@page {
+  size: 30mm 30mm landscape;
+}
 @media print {
-  @page {
-    size: 30mm 30mm portrait;
-    margin: 0;
-    padding: 0;
-  }
-  img {
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    margin-left: 19mm;
-    width: 20mm;
-    height: 20mm;
-  }
-  p {
-    margin-left: 17mm;
-    font-size: 12pt;
-  }
+
+#qrcode-big-img {
+margin: 2mm 0 0 25mm;
+width: 22mm;
+height: 22mm;
+}
+#qrcode-big-fixingId {
+margin: 0 0 0 19mm;
+font-size: 12pt;
+}
+
 }
