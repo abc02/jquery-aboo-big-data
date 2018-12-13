@@ -162,7 +162,7 @@
       <button onclick="Event.create('fixing').trigger('instructionsDialog', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})"
         type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
-      <button onclick="Event.create('fixing').trigger('GetFixingQRCode', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
+      <button onclick="Event.create('fixing').trigger('fixingqrcodedialog', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
     </div>
   </div>
@@ -346,15 +346,14 @@
         </div>
         <div class="modal-body fixing-qrcode-container d-flex justify-content-center">
           <div class="qrcBody-container bg-white d-flex justify-content-center align-items-center p-2">
-            <div class="qrcBody print" id="qrcBody">
-              <img class="qrcImg" src="">
-              <!-- <img class="align-center-middle upLogo" src=""> -->
-              <p class="text-dark text-center mt-2"></p>
-            </div>
+              <div id="qrcode-big">
+                  <img id="qrcode-big-img" src="">
+                  <p class="text-dark text-center mt-2"></p>
+                </div>
           </div>
         </div>
         <div class="modal-footer border-dark">
-          <button type="button" class="btn btn-primary" onclick="Event.create('fixing').trigger('printQRCode', map)">打印</button>
+          <button type="button" class="btn btn-primary print-qrcode-button">打印</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
         </div>
       </div>
