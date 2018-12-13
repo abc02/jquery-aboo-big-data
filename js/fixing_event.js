@@ -85,6 +85,9 @@ var fixingSearch = (function ($el) {
   Event.create('fixing').listen('sms', function (map, source, params, fixing) {
     fixingSearch.bindEvent(map, source, params, fixing)
   })
+  Event.create('fixing').listen('print-center', function (map, source, params, fixing) {
+    fixingSearch.bindEvent(map, source, params, fixing)
+  })
   return {
     unBindEvent() {
       $el
@@ -157,6 +160,11 @@ var fixingListsTab = (function ($el) {
     fixingListsTab.refresh(map, source, params, fixing)
     fixingListsTab.unBindEvent()
     fixingListsTab.bindSMSEvent(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('print-center', function (map, source, params, fixing) {
+    fixingListsTab.refresh(map, source, params, fixing)
+    fixingListsTab.unBindEvent()
+    fixingListsTab.bindPrintCenterEvent(map, source, params, fixing)
   })
 
   return {
@@ -243,6 +251,19 @@ var fixingListsTab = (function ($el) {
         Event.create('fixing').trigger('sms', map, source, params, fixing)
       })
     },
+    bindPrintCenterEvent(map, source, params, fixing) {
+      $el.on('click', 'li', function (e) {
+        // update tabindex css
+        $(e.currentTarget)
+          .addClass('border-bottom text-white')
+          .siblings()
+          .addClass('text-muted')
+          .removeClass('border-bottom text-white')
+        params.fixingListsTabIndex = $(e.currentTarget).index()
+        utils.SetUrlParams(params)
+        Event.create('fixing').trigger('print-center', map, source, params, fixing)
+      })
+    },
     refresh(map, source, params) {
       if (!source) source = []
       $el.html(`<li class="nav-item fixing-all"><a class="nav-link " href="#">全部（${source.length}）</a></li>
@@ -285,6 +306,11 @@ var fixingLists = (function ($el) {
     fixingLists.refresh(map, source, params, fixing)
     fixingLists.unBindEvent()
     fixingLists.bindSMSEvent(map, source, params, fixing)
+  })
+  Event.create('fixing').listen('print-center', function (map, source, params, fixing) {
+    fixingLists.refresh(map, source, params, fixing)
+    fixingLists.unBindEvent()
+    fixingLists.bindPrintCenterEvent(map, source, params, fixing)
   })
 
   return {
@@ -388,6 +414,20 @@ var fixingLists = (function ($el) {
           .addClass('text-muted')
 
         Event.create('fixing').trigger('smsInstructionsDialog', map, item, params, fixing)
+      })
+    },
+    bindPrintCenterEvent(map, source, params, fixing) {
+      $el.off('click').on('click', 'li', function (e) {
+        let item = $(e.currentTarget).data()
+        // update item css
+        $(e.currentTarget)
+          .removeClass('text-muted')
+          .addClass('text-white')
+          .siblings()
+          .removeClass('text-white')
+          .addClass('text-muted')
+
+        // Event.create('fixing').trigger('smsInstructionsDialog', map, item, params, fixing)
       })
     },
     refresh(map, source, params, fixing) {

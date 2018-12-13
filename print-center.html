@@ -5,9 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>运动数据</title>
+  <title>打印</title>
   <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.min.css">
   <link rel="stylesheet" href="/styles/reset.css">
   <link rel="stylesheet" href="/styles/common.css">
 </head>
@@ -44,22 +45,22 @@
         </a>
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sportdata"
           href="javascript:void(0);">
-          <img src="/assets/sportdata_select.png" title="movement" width="40" height="38">
-          <p class="pt-2 text-primary">运动数据</p>
+          <img src="/assets/sportdata.png" title="movement" width="40" height="38">
+          <p class="pt-2">运动数据</p>
         </a>
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 sms" href="javascript:void(0);">
           <img src="/assets/sportdata.png" title="sms" width="40" height="38">
           <p class="pt-2">短信中心</p>
         </a>
         <a class="nav-menu nav-link text-light d-flex flex-column align-items-center mt-2 mb-2 pl-2 pr-2 print-center" href="javascript:void(0);">
-            <img src="/assets/sportdata.png" title="sms" width="40" height="38">
-            <p class="pt-2">打印</p>
+            <img src="/assets/sportdata_select.png" title="sms" width="40" height="38">
+            <p class="pt-2 text-primary">打印</p>
         </a>
       </nav>
       <div class="d-flex flex-row flex-fill">
-        <div class="d-flex flex-row relative">
+        <div class="d-flex flex-row flex-fill relative">
           <div class="bg-dark relative d-flex align-items-stretch">
-            <div class="slider-dialog bg-dark shadow-right-big d-flex align-items-stretch" style="width: 368px; display: block;">
+            <div class="slider-dialog bg-dark shadow-right-big" style="width: 368px; display: block;">
               <div class="slider-dialog-list-container relative d-flex flex-column">
                 <div class="pl-4 pr-4 pt-3 pb-3">
                   <div class="row-between border search-container">
@@ -77,10 +78,10 @@
                     </ul>
                     <ul class="pagination-container d-flex justify-content-center p-4" id="pagination"></ul>
                   </div>
-                  <div class="datepicker-container flex-fill d-flex justify-content-center align-items-center">
+                  <!-- <div class="datepicker-container flex-fill d-flex justify-content-center align-items-center">
                     <div class="datepicker sportdata-datepicker d-flex p0 justify-content-center" data-date="new Date()"></div>
                     <input type="hidden" id="my_hidden_input">
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -89,26 +90,101 @@
               <img src="/assets/extension_left.png" alt="extension">
             </button>
           </div>
-          <div style="background-color: #141831; padding-left: 60px;" class="flex-fill d-flex flex-row flex-wrap align-items-center justify-content-center">
-            <div id="calorie" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
-              class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="distance" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
-              class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="steps" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
-              class="mt-2 mb-2 mr-4 ml-4 border"></div>
-            <div id="weight" style="width: 600px;height:400px; border-color: rgba(255,255,255, 0.4) !important; border-radius: 12px; overflow: hidden;"
-              class="mt-2 mb-2 mr-4 ml-4 border"></div>
+         <div style="background-color: #141831;" class="text-white flex-fill d-flex flex-column">
+           <!--   <div class="form-group d-flex flex-column">
+              <label for="sms-instructions-list-textarea">发送命令</label>
+              <div class="flex-fill d-flex flex-row">
+                <textarea class="form-control bg-dark text-white" id="sms-instructions-list-textarea" rows="5"></textarea>
+                <button type="button" class="ml-4 p-4 btn btn-primary push-sms-instructions">发送</button>
+              </div>
+            </div>
+            <div class="instructions-container">
+              <table class="instructions-table width-100 ">
+                <thead>
+                  <tr>
+                    <th scope="col" class="border text-center" width="20%">指令时间</th>
+                    <th scope="col" class="border text-center" width="10%">发送唯一码</th>
+                    <th scope="col" class="border text-center" width="10%">指令状态</th>
+                    <th scope="col" class="border text-center" width="30%">指令内容</th>
+                    <th scope="col" class="border text-center" width="15%">IMEI</th>
+                    <th scope="col" class="border text-center" width="15%">发送号码</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="6" class="border text-center pt-2 pb-2">无当天操作指令</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>  -->
           </div>
         </div>
       </div>
   </main>
+     <!-- sms-instructions-list-20181207-Modal -->
+  <div class="modal fade" id="sms-instructions-list-20181207-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="sms-instructions-list-20181126-ModalCenterTitle"
+     aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered" role="document" style="min-width: 1058px;" >
+       <div class="modal-content text-white" style="background: rgb(17, 18, 39);">
+         <div class="modal-header border-dark">
+           <h5 class="modal-title d-flex flex-row" id="sms-instructions-list-20181207-ModalCenterTitle">短信指令</h5>
+           <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="d-flex modal-body instructions-container">
+           <div style="min-width: 708px;" class="mr-2 bg-dark d-flex flex-column">
+             <h5 class="p-4">短信指令回复</h5>
+             <table class="table" id="GetSmsInstructionsList">
+               <thead class="thead">
+                 <tr>
+                   <th scope="col" class="" width="120">指令时间</th>
+                   <th scope="col" class="" width="100">指令方式</th>
+                   <th scope="col" class="" width="238">操作指令</th>
+                 </tr>
+               </thead>
+               <tbody class="tbody" style="min-height: 458px;">
+               </tbody>
+             </table>
+             <div class="d-flex flex-row justify-content-start ml-4 mr-4 mt-4 mb-4">
+               <button type="primary" class="bg-bule color-white mr-4 pt-2 pb-2 pl-4 pr-4 reset-button">刷新</button>
+               <div class="input-group date " style="width: auto;">
+                 <input type="text" class="form-control datepicker instructions-datepicker sms-datepicker">
+                 <div class="input-group-addon">
+                   <span class="glyphicon glyphicon-th"></span>
+                 </div>
+               </div>
+             </div>
+           </div>
+           <div style="min-width: 316px;" class="bg-dark d-flex flex-column">
+             <h5 class="p-4">短信指令列表</h5>
+             <table class="table" id="GetSmsInstructionsMod" >
+               <thead class="thead" style="width: auto;">
+                 <tr>
+                   <th scope="col" class="" width="566">操作指令列表</th>
+                 </tr>
+               </thead>
+               <tbody class="tbody" style="min-height: 308px;">
+               </tbody>
+             </table>
+             <textarea class="ml-4 mr-4 mb-4 color-white p-3" placeholder="请编写指令" style="background: rgb(17, 18, 39);" name="InstructionsTextarea" id="InstructionsTextarea" cols="30" rows="5"></textarea>
+             <button id="sms-push-button" type="primary" class="bg-bule ml-4 mb-4 mt-2 pl-4 pr-4 pt-2 pb-2 align-self-start push-sms-button">发送短信指令</button>
+           </div>
+         </div>
+         <div class="modal-footer border-dark">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+         </div>
+       </div>
+     </div>
+   </div>
+ 
   <!-- no-data Modal -->
   <div class="modal fade" id="no-data-ModalCenter" tabindex="-1" role="dialog" aria-labelledby="no-data-ModalCenterTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content bg-dark text-white">
         <div class="modal-header border-dark">
-          <h5 class="modal-title d-flex flex-row" id="no-data-ModalCenterTitle">运动提示</h5>
+          <h5 class="modal-title d-flex flex-row" id="no-data-ModalCenterTitle">短信指令提示</h5>
           <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -121,18 +197,19 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.js"></script>
+  <!-- <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.js"></script> -->
   <!-- <script type="text/javascript" src="//api.map.baidu.com/library/EventWrapper/1.2/src/EventWrapper.js"></script> -->
   <!-- <script type="text/javascript" src="//api.map.baidu.com/api?v=3.0&ak=wLO6NCPlns2pGqpmQh9itlCwcz1M8Og3"></script> -->
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.mcustomscrollbar/3.0.6/jquery.mCustomScrollbar.concat.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
-  <script type="text/javascript" src="/lib/bigdata.js"></script>
+  <!-- <script type="text/javascript" src="/lib/bigdata.js"></script> -->
   <script type="text/javascript" src="/lib/jqpaginator.min.js"></script>
   <script type="text/javascript" src="/js/event.js"></script>
   <script type="text/javascript" src="/js/base.js"></script>
@@ -144,7 +221,7 @@
   <script type="text/javascript" src="/js/header.js"></script>
   <script type="text/javascript" src="/js/navigation_menu.js"></script>
   <script type="text/javascript" src="/js/datepicker.js"></script>
-  <script type="text/javascript" src="/js/sportdata.js"></script>
+  <script type="text/javascript" src="/js/print-center.js"></script>
 </body>
 
 </html>
