@@ -927,70 +927,44 @@ var inputTXM = (function ($el) {
 
   return {
     refresh(map, item, params, fixing) {
-      $el.find('#txm').on('change', function (e) {
-       let fixingId = $(this).val()
-       // loacl 获取数据
-       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
-       if (res.data.ret == 1001) {
-         let strWindowFeatures = `
-         channelmode=no,
-         directories=no,
-         fullscreen=no,
-         menubar=no,
-         resizable=no,
-         scrollbars=no,
-         titlebar=no,
-         toolbar=no,
-         status=no,
-         location=no,
-         height=268,
-         width=318,
-         left=50
-         `;
-         let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
-         $(this).val('')
-       }
-       if (res.data.ret === 1002) {
-         $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
-         $('#no-data-ModalCenter').modal('show')
-         $(this).val('')
-       }
-     })
-     })
-     $el.find('button[type=submit]').on('click', function (e) {
-       e.preventDefault()
-       let fixingId = $el.find('#txm').val()
-       // loacl 获取数据
-       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
-       if (res.data.ret == 1001) {
-         let strWindowFeatures = `
-         channelmode=no,
-         directories=no,
-         fullscreen=no,
-         menubar=no,
-         resizable=no,
-         scrollbars=no,
-         titlebar=no,
-         toolbar=no,
-         status=no,
-         location=no,
-         height=268,
-         width=318,
-         left=50
-         `;
-         let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
-         $(this).val('')
-       }
-       if (res.data.ret === 1002) {
-         $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
-         $('#no-data-ModalCenter').modal('show')
-         $el.find('#txm').val('')
-       }
-     })
-       
-     })
+      $(function () {
+        $el.find('#txm').val('')
+        $el.find('#tmx').focus()
+        let isLock = false
+        $el.find('button[type=submit]').off('click').on('click', function (e) {
+          e.preventDefault()
+          let fixingId = $el.find('#txm').val()
+          let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+          if (isLock) return
+          isLock = true
+          FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
+            if (res.data.ret == 1001) {
+              let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", `
+              channelmode=no,
+              directories=no,
+              fullscreen=no,
+              menubar=no,
+              resizable=no,
+              scrollbars=no,
+              titlebar=no,
+              toolbar=no,
+              status=no,
+              location=no,
+              height=268,
+              width=318,
+              left=50
+              `)
+              $el.find('#txm').val('')
+            }
+            if (res.data.ret === 1002) {
+              $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+              $('#no-data-ModalCenter').modal('show')
+              $el.find('#txm').val('')
+            }
+            isLock = false
+          })
+       })
+      })
     }
   }
 })($('.txm-container'))
