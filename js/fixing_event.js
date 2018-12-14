@@ -426,8 +426,7 @@ var fixingLists = (function ($el) {
           .siblings()
           .removeClass('text-white')
           .addClass('text-muted')
-
-        // Event.create('fixing').trigger('smsInstructionsDialog', map, item, params, fixing)
+        Event.create('fixing').trigger('GetFixingQRCode', map, item, params, fixing)
       })
     },
     refresh(map, source, params, fixing) {
@@ -884,52 +883,130 @@ var fixingqrcodedialog = (function ($el) {
 })($('#fixing-qrcod-ModalCenter'))
 
 var fixingQRCode = (function ($el) {
-  Event.create('fixing').listen('GetFixingQRCode', function (map) {
-    fixingQRCode.refresh(map)
+  Event.create('fixing').listen('GetFixingQRCode', function (map, item, params, fixing) {
+    fixingQRCode.refresh(map, item, params, fixing)
   })
 
   return {
-    refresh(map) {
-      
-      
-    }
+    refresh(map, item, params, fixing) {
+      // loacl 获取数据
+      userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+    FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
+      if (res.data.ret == 1001) {
+        let strWindowFeatures = `
+        channelmode=no,
+        directories=no,
+        fullscreen=no,
+        menubar=no,
+        resizable=no,
+        scrollbars=no,
+        titlebar=no,
+        toolbar=no,
+        status=no,
+        location=no,
+        height=268,
+        width=318,
+        left=50
+        `;
+        let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${item.entity_name}`, "_blank", strWindowFeatures)
+      }
+      if (res.data.ret === 1002) {
+        $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+        $('#no-data-ModalCenter').modal('show')
+      }
+    })
   }
-})($('#fixing-qrcod-ModalCenter'))
-
-// 打印二维码
-var printQRCode = (function ($el) {
-  Event.create('fixing').listen('printQRCode', function (url) {
-    printQRCode.refresh(url)
-  })
-
-  return {
-    refresh(url) {
-      let strWindowFeatures = `
-          channelmode=no,
-          directories=no,
-          fullscreen=no,
-          menubar=no,
-          resizable=no,
-          scrollbars=no,
-          titlebar=no,
-          toolbar=no,
-          status=no,
-          location=no,
-          height=328,
-          width=318,
-          left=50
-      `;
-      // let url =  $('#qrcBody').data( 'url')
-      // windowObjectReference = window.open(`${location.origin}/print.html?${url}`, "_blank", strWindowFeatures)
-      // windowObjectReference = window.open(`/print.html?${url}`, "_blank", strWindowFeatures)
-      // $('#qrcBody').printThis({
-      //   importCSS: false,
-      //   importStyle: false,
-      //   loadCSS: '/styles/print.css'
-      // })
-    }
   }
 })()
+
+// input 
+var inputTXM = (function ($el) {
+  Event.create('fixing').listen('print-center', function (map, item, params, fixing) {
+    inputTXM.refresh(map, item, params, fixing)
+  })
+
+  return {
+    refresh(map, item, params, fixing) {
+      $el.find('#txm').on('change', function (e) {
+       let fixingId = $(this).val()
+       // loacl 获取数据
+       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
+       if (res.data.ret == 1001) {
+         let strWindowFeatures = `
+         channelmode=no,
+         directories=no,
+         fullscreen=no,
+         menubar=no,
+         resizable=no,
+         scrollbars=no,
+         titlebar=no,
+         toolbar=no,
+         status=no,
+         location=no,
+         height=268,
+         width=318,
+         left=50
+         `;
+         let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
+         $(this).val('')
+       }
+       if (res.data.ret === 1002) {
+         $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+         $('#no-data-ModalCenter').modal('show')
+         $(this).val('')
+       }
+     })
+     })
+     $el.find('button[type=submit]').on('click', function (e) {
+       e.preventDefault()
+       let fixingId = $el.find('#txm').val()
+       // loacl 获取数据
+       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
+       if (res.data.ret == 1001) {
+         let strWindowFeatures = `
+         channelmode=no,
+         directories=no,
+         fullscreen=no,
+         menubar=no,
+         resizable=no,
+         scrollbars=no,
+         titlebar=no,
+         toolbar=no,
+         status=no,
+         location=no,
+         height=268,
+         width=318,
+         left=50
+         `;
+         let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
+         $(this).val('')
+       }
+       if (res.data.ret === 1002) {
+         $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
+         $('#no-data-ModalCenter').modal('show')
+         $el.find('#txm').val('')
+       }
+     })
+       
+     })
+    }
+  }
+})($('.txm-container'))
+
+// // 打印二维码
+// var printQRCode = (function ($el) {
+//   Event.create('fixing').listen('printQRCode', function (map, item, params, fixing) {
+//     printQRCode.refresh(map, item, params, fixing)
+//   })
+
+//   return {
+//     refresh(url) {
+     
+//     }
+//   }
+// })()
 
 // 鞋垫信息实时
 var fixingInfoLive = (function ($el) {
