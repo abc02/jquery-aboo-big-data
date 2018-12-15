@@ -46,7 +46,38 @@ text-align: center;
     let data = Qs.parse(location.search.substr(1))
     $('#qrcode-big-img').attr('src', `https://dataconsole.abpao.com/Login/getContactsMP?url=${data.url}`)
     $('#qrcode-big-fixingId').text(data.fixingId)
-    window.print()
+    // window.print()
+    // 检测插件是否安装：
+    try {
+      v = jsPrintSetup.getVersion();
+    } catch(e) {
+      if(confirm('请先安装打印插件，安装插件否则将不能打印！你可以进入点击firefox，工具->插件，搜索"JSPrintSetup "安装，或者点击确定进入插件首页安装！')){
+          window.location.href="http://jsprintsetup.mozdev.org/installation.html";
+      }
+    }
+    // 调用方式：
+    function print(){
+      jsPrintSetup.setOption('orientation', jsPrintSetup.kPortraitOrientation);
+      //jsPrintSetup.definePaperSize(in short jspid, in short pd, in wstring pn, in wstring pwg, in wstring name, in double w, in double h, in short m); 
+      
+      // set top margins in millimeters
+      jsPrintSetup.setOption('marginTop', 0);
+      jsPrintSetup.setOption('marginBottom', 0);
+      jsPrintSetup.setOption('marginLeft', 0);
+      jsPrintSetup.setOption('marginRight', 0);
+      // set page header
+      jsPrintSetup.setOption('headerStrLeft', '');
+      jsPrintSetup.setOption('headerStrCenter', '');
+      jsPrintSetup.setOption('headerStrRight', '');
+      // set empty page footer
+      jsPrintSetup.setOption('footerStrLeft', '');
+      jsPrintSetup.setOption('footerStrCenter', '');
+      jsPrintSetup.setOption('footerStrRight', '');
+      jsPrintSetup.clearSilentPrint();
+      jsPrintSetup.setOption('printSilent', 1);
+      jsPrintSetup.print();        
+    }
+    print()
   </script>
 </body>
 

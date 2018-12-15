@@ -919,7 +919,7 @@ var fixingQRCode = (function ($el) {
   }
 })()
 
-// input 
+// submit 
 var inputTXM = (function ($el) {
   Event.create('fixing').listen('print-center', function (map, item, params, fixing) {
     inputTXM.refresh(map, item, params, fixing)
