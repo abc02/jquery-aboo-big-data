@@ -94,7 +94,7 @@ var fixingSearch = (function ($el) {
     },
     bindIndexEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'button', function (e) {
-        let value = $el.find('.nav-search').val(),
+        var value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
@@ -111,7 +111,7 @@ var fixingSearch = (function ($el) {
     },
     bindEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'button', function (e) {
-        let value = $el.find('.nav-search').val(),
+        var value = $el.find('.nav-search').val(),
           userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         FIXING_API.GetFixingListForSearch({ adminId: userInfo.AdminId, query: value }).then(res => {
           if (res.data.ret === 1001) {
@@ -319,7 +319,7 @@ var fixingLists = (function ($el) {
     },
     bindIndexEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -328,7 +328,7 @@ var fixingLists = (function ($el) {
           .removeClass('text-white')
           .addClass('text-muted')
 
-        let { longitude, latitude } = item.latest_location, iconPath, marker
+        var { longitude, latitude } = item.latest_location, iconPath, marker
         fixing.fixingId = item.entity_name
         fixing.point = new BMap.Point(longitude, latitude)
         fixing.isTrigger = true
@@ -344,7 +344,7 @@ var fixingLists = (function ($el) {
     },
     bindControlEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -376,7 +376,7 @@ var fixingLists = (function ($el) {
     },
     bindTrajectoryEvent(map, source, params, fixing) {
       $el.on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -390,7 +390,7 @@ var fixingLists = (function ($el) {
     },
     bindSportdataEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -404,7 +404,7 @@ var fixingLists = (function ($el) {
     },
     bindSMSEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -418,7 +418,7 @@ var fixingLists = (function ($el) {
     },
     bindPrintCenterEvent(map, source, params, fixing) {
       $el.off('click').on('click', 'li', function (e) {
-        let item = $(e.currentTarget).data()
+        var item = $(e.currentTarget).data()
         // update item css
         $(e.currentTarget)
           .removeClass('text-muted')
@@ -430,17 +430,17 @@ var fixingLists = (function ($el) {
       })
     },
     refresh(map, source, params, fixing) {
-      let cache = []
+      var cache = []
 
       // 仅处理展示前10/6条数据
-      let handleToCaches = source => {
+      var handleToCaches = source => {
         if ((source.length / params.pageSize) < params.currentPage) {
           // url
           params.currentPage = 0
           utils.SetUrlParams(params)
         }
-        let currentIndex = params.currentPage * params.pageSize
-        for (let index = currentIndex; index < currentIndex + params.pageSize; index++) {
+        var currentIndex = params.currentPage * params.pageSize
+        for (var index = currentIndex; index < currentIndex + params.pageSize; index++) {
           if (source[index]) cache.push(source[index])
         }
       }
@@ -449,14 +449,14 @@ var fixingLists = (function ($el) {
       if (params.fixingListsTabIndex === 2) handleToCaches(offlineArrays = utils.FilterFixingLists(source, 'entity_desc', '离线'))
       // 处理 cache 数据
       $el.html(cache.map((item, index) => {
-        let img, activeTextColor = 'text-muted'
+        var img, activeTextColor = 'text-muted'
         // url fixingid css acitve
         if (params && params.fixingId === item.entity_name) {
           activeTextColor = 'text-white'
         }
         if (item.entity_desc === '在线') img = '/assets/porint_online.png'
         if (item.entity_desc === '离线') img = '/assets/porint_offline.png'
-        let $tmp = $(`
+        var $tmp = $(`
               <li class="d-flex align-items-center justify-content-between m-2 p-2 pointer border-secondary ${activeTextColor}">
                 <img src="${img}" title="abu" class="ml-3 mr-3" width="19" height="24">
                 <p style="flex: 1;">${item.entity_name}</p>
@@ -478,9 +478,9 @@ var fixingListsPagination = (function ($el) {
 
   return {
     refresh(map, source, params, fixing) {
-      let cache = null
+      var cache = null
       // 根据 tabIndex 选择分组
-      let hadnleToCache = source => {
+      var hadnleToCache = source => {
         cache = Object.assign([], source)
         if ((source.length / params.pageSize) + 1 < params.currentPage) {
           params.currentPage = 0
@@ -517,14 +517,14 @@ var fixingInfo = (function ($el) {
 
   return {
     refresh(map) {
-      let titleHHTML = map.getInfoWindow().getTitle(),
+      var titleHHTML = map.getInfoWindow().getTitle(),
         titleNode = document.createRange().createContextualFragment(titleHHTML),
         fixingId = titleNode.textContent,
         // loacl 获取数据
         userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingInfo({ adminId: userInfo.AdminId, fixingId }).then(res => {
         if (res.data.ret === 1001) {
-          let { bindingList, fixinginfo } = res.data, bindingListContent,
+          var { bindingList, fixinginfo } = res.data, bindingListContent,
             activatedTime = utils.handleTimestampToDate(fixinginfo.activatedTime),
             batchId = fixinginfo.batchId,
             bindingNum = fixinginfo.bindingNum,
@@ -613,23 +613,23 @@ var AdminGetInstructions = (function($el) {
   
   return {
     refresh(map, fixing) {
-      let titleHHTML = map.getInfoWindow().getTitle(),
+      var titleHHTML = map.getInfoWindow().getTitle(),
         titleNode = document.createRange().createContextualFragment(titleHHTML)
       fixing.fixingId = titleNode.textContent
       if (fixing.type === 'init') {
-        let currentTime = $el.find('.instructions-datepicker').attr('value')
+        var currentTime = $el.find('.instructions-datepicker').attr('value')
         console.log(currentTime)
         if (currentTime) fixing.currentTime = currentTime
       }
       console.log(fixing)
       // loacl 获取数据
       $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime)
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
           // 1 设备 2 平台
-          let instructionsContent = res.data.data.reverse().map(item => {
-            let leixingText = item.leixing === '1' ? '设备' : '平台'
+          var instructionsContent = res.data.data.reverse().map(item => {
+            var leixingText = item.leixing === '1' ? '设备' : '平台'
             return $(`<tr class="">
                 <td class="" width="120">${item.shijian}</td>
                 <td class="" width="100">${leixingText}</td>
@@ -662,10 +662,10 @@ var AdminGetInstructionsList = (function($el) {
   
   return {
     refresh(map, fixing) {
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.AdminGetInstructionsList({ adminId: userInfo.AdminId }).then(res => {
         if (res.data.ret === 1001) {
-          let instructionsContent = res.data.data.map((item, index) => {
+          var instructionsContent = res.data.data.map((item, index) => {
             return $(`<tr class="" data-id="${item.Id}" data-instructions="${item.Instructions}" data-type="${item.type}">
                 <td class="pl-4">
                 <div class="form-check">
@@ -697,21 +697,21 @@ var AdminGetInstructionsList = (function($el) {
 
 //   return {
 //     refresh(map, fixing) {
-//       let titleHHTML = map.getInfoWindow().getTitle(),
+//       var titleHHTML = map.getInfoWindow().getTitle(),
 //         titleNode = document.createRange().createContextualFragment(titleHHTML)
 //       fixing.fixingId = titleNode.textContent
 //       if (fixing.type === 'init') {
-//         let currentTime = $el.find('.instructions-datepicker').attr('value')
+//         var currentTime = $el.find('.instructions-datepicker').attr('value')
 //         console.log(currentTime)
 //         if (currentTime) fixing.currentTime = currentTime
 //       }
 //       console.log(fixing)
 //       // loacl 获取数据
 //       $el.find('.instructions-datepicker').datepicker('update', fixing.currentTime)
-//       let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+//       var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
 //       FIXING_API.AdminGetInstructions({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, time: fixing.currentTime }).then(res => {
 //         if (res.data.ret === 1001) {
-//           let instructionsContent = res.data.data.reverse().map(item => {
+//           var instructionsContent = res.data.data.reverse().map(item => {
 //             return $(`<tr class="">
 //                 <td class="border">${item.shijian}</td>
 //                 <td class="border text-center">${item.leixing}</td>
@@ -760,10 +760,10 @@ var SendInstruction = (function ($el) {
   return {
     refresh(map, fixing) {
       $el.off('click').on('click', function (e) {
-        let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-        let instruction = $('#InstructionsTextarea').val()
-        // let InstructionsRadio = $('input:radio:checked').val()
-        // let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
+        var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        var instruction = $('#InstructionsTextarea').val()
+        // var InstructionsRadio = $('input:radio:checked').val()
+        // var instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
         FIXING_API.SendInstruction({ adminId: userInfo.AdminId, fixingId: fixing.fixingId, instruction }).then(res => {
           if (res.data.ret === 1001 ) {
             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
@@ -802,7 +802,7 @@ var fixingqrcodedialog = (function ($el) {
 
   return {
     refresh(map) {
-      let titleHHTML = map.getInfoWindow().getTitle(),
+      var titleHHTML = map.getInfoWindow().getTitle(),
       titleNode = document.createRange().createContextualFragment(titleHHTML),
       fixingId = titleNode.textContent,
       // loacl 获取数据
@@ -828,7 +828,7 @@ var fixingqrcodedialog = (function ($el) {
           //   printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。 
           //   // operaSupport: true //表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true 
           // })
-          let strWindowFeatures = `
+          var strWindowFeatures = `
                 channelmode=no,
                 directories=no,
                 fullscreen=no,
@@ -843,7 +843,7 @@ var fixingqrcodedialog = (function ($el) {
                 width=318,
                 left=50
             `;
-          let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
+          var windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", strWindowFeatures)
           //  $('#qrcode-big').printThis({
           //     debug: true,               // show the iframe for debugging
           //     importCSS: true,            // import parent page css
@@ -893,7 +893,7 @@ var fixingQRCode = (function ($el) {
       userInfo = utils.GetLoaclStorageUserInfo('userinfo')
     FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
       if (res.data.ret == 1001) {
-        let strWindowFeatures = `
+        var strWindowFeatures = `
         channelmode=no,
         directories=no,
         fullscreen=no,
@@ -908,7 +908,7 @@ var fixingQRCode = (function ($el) {
         width=318,
         left=50
         `;
-        let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${item.entity_name}`, "_blank", strWindowFeatures)
+        var windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${item.entity_name}`, "_blank", strWindowFeatures)
       }
       if (res.data.ret === 1002) {
         $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
@@ -930,16 +930,16 @@ var inputTXM = (function ($el) {
       $(function () {
         $el.find('#txm').val('')
         $el.find('#tmx').focus()
-        let isLock = false
+        var isLock = false
         $el.find('button[type=submit]').off('click').on('click', function (e) {
           e.preventDefault()
-          let fixingId = $el.find('#txm').val()
-          let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+          var fixingId = $el.find('#txm').val()
+          var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
           if (isLock) return
           isLock = true
           FIXING_API.GetFixingQRCode({ adminId: userInfo.AdminId, fixingId }).then(res => {
             if (res.data.ret == 1001) {
-              let windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", `
+              var windowObjectReference = window.open(`/print.html?url=${res.data.data}&fixingId=${fixingId}`, "_blank", `
               channelmode=no,
               directories=no,
               fullscreen=no,
@@ -997,14 +997,14 @@ var fixingInfoLive = (function ($el) {
       }
 
       // loacl 获取数据
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       // 请求最后位置信息接口
       FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: item.entity_name }).then(res => {
         
         window.isClickLock = false
-        let marker
+        var marker
         if (res.data.ret === 1001) {
-          let address = res.data.address,
+          var address = res.data.address,
             charge = res.data.charge === '1' ? '充电中' : '未充电',
             createTime = utils.handleTimestampToDateTime(res.data.createTime),
             electricity = res.data.electricity, // 电量
@@ -1080,7 +1080,7 @@ var fixingTrajectoryTable = (function ($el) {
       .find('.mCustomScrollBox > .mCSB_container')
         .empty()
         .append(source.map((item, index) => {
-          let address = item.address,
+          var address = item.address,
             charge = item.charge === '1' ? '充电中' : '未充电',
             createTime = item.create_time,
             electricity = `${item.electricity}% `, // 电量
@@ -1093,7 +1093,7 @@ var fixingTrajectoryTable = (function ($el) {
             status = item.status === '1' ? '运动' : '静止'
 
 
-          let renderTableRow = () => {
+          var renderTableRow = () => {
             return $(`
           <tr id='${index}'>
           <th scope="row" class="normal pt-4 pb-4 text-center" width="5%">${shutdown}</th>
@@ -1146,7 +1146,7 @@ var fixingTrajectory = (function ($el) {
       if (fixing.type === 'init') {
         $('.trajectory-datepicker').datepicker('update', fixing.currentTime);
       }
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetTrackList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
           fixing.fixingId = item.entity_name
@@ -1185,7 +1185,7 @@ var fixingTrajectoryDatepicker = (function ($el) {
 })($('.trajectory-datepicker'))
 
 var sportData = (function ($el) {
-  let
+  var
     stepsOption = {
       title: {
         top: 5,
@@ -1293,13 +1293,13 @@ var sportData = (function ($el) {
   })
   return {
     refresh(map, item, params, fixing) {
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetFixingSportData({ adminId: userInfo.AdminId, fixingId: item.entity_name, times: utils.handleTimeToUnix(fixing.currentTime) }).then(res => {
-        let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
+        var xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = []
         if (res.data.ret === 1001) {
 
           res.data.sportList.forEach(item => {
-            let xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD} 日`
+            var xAxis = `${utils.handleToYYYYMMDD(new Date(Number.parseInt(item.createTime + '000'))).DD} 日`
             xAxisArrays.push(xAxis)
             stepsArrays.push({
               name: item.steps,
@@ -1332,7 +1332,7 @@ var sportData = (function ($el) {
         if (res.data.ret === 1002) {
 
           [0, 0, 0, 0, 0, 0, 0].forEach(item => {
-            let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
+            var xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
             xAxisArrays.push(xAxis)
             stepsArrays.push({
               name: item,
@@ -1367,11 +1367,11 @@ var sportData = (function ($el) {
       })
     },
     initFixingSportData(map, source, params, fixing) {
-      let xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = [];
+      var xAxisArrays = [], stepsArrays = [], caloriesArrays = [], weightArrays = [], distanceArrays = [];
 
 
       [0, 0, 0, 0, 0, 0, 0].forEach(item => {
-        let xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
+        var xAxis = `${utils.handleToYYYYMMDD(new Date()).DD} 日`
         xAxisArrays.push(xAxis)
         stepsArrays.push({
           name: item,
@@ -1445,7 +1445,7 @@ var sportDataDatepicker = (function ($el) {
 //         if (fixing.type === 'init') {
 //           $('.sms-datepicker').datepicker('update');
 //         }
-//         let userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
+//         var userInfo = utils.GetLoaclStorageUserInfo('userinfo'),
 //           content = $('#sms-instructions-list-textarea').val()
 //         if (!content) {
 //           $('#no-data-ModalCenter').find('.no-data-container').text('请输入发送指令')
@@ -1522,10 +1522,10 @@ var PushSmsInstructions = (function ($el) {
   return {
     refresh(map, item, params, fixing) {
       $el.off('click').on('click', function (e) {
-        let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
-        let content = $('#InstructionsTextarea').val()
-        // let InstructionsRadio = $('input:radio:checked').val()
-        // let instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
+        var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        var content = $('#InstructionsTextarea').val()
+        // var InstructionsRadio = $('input:radio:checked').val()
+        // var instruction = InstructionsTextarea ? InstructionsTextarea : InstructionsRadio
         FIXING_API.PushSmsInstructions({ adminId: userInfo.AdminId, fixingId: item.entity_name, content }).then(res => {
           if (res.data.ret === 1001 ) {
             $('#no-data-ModalCenter').find('.no-data-container').text(res.data.code)
@@ -1566,17 +1566,17 @@ var GetSmsInstructionsList = (function ($el) {
   return {
     refresh(map, item, params, fixing) {
       if (fixing.type === 'init') {
-        let currentTime = $el.find('.instructions-datepicker').attr('value')
+        var currentTime = $el.find('.instructions-datepicker').attr('value')
         // console.log(currentTime)
         if (currentTime) fixing.currentTime = currentTime
         // console.log(fixing)
       }
       // fixing.fixingId = item.entity_name
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetSmsInstructionsList({ adminId: userInfo.AdminId, fixingId: item.entity_name, time: fixing.currentTime }).then(res => {
         if (res.data.ret === 1001) {
-          let smsInstructionsContent = res.data.data.map((item, index) => {
-                let Content = item.Content,
+          var smsInstructionsContent = res.data.data.map((item, index) => {
+                var Content = item.Content,
                 Ctime = utils.handleTimestampToDateTime(item.Ctime),
                 Fcontent = item.Fcontent,
                 Ftime = item.Ftime,
@@ -1622,11 +1622,11 @@ var GetSmsInstructionsMod = (function($el) {
   
   return {
     refresh(map, item, params, fixing) {
-      let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+      var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
       FIXING_API.GetSmsInstructionsMod({ adminId: userInfo.AdminId }).then(res => {
         if (res.data.ret === 1001) {
           console.log(res)
-          let smsInstructionsContent = res.data.data.map((item, index) => {
+          var smsInstructionsContent = res.data.data.map((item, index) => {
             return $(`<tr class="" data-id="${item.Id}" data-instructions="${item.Instructions}" data-type="${item.type}">
                 <td class="pl-4">
                 <div class="form-check">

@@ -1,18 +1,18 @@
 // 轨迹管理模块
 var trajectory = (function () {
-  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
   if (!userInfo) login.redirect('login')
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
 
 
-  let params = utils.GetUrlParams()
+  var params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
   params.pageSize = 5
   params.fixingListsTabIndex ? params.fixingListsTabIndex = Number.parseInt(params.fixingListsTabIndex) : params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
-  let fixing = {
+  var fixing = {
     currentTime: utils.handleTimestampToDate(new Date()),//当天
     type: 'init'
   }
@@ -20,7 +20,7 @@ var trajectory = (function () {
   FIXING_API.GetFixingList({ adminId: userInfo.AdminId, keyword: '中国' }).then(res => {
     Event.create('fixing').trigger('trajectory', map, res.data.data, params, fixing)
     if (params && params.fixingId) {
-      let item = utils.FilterFxingListUrl(res.data.data)[0]
+      var item = utils.FilterFxingListUrl(res.data.data)[0]
       Event.create('fixing').trigger('GetTrackList', map, item, params, fixing)
     }
   })

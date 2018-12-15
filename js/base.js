@@ -6,8 +6,8 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 // Add a request interceptor
 axios.interceptors.request.use(function (config) {
   // Do something before request is sent
-  let auths = ['AdminLoginAccount']
-  // let { entity_name, latest_location } = fixinginfo
+  var auths = ['AdminLoginAccount']
+  // var { entity_name, latest_location } = fixinginfo
   const RESULT = auths.every(auth => config.url.search(auth) > -1)
   if (!RESULT) {
     const USERINFO = JSON.parse(window.localStorage.getItem('userinfo'))

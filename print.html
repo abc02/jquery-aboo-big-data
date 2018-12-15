@@ -43,7 +43,7 @@ text-align: center;
   <script type="text/javascript" src="//cdn.bootcss.com/qs/6.5.2/qs.js"></script>
   <script type="text/javascript" src="//cdn.bootcss.com/printThis/1.14.0/printThis.min.js"></script>
   <script>
-    let data = Qs.parse(location.search.substr(1))
+    var data = Qs.parse(location.search.substr(1))
     $('#qrcode-big-img').attr('src', `https://dataconsole.abpao.com/Login/getContactsMP?url=${data.url}`)
     $('#qrcode-big-fixingId').text(data.fixingId)
     // window.print()

@@ -1,14 +1,14 @@
 // 控制中心模块
 var control = (function (pageName) {
-  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
   if (!userInfo) login.redirect('login')
 
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
 
-  let persons = []  // 存储获取到的数据
+  var persons = []  // 存储获取到的数据
   function handlerFile(e) {
-    let files = e.target.files,
+    var files = e.target.files,
       fileName = files[0].name,
       fileSize = `大小：${(files[0].size / 1024).toFixed(0)}kb`
     fileReader = new FileReader()
@@ -68,13 +68,13 @@ var control = (function (pageName) {
       }
     })
   })
-  let params = utils.GetUrlParams()
+  var params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
   params.pageSize = 5
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
-  let fixing = {
+  var fixing = {
     currentTime: utils.handleTimestampToDate(new Date()),//当天
     type: 'init'
   }
@@ -85,7 +85,7 @@ var control = (function (pageName) {
         map.clearOverlays()
         clearInterval(window.setIntervaler)
       }
-      let item = utils.FilterFxingListUrl(res.data.data)[0]
+      var item = utils.FilterFxingListUrl(res.data.data)[0]
       fixing.point = new BMap.Point(item.latest_location.longitude, item.latest_location.latitude)
       fixing.fixingId = item.entity_name
       fixing.isTrigger = true

@@ -9,7 +9,7 @@ var navigationMenu = (function ($el) {
     refresh() {
       $el.on('click', '.nav-menu', function (e) {
         e.preventDefault()
-        let $currentTarget = $(e.currentTarget),
+        var $currentTarget = $(e.currentTarget),
           classNames = ['index', 'control', 'trajectory', 'sportdata', 'sms', 'print-center'],
           result = classNames.filter(className => $currentTarget.hasClass(className)),
           params = utils.GetUrlParams()

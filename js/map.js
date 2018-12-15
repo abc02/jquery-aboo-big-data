@@ -1,7 +1,7 @@
 //百度地图API功能
 var map = (function (BMap) {
   if (location.href.search('sportdata') > -1 || location.href.search('login') > -1) return null
-  let baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
+  var baiduMap = new BMap.Map("baidumap"),        // 创建Map实例
     point = new BMap.Point(116.331398, 39.897445); // 默认北京
   baiduMap.centerAndZoom(point, 14);
   baiduMap.enableContinuousZoom(); // 启用连续缩放效果，默认禁用
@@ -10,7 +10,7 @@ var map = (function (BMap) {
   getLocalCity()
 
   function getLocalCity() {
-    let cityName, currentCity = new BMap.LocalCity(); // IP定位城市
+    var cityName, currentCity = new BMap.LocalCity(); // IP定位城市
     currentCity.get(function (result) {
       cityName = result.name
       baiduMap.setCenter(cityName)

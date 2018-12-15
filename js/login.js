@@ -9,7 +9,7 @@ var login = (function ($el) {
   if ($el.length) {
     $el.submit(function (e) {
       e.preventDefault()
-      let $currentTarget = $(e.currentTarget),
+      var $currentTarget = $(e.currentTarget),
         username = $currentTarget.find('#username').val(),
         password = $currentTarget.find('#password').val()
       LOGIN_API.AdminLoginForData({ username, password }).then(res => {

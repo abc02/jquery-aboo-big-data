@@ -1,19 +1,19 @@
 // 首页
 var index = (function () {
   //  获取loacl userinfo
-  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
   // 未登录 跳转 登录页面
   if (!userInfo) login.redirect('login')
   // 已登录 设置菜单栏
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
-  let params = utils.GetUrlParams()
+  var params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
   params.pageSize = 11
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
-  let fixing = {
+  var fixing = {
     currentTime: utils.handleTimestampToDate(new Date()),//当天
     type: 'init'
   }

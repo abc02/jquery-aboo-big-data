@@ -1,6 +1,6 @@
 var utils = (function () {
   function setFixingIdRedirectUrl(map, url) {
-    let titleHHTML = map.getInfoWindow().getTitle(),
+    var titleHHTML = map.getInfoWindow().getTitle(),
       titleNode = document.createRange().createContextualFragment(titleHHTML),
       fixingId = titleNode.textContent,
       params = utils.GetUrlParams()
@@ -9,7 +9,7 @@ var utils = (function () {
     return location.assign(`${url}.html?${Qs.stringify(params)}`)
   }
   function GetUrlPageName() {
-    let pageName = location.pathname.substr(1).replace('.html', '')
+    var pageName = location.pathname.substr(1).replace('.html', '')
     return pageName ? pageName : 'index'
   }
   function GetUrlParams() {
@@ -37,7 +37,7 @@ var utils = (function () {
     return handleToPad('0' + num, n)
   }
   function handleToYYYYMMDD(date) {
-    let Year, Month, Day
+    var Year, Month, Day
     Year = date.getFullYear()
     Month = date.getMonth() + 1
     Day = date.getDate()
@@ -48,7 +48,7 @@ var utils = (function () {
     }
   }
   function handleToHHMMSSMS(date) {
-    let Hours, Minutes, Seconds, Milliseconds
+    var Hours, Minutes, Seconds, Milliseconds
     Hours = date.getHours()
     Minutes = date.getMinutes()
     Seconds = date.getSeconds()
@@ -65,7 +65,7 @@ var utils = (function () {
     if (String(date).length < 12) {
       date = Number.parseInt(date + '000')
     }
-    let YYYYMMDD = utils.handleToYYYYMMDD(new Date(date))
+    var YYYYMMDD = utils.handleToYYYYMMDD(new Date(date))
     return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)}`
   }
   function handleTimestampToDateTime(date) {
@@ -73,7 +73,7 @@ var utils = (function () {
     if (String(date).length < 12) {
       date = Number.parseInt(date + '000')
     }
-    let YYYYMMDD = utils.handleToYYYYMMDD(new Date(date)),
+    var YYYYMMDD = utils.handleToYYYYMMDD(new Date(date)),
       HHMMSSMS = utils.handleToHHMMSSMS(new Date(date))
     return `${YYYYMMDD.YYYY}-${handleToPad(YYYYMMDD.MM)}-${handleToPad(YYYYMMDD.DD)} ${handleToPad(HHMMSSMS.HH)}:${handleToPad(HHMMSSMS.MM)}:${handleToPad(HHMMSSMS.SS)}`
   }
@@ -100,7 +100,7 @@ var utils = (function () {
     return source.filter(item => item[key].search(value) > -1)
   }
   function FilterFxingListUrl(source) {
-    let { fixingListsTabIndex, fixingId } = utils.GetUrlParams()
+    var { fixingListsTabIndex, fixingId } = utils.GetUrlParams()
     if (fixingId) {
       // 根据鞋垫id 过滤
       return utils.FilterFixingLists(source, 'entity_name', fixingId)

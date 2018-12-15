@@ -5,7 +5,7 @@ var mapPolyline = (function () {
 
   return {
     refresh(map, source, params, fixing) {
-      let polylines = []
+      var polylines = []
       source.forEach(item => {
         if (fixing.modegps && item.mode === 'GPS') {
           polylines.push(new BMap.Point(item.longitude, item.latitude))
@@ -17,7 +17,7 @@ var mapPolyline = (function () {
           polylines.push(new BMap.Point(item.longitude, item.latitude))
         }
       })
-      let polyline = new BMap.Polyline(polylines, { strokeColor: "#689bff", strokeWeight: 4, strokeOpacity: 0.8 });   //创建折线
+      var polyline = new BMap.Polyline(polylines, { strokeColor: "#689bff", strokeWeight: 4, strokeOpacity: 0.8 });   //创建折线
       map.addOverlay(polyline);   //增加折线
       map.setViewport(polylines)
     }
@@ -42,7 +42,7 @@ var mapMarkerPoint = (function () {
     addMarkerPoint(map, source, params) {
       map.clearOverlays()
       if (!source) return
-      let caches = null, iconPath, marker,
+      var caches = null, iconPath, marker,
         bs = map.getBounds(),   //获取可视区域
         bssw = bs.getSouthWest(),   //可视区域左下角
         bsne = bs.getNorthEast(),   //可视区域右上角
@@ -52,7 +52,7 @@ var mapMarkerPoint = (function () {
       if (params.fixingListsTabIndex === 2) caches = utils.FilterFixingLists(source, 'entity_desc', '离线')
       if (!caches) return
       caches.forEach(item => {
-        let { longitude, latitude } = item.latest_location,
+        var { longitude, latitude } = item.latest_location,
           point = new BMap.Point(longitude, latitude)
         // 判断当前是否在当前视野范围内
         if (!b.containsPoint(new BMap.Point(longitude, latitude))) {
@@ -69,7 +69,7 @@ var mapMarkerPoint = (function () {
       map.clearOverlays()
       if (!item) return
 
-      let { longitude, latitude } = item.latest_location, iconPath, marker,
+      var { longitude, latitude } = item.latest_location, iconPath, marker,
         point = new BMap.Point(longitude, latitude)
       if (item.entity_desc === '在线') iconPath = '/assets/porint_online.png'
       if (item.entity_desc === '离线') iconPath = '/assets/porint_offline.png'
@@ -78,7 +78,7 @@ var mapMarkerPoint = (function () {
     },
     addTrajectoryMarkerPoint(map, source, params, fixing) {
       if (!source) return
-      let markers = [], marker
+      var markers = [], marker
 
       source.forEach(item => {
         if (fixing.modegps && item.mode === 'GPS') {
@@ -128,7 +128,7 @@ var mapInfoWindow = (function ($el) {
     initMarkerInfoWindow(map, source, params, fixing, marker) {
       map.closeInfoWindow()
       // 默认创建窗口对象
-      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230, offset: new BMap.Size(0, -20) })
+      var markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230, offset: new BMap.Size(0, -20) })
       // 监听覆盖物 click 事件
       BMapLib.EventWrapper.addListener(marker, 'click', function (e) {
         map.openInfoWindow(markerInfoWindow, fixing.point)
@@ -142,11 +142,11 @@ var mapInfoWindow = (function ($el) {
         BMapLib.EventWrapper.clearListeners(map, 'moveend')
         BMapLib.EventWrapper.clearListeners(map, 'zoomend')
         // loacl 获取数据
-        let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+        var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
         // 请求最后位置信息接口
         FIXING_API.GetLastPosition({ adminId: userInfo.AdminId, fixingId: fixing.fixingId }).then(res => {
           if (res.data.ret === 1001) {
-            let address = res.data.address,
+            var address = res.data.address,
               charge = res.data.charge === '1' ? '充电中' : '未充电',
               createTime = utils.handleTimestampToDateTime(res.data.createTime),
               electricity = res.data.electricity, // 电量
@@ -202,7 +202,7 @@ var mapInfoWindow = (function ($el) {
       }
     },
     controlMarkerInfoWindow(map, item, params, fixing, marker) {
-      let markerInfoWindow
+      var markerInfoWindow
       // console.log(item, params, fixing, marker)
       if (fixing.type === 'init') {
         // map.closeInfoWindow()
@@ -214,7 +214,7 @@ var mapInfoWindow = (function ($el) {
         })
         BMapLib.EventWrapper.addListener(markerInfoWindow, 'open', function (e) {
           if (item.ret === 1001) {
-            let address = item.address,
+            var address = item.address,
               charge = item.charge === '1' ? '充电中' : '未充电',
               createTime = utils.handleTimestampToDateTime(item.createTime),
               electricity = item.electricity, // 电量
@@ -277,7 +277,7 @@ var mapInfoWindow = (function ($el) {
         // markerInfoWindow = map.getInfoWindow()
         BMapLib.EventWrapper.addListener(markerInfoWindow, 'open', function (e) {
           if (item.ret === 1001) {
-            let address = item.address,
+            var address = item.address,
               charge = item.charge === '1' ? '充电中' : '未充电',
               createTime = utils.handleTimestampToDateTime(item.createTime),
               electricity = item.electricity, // 电量
@@ -329,9 +329,9 @@ var mapInfoWindow = (function ($el) {
 
     },
     trajectoryMarkerInfoWindow(map, item, params, fixing, marker) {
-      let markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230 })
+      var markerInfoWindow = new BMap.InfoWindow(`加载中..`, { width: 458, height: 230 })
 
-      let address = item.address,
+      var address = item.address,
         charge = item.charge === '1' ? '充电中' : '未充电',
         createTime = item.create_time,
         electricity = item.electricity, // 电量

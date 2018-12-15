@@ -1,17 +1,17 @@
 // 运动数据模块
 var sportdata = (function (pageName) {
-  let userInfo = utils.GetLoaclStorageUserInfo('userinfo')
+  var userInfo = utils.GetLoaclStorageUserInfo('userinfo')
   if (!userInfo) login.redirect('login')
   Event.create('header').trigger('loginSuccess', userInfo)
   Event.create('navigationMenu').trigger('loginSuccess')
 
-  let params = utils.GetUrlParams()
+  var params = utils.GetUrlParams()
   // init url params page, pageSize, tabindex1
   params.currentPage = 0
   params.pageSize = 5
   params.fixingListsTabIndex = 0
   utils.SetUrlParams(params)
-  let fixing = {
+  var fixing = {
     currentTime: utils.handleTimestampToDate(new Date())//当天
   }
   $('#datepicker').attr('value', fixing.currentTime)
