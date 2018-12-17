@@ -1,5 +1,11 @@
 /******布局样式******/
-
+.d-flex {
+  display : -webkit-box;
+  display : -webkit-flex;
+  display : -moz-box;
+  display : -ms-flexbox;
+  display : flex
+}
 .row {
   display: flex;
   flex-direction: row;
@@ -293,6 +299,9 @@
 
 .block {
   display: block;
+}
+.inline-block {
+  display: inline-block;
 }
 
 .relative {

@@ -203,17 +203,21 @@
       <!-- <button onclick="utils.setFixingIdRedirectUrl(map, 'control')" type='button' class='control ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />控制中心</button> -->
       <button onclick="utils.setFixingIdRedirectUrl(map, 'trajectory')" type='button' class='trajectory ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
-        <img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</button>
+        <p><img class='ml-1 mr-1' width='16' height='17' src='/assets/contro_Thetrajectory.png' />轨迹</p>
+      </button>
       <button onclick="Event.create('fixing').trigger('GetFixingInfo', map)" type='button' class='fixing-info  ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
-        <img class='ml-1 mr-1' width='14' height='17' src='/assets/contro_data.png' />资料</button>
+        <p><img class='ml-1 mr-1' width='14' height='17' src='/assets/contro_data.png' />资料</p>
+      </button>
       <!-- <button onclick="Event.create('fixing').trigger('AdminGetInstructionsList', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})"
         type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
         <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button> -->
       <button onclick="Event.create('fixing').trigger('instructionsDialog', map, { type: 'init', currentTime: utils.handleTimestampToDate(new Date())})"
         type='button' class='instruction ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
-        <img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</button>
+        <p><img class='ml-1 mr-1' width='12' height='18' src='/assets/contro_instruction.png' />指令</p>
+      </button>
       <button onclick="Event.create('fixing').trigger('fixingqrcodedialog', map)" type='button' class='fixing-qrcode ml-2 mr-2 p-1 bg-primary button rounded d-flex justify-content-center align-items-center text-white'>
-        <img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</button>
+        <p><img class='ml-1 mr-1' width='16' height='16' src='/assets/contro_Qrcode.png' />二维码</p>
+      </button>
     </div>
   </div>
 
