@@ -1,8 +1,8 @@
 function log () {
   console.log.apply(this, arguments)
 }
-// axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
-axios.defaults.baseURL = 'http://192.168.0.102:3000/v1/xiedian_data'
+axios.defaults.baseURL = 'https://datainterface.abpao.com/v1/xiedian_data'
+// axios.defaults.baseURL = 'http://192.168.0.102:3000/v1/xiedian_data'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 // Add a request interceptor
 axios.interceptors.request.use(function (config) {
