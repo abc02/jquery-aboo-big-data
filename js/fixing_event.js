@@ -1542,9 +1542,9 @@ var PushSmsInstructions = (function ($el) {
   }
 })($('#sms-push-button'))
 
-var AdminGetInstructionsListChecks = (function ($el) {
+var AdminGetInstructionsListChecksSMS = (function ($el) {
   Event.create('fixing').listen('smsInstructionsDialog', function (map, item, params, fixing) {
-    AdminGetInstructionsListChecks.refresh(map, item, params, fixing)
+    AdminGetInstructionsListChecksSMS.refresh(map, item, params, fixing)
   })
 
   return {
